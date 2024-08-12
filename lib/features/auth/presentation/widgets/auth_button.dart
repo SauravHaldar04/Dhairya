@@ -34,7 +34,7 @@ class AuthButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          onPressed: () {},
+          onPressed: onPressed,
           child: Text(
             text,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),

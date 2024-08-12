@@ -6,4 +6,15 @@ class AppTheme {
     scaffoldBackgroundColor: Pallete.backgroundColor,
     fontFamily: 'Poppins',
   );
+  static final inputDecoration = InputDecoration(
+    contentPadding: const EdgeInsets.all(15),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Pallete.primaryColor, width: 3),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Pallete.primaryColor, width: 3),
+      borderRadius: BorderRadius.circular(10),
+    ),
+  );
 }

@@ -1,5 +1,8 @@
 import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/features/auth/view/widgets/auth_button.dart';
+import 'package:aparna_education/features/auth/presentation/pages/login_page.dart';
+import 'package:aparna_education/features/auth/presentation/pages/signup_page.dart';
+import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -50,7 +53,7 @@ class _LandingPageState extends State<LandingPage> {
                       "Welcome!",
                       style: TextStyle(
                           fontSize: 50,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           color: Pallete.primaryColor),
                     ),
                     Text(
@@ -62,22 +65,37 @@ class _LandingPageState extends State<LandingPage> {
                     )
                   ],
                 ),
-                Image(
-                  image: AssetImage("assets/images/Illustration.png"),
-                  fit: BoxFit.fitWidth,
+                Hero(
+                  tag: 'illustration',
+                  child: Image(
+                    image: AssetImage("assets/images/Illustration.png"),
+                    fit: BoxFit.fitWidth,
+                  ),
                 ),
                 Column(
                   children: [
                     AuthButton(
                       text: 'Sign Up',
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ),
+                        );
+                      },
                     ),
                     SizedBox(
                       height: 20,
                     ),
                     AuthButton(
                       text: 'Log In',
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                        );
+                      },
                       isInverted: true,
                     ),
                   ],
