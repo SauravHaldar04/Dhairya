@@ -1,15 +1,23 @@
+import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/theme/theme.dart';
+import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:aparna_education/firebase_options.dart';
+import 'package:aparna_education/init_dependencies.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(const MyApp());
+  await initDependencies();
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (context) => serviceLocator<AuthUserCubit>()),
+      BlocProvider(create: (context) => serviceLocator<AuthBloc>()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +27,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aparna Education',
       theme: AppTheme.appTheme,
-      home: const LandingPage(),
+      home: BlocSelector<AuthUserCubit, AuthUserState, bool>(
+        selector: (state) {
+          return state is AuthUserLoggedIn;
+        },
+        builder: (context, state) {
+          if(state){
+            return const Scaffold();
+          }
+          return const LandingPage();
+        },
+      ),
     );
   }
 }

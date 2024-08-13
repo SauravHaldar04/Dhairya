@@ -1,9 +1,13 @@
 import 'package:aparna_education/core/theme/app_pallete.dart';
+import 'package:aparna_education/core/utils/loader.dart';
+import 'package:aparna_education/core/utils/snackbar.dart';
+import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_textfield.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -49,9 +53,9 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
+                    const Column(
                       children: [
-                        const Text(
+                        Text(
                           "Welcome Back!",
                           style: TextStyle(
                               fontSize: 35,
@@ -67,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                         )
                       ],
                     ),
-                    Hero(
+                    const Hero(
                       tag: 'illustration',
                       child: SizedBox(
                           height: 250,
@@ -78,44 +82,63 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          AuthTextfield(
-                            controller: emailController,
-                            text: 'Email',
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          AuthTextfield(
-                            controller: passwordController,
-                            text: 'Password',
-                            isPassword: true,
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          GestureDetector(
-                            child: const Text(
-                              "Forgot Password?",
-                              style: TextStyle(
-                                  color: Pallete.primaryColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                        ],
+                      child: BlocConsumer<AuthBloc, AuthState>(
+                        listener: (context, state) {
+                          if (state is AuthSuccess) {
+                            showSnackbar(context, "Login Successful");
+                          }
+                          if (state is AuthFailure) {
+                            showSnackbar(context, state.message);
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state is AuthLoading) {
+                            return const Loader();
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              AuthTextfield(
+                                controller: emailController,
+                                text: 'Email',
+                                keyboardType: TextInputType.emailAddress,
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              AuthTextfield(
+                                controller: passwordController,
+                                text: 'Password',
+                                isPassword: true,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              GestureDetector(
+                                child: const Text(
+                                  "Forgot Password?",
+                                  style: TextStyle(
+                                      color: Pallete.primaryColor,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     Column(
                       children: [
                         AuthButton(
                           text: 'Log In',
-                          onPressed: () {},
+                          onPressed: () {
+                            context.read<AuthBloc>().add(AuthLogIn(
+                                emailController.text.trim(),
+                                passwordController.text.trim()));
+                          },
                         ),
                         SizedBox(
                           height: 20,
