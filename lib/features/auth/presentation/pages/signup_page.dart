@@ -56,9 +56,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     if (state is AuthFailure) {
                       showSnackbar(context, state.message);
                     }
-                    if(state is AuthSuccess){
+                    if (state is AuthSuccess) {
                       showSnackbar(context, "Account created successfully");
-
                     }
                   },
                   builder: (context, state) {
@@ -191,7 +190,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             AuthButton(
                               text: 'Continue with Google',
-                              onPressed: () {},
+                              onPressed: () {
+                                context
+                                    .read<AuthBloc>()
+                                    .add(AuthGoogleSignIn());
+                              },
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,

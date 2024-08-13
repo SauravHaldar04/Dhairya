@@ -189,7 +189,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         AuthButton(
                           text: 'Continue with Google',
-                          onPressed: () {},
+                          onPressed: () {
+                            context.read<AuthBloc>().add(AuthGoogleSignIn());
+                          },
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
