@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 abstract interface class AuthRemoteDatasources {
   // Session? get session;
+  FirebaseAuth get firebaseAuth;
   Future<UserModel> signInWithEmailAndPassword({
     required String firstName,
     required String lastName,
@@ -18,10 +19,13 @@ abstract interface class AuthRemoteDatasources {
     required String password,
   });
   Future<UserModel> signInWithGoogle();
+  Future<void> verifyEmail();
   Future<UserModel?> getCurrentUser();
+  Future<FirebaseAuth> getFirebaseAuth();
 }
 
 class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
+  @override
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;
@@ -137,5 +141,24 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
     } catch (e) {
       throw ServerException(message: e.toString());
     }
+  }
+  
+  @override
+  Future<void> verifyEmail()async {
+    try{
+      final user = firebaseAuth.currentUser;
+      if(user == null){
+        throw ServerException(message: 'User is null');
+      }
+      await user.sendEmailVerification();
+    }
+    catch(e){
+      throw ServerException(message: e.toString());
+    }
+  }
+  
+  @override
+  Future<FirebaseAuth> getFirebaseAuth() {
+    return Future.value(firebaseAuth);
   }
 }

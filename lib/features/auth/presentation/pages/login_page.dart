@@ -2,6 +2,7 @@ import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_textfield.dart';
 import 'package:flutter/cupertino.dart';
@@ -86,6 +87,9 @@ class _LoginPageState extends State<LoginPage> {
                         listener: (context, state) {
                           if (state is AuthSuccess) {
                             showSnackbar(context, "Login Successful");
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const VerificationPage(),
+                            ));
                           }
                           if (state is AuthFailure) {
                             showSnackbar(context, state.message);

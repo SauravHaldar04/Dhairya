@@ -4,9 +4,11 @@ import 'package:aparna_education/features/auth/data/datasources/auth_remote_data
 import 'package:aparna_education/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
 import 'package:aparna_education/features/auth/domain/usecases/current_user.dart';
+import 'package:aparna_education/features/auth/domain/usecases/get_firebase_auth.dart';
 import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
+import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -71,11 +73,19 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => VerifyUserEmail(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(() => GetFirebaseAuth(serviceLocator()))
     ..registerFactory(() => AuthBloc(
           userSignup: serviceLocator(),
           userLogin: serviceLocator(),
           currentUser: serviceLocator(),
           authUserCubit: serviceLocator(),
           googleSignIn: serviceLocator(),
+          verifyUserEmail: serviceLocator(),
+          getFirebaseAuth: serviceLocator(),
         ));
 }
