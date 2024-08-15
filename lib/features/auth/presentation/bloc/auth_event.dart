@@ -29,6 +29,9 @@ final class AuthIsUserLoggedIn extends AuthEvent {
 
 }
 
+final class AuthIsUserEmailVerified extends AuthEvent {
+
+}
 
 class AuthEmailVerificationCompleted extends AuthEvent {}
 

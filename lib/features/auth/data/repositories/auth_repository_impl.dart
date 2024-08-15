@@ -94,4 +94,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(Failure(e.toString()));
     }
   }
+  
+  @override
+  Future<Either<Failure, bool>> isUserEmailVerified()async {
+    try {
+      if (!await checkInternetConnection.isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      final isVerified = await authRemoteDatasources.isUserEmailVerified();
+      return Right(isVerified);
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
 }

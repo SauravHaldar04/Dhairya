@@ -21,6 +21,7 @@ abstract interface class AuthRemoteDatasources {
   Future<bool> verifyEmail();
   Future<UserModel?> getCurrentUser();
   Future<FirebaseAuth> getFirebaseAuth();
+  Future<bool> isUserEmailVerified();
 }
 
 class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
@@ -159,5 +160,19 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
   @override
   Future<FirebaseAuth> getFirebaseAuth() {
     return Future.value(firebaseAuth);
+  }
+
+  @override
+  Future<bool> isUserEmailVerified() async{
+    try {
+      final user = firebaseAuth.currentUser;
+      if (user == null) {
+        throw ServerException(message: 'User is null');
+      }
+      await user.reload();
+      return user.emailVerified;
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 }

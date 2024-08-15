@@ -48,10 +48,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEmailVerification>(_onEmailVerification);
     on<AuthEmailVerificationCompleted>(_onEmailVerificationCompleted);
     on<AuthEmailVerificationFailed>(_onEmailVerificationFailed);
+    on<AuthIsUserEmailVerified>(_onIsUserEmailVerified);
   }
   void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
     _authUserCubit.updateUser(user);
     emit(AuthSuccess(user));
+  }
+
+  void _onIsUserEmailVerified(
+      AuthIsUserEmailVerified event, Emitter<AuthState> emit) async {
+    emit(AuthInitial());
+    final result = await _verifyUserEmail(NoParams());
+    result.fold((failure) {
+      emit(AuthFailure(failure.message));
+    }, (success) {
+      if (success) {
+        emit(AuthEmailVerified());
+      } else {
+        emit(AuthFailure('Email not verified'));
+      }
+    });
   }
 
   void _onEmailVerification(
