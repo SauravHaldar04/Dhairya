@@ -29,3 +29,11 @@ final class AuthIsUserLoggedIn extends AuthEvent {
 
 }
 
+
+class AuthEmailVerificationCompleted extends AuthEvent {}
+
+class AuthEmailVerificationFailed extends AuthEvent {
+  final String message;
+  AuthEmailVerificationFailed(this.message);
+}
+

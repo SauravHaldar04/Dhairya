@@ -2,12 +2,11 @@ import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/features/auth/data/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 abstract interface class AuthRemoteDatasources {
   // Session? get session;
-  FirebaseAuth get firebaseAuth;
+  //FirebaseAuth get firebaseAuth;
   Future<UserModel> signInWithEmailAndPassword({
     required String firstName,
     required String lastName,
@@ -19,7 +18,7 @@ abstract interface class AuthRemoteDatasources {
     required String password,
   });
   Future<UserModel> signInWithGoogle();
-  Future<void> verifyEmail();
+  Future<bool> verifyEmail();
   Future<UserModel?> getCurrentUser();
   Future<FirebaseAuth> getFirebaseAuth();
 }
@@ -142,21 +141,21 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
       throw ServerException(message: e.toString());
     }
   }
-  
+
   @override
-  Future<void> verifyEmail()async {
-    try{
+  Future<bool> verifyEmail() async {
+    try {
       final user = firebaseAuth.currentUser;
-      if(user == null){
+      if (user == null) {
         throw ServerException(message: 'User is null');
       }
       await user.sendEmailVerification();
-    }
-    catch(e){
+      return true;
+    } catch (e) {
       throw ServerException(message: e.toString());
     }
   }
-  
+
   @override
   Future<FirebaseAuth> getFirebaseAuth() {
     return Future.value(firebaseAuth);

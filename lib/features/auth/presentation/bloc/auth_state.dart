@@ -18,3 +18,7 @@ final class AuthSuccess extends AuthState {
   AuthSuccess(this.user);
 }
 final class AuthEmailVerified extends AuthState {} 
+
+class AuthEmailVerificationInProgress extends AuthState {}
+
+

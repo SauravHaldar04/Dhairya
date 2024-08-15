@@ -69,14 +69,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> verifyEmail() async {
+  Future<Either<Failure, bool>> verifyEmail() async {
     try {
       if (!await checkInternetConnection.isConnected) {
         return Left(Failure('No internet connection'));
       }
 
      await authRemoteDatasources.verifyEmail();
-      return const Right(null);
+      return const Right(true);
     } catch (e) {
       return Left(Failure(e.toString()));
     }
