@@ -48,6 +48,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
           .get()
           .then((value) => UserModel.fromMap(value.data()!));
     } catch (e) {
+      print(e.toString());
       throw ServerException(message: e.toString());
     }
   }
@@ -76,6 +77,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
       }
       return user;
     } catch (e) {
+      print(e.toString());
       throw ServerException(message: e.toString());
     }
   }
@@ -93,6 +95,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
           .get()
           .then((value) => UserModel.fromMap(value.data()!));
     } catch (e) {
+      print(e.toString());
       throw ServerException(message: e.toString());
     }
   }
@@ -139,6 +142,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
           firstName: firstName,
           lastName: lastName);
     } catch (e) {
+      print(e.toString());
       throw ServerException(message: e.toString());
     }
   }
@@ -153,6 +157,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
       await user.sendEmailVerification();
       return true;
     } catch (e) {
+      print(e.toString());
       throw ServerException(message: e.toString());
     }
   }
@@ -163,15 +168,17 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
   }
 
   @override
-  Future<bool> isUserEmailVerified() async{
+  Future<bool> isUserEmailVerified() async {
     try {
       final user = firebaseAuth.currentUser;
       if (user == null) {
         throw ServerException(message: 'User is null');
       }
       await user.reload();
-      return user.emailVerified;
+      print(user.emailVerified);
+      return await user.emailVerified;
     } catch (e) {
+      print(e.toString());
       throw ServerException(message: e.toString());
     }
   }

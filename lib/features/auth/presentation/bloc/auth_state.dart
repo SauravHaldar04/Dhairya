@@ -21,4 +21,9 @@ final class AuthEmailVerified extends AuthState {}
 
 class AuthEmailVerificationInProgress extends AuthState {}
 
+class AuthEmailVerificationFailedState extends AuthState {
+  final String message;
+  AuthEmailVerificationFailedState(this.message);
+}
+
 

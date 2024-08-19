@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     context.read<AuthBloc>().add(AuthIsUserLoggedIn());
-    context.read<AuthBloc>().add(AuthIsUserEmailVerified());
+    
     super.initState();
   }
 
@@ -50,6 +50,7 @@ class _MyAppState extends State<MyApp> {
           if (state) {
             return BlocSelector<AuthBloc, AuthState, bool>(
               selector: (state) {
+                context.read<AuthBloc>().add(AuthIsUserEmailVerified());
                 return state is AuthEmailVerified;
               },
               builder: (context, state) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/entities/user_entity.dart';
@@ -65,7 +66,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (success) {
         emit(AuthEmailVerified());
       } else {
-        emit(AuthFailure('Email not verified'));
+        emit(AuthEmailVerificationFailedState('Email not verified'));
       }
     });
   }

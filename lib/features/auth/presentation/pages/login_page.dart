@@ -93,10 +93,12 @@ class _LoginPageState extends State<LoginPage> {
                                 context
                                     .read<AuthBloc>()
                                     .add(AuthIsUserEmailVerified());
-                                if(state is AuthEmailVerified){
+                                if (state is AuthEmailVerified) {
                                   return const HomePage();
+                                } if(state is AuthEmailVerificationFailedState){
+                                  return const VerificationPage();
                                 }
-                               return const VerificationPage();
+                                return const VerificationPage();
                               },
                             ));
                           }
