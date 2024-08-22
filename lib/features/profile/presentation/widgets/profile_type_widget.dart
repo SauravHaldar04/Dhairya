@@ -17,7 +17,7 @@ class ProfileTypeWidget extends StatefulWidget {
   State<ProfileTypeWidget> createState() => _ProfileTypeWidgetState();
 }
 
-enum ProfileType { student, teacher, languagelearner }
+enum ProfileType { parent, teacher, languagelearner }
 
 class _ProfileTypeWidgetState extends State<ProfileTypeWidget> {
   @override
@@ -62,8 +62,8 @@ class _ProfileTypeWidgetState extends State<ProfileTypeWidget> {
                 child: Text(
                   widget.profileType == ProfileType.teacher
                       ? 'I\'m a Teacher'
-                      : widget.profileType == ProfileType.student
-                          ? 'I\'m a Student'
+                      : widget.profileType == ProfileType.parent
+                          ? 'I\'m a Parent/Guardian'
                           : 'I\'m a Language Learner',
                   style: const TextStyle(
                     fontSize: 23,
@@ -77,8 +77,8 @@ class _ProfileTypeWidgetState extends State<ProfileTypeWidget> {
                 child: Text(
                   widget.profileType == ProfileType.teacher
                       ? 'I am a teacher and I want to teach students.'
-                      : widget.profileType == ProfileType.student
-                          ? 'I am a student and I want to learn.'
+                      : widget.profileType == ProfileType.parent
+                          ? 'I am a parent/guardian and I want to enroll my wards to learn.'
                           : 'I am a language learner and I want to learn languages.',
                   maxLines: 2,
                   style: const TextStyle(

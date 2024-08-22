@@ -1,5 +1,8 @@
 import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
+import 'package:aparna_education/features/profile/presentation/pages/language_learner_profile_completion.dart';
+import 'package:aparna_education/features/profile/presentation/pages/parent_profile_completion.dart';
+import 'package:aparna_education/features/profile/presentation/pages/teacher_profile_completion.dart';
 import 'package:aparna_education/features/profile/presentation/widgets/profile_type_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,7 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool teacherIsSelected = false;
-  bool studentIsSelected = false;
+  bool parentIsSelected = false;
   bool languageLearnerIsSelected = false;
   @override
   Widget build(BuildContext context) {
@@ -56,7 +59,7 @@ class _HomePageState extends State<HomePage> {
                         }
                         setState(() {
                           teacherIsSelected = true;
-                          studentIsSelected = false;
+                          parentIsSelected = false;
                           languageLearnerIsSelected = false;
                         });
                       },
@@ -69,21 +72,21 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        if (studentIsSelected) {
+                        if (parentIsSelected) {
                           setState(() {
-                            studentIsSelected = false;
+                            parentIsSelected = false;
                           });
                           return;
                         }
                         setState(() {
-                          studentIsSelected = true;
+                          parentIsSelected = true;
                           teacherIsSelected = false;
                           languageLearnerIsSelected = false;
                         });
                       },
                       child: ProfileTypeWidget(
-                        isSelected: studentIsSelected,
-                        profileType: ProfileType.student,
+                        isSelected: parentIsSelected,
+                        profileType: ProfileType.parent,
                         imageUrl: 'assets/images/student.png',
                       ),
                     ),
@@ -99,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                         setState(() {
                           languageLearnerIsSelected = true;
                           teacherIsSelected = false;
-                          studentIsSelected = false;
+                          parentIsSelected = false;
                         });
                       },
                       child: ProfileTypeWidget(
@@ -118,11 +121,26 @@ class _HomePageState extends State<HomePage> {
                   child: ProjectButton(
                       text: "Get Started",
                       onPressed: !teacherIsSelected &&
-                              !studentIsSelected &&
+                              !parentIsSelected &&
                               !languageLearnerIsSelected
-                          ? () {}:(){},
+                          ? () {}
+                          : () {
+                              if (teacherIsSelected) {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TeacherProfileCompletion()));
+                              } else if (parentIsSelected) {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ParentProfileCompletion()));
+                              } else if (languageLearnerIsSelected) {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const LanguageLearnerProfileCompletion()));
+                              }
+                            },
                       isInverted: !teacherIsSelected &&
-                              !studentIsSelected &&
+                              !parentIsSelected &&
                               !languageLearnerIsSelected
                           ? true
                           : false)),
