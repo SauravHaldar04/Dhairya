@@ -2,7 +2,7 @@ import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:aparna_education/features/profile/presentation/profile_selection_page.dart';
+import 'package:aparna_education/features/profile/presentation/pages/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_textfield.dart';

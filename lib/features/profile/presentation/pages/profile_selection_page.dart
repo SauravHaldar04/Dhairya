@@ -1,4 +1,5 @@
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
+import 'package:aparna_education/features/profile/presentation/widgets/profile_type_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -30,6 +31,17 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => const LandingPage())));
               })
         ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              const ProfileTypeWidget(),
+            ],
+          ),
+        ),
       ),
     );
   }

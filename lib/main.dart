@@ -1,7 +1,7 @@
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/theme/theme.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:aparna_education/features/profile/presentation/profile_selection_page.dart';
+import 'package:aparna_education/features/profile/presentation/pages/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/firebase_options.dart';
