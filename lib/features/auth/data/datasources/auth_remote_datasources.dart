@@ -2,11 +2,15 @@ import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/features/auth/data/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 abstract interface class AuthRemoteDatasources {
   // Session? get session;
-  //FirebaseAuth get firebaseAuth;
+  FirebaseAuth get firebaseAuth;
+  FirebaseFirestore get firestore;
+  GoogleSignIn get googleSignIn;
+  
   Future<UserModel> signInWithEmailAndPassword({
     required String firstName,
     required String lastName,
@@ -27,7 +31,9 @@ abstract interface class AuthRemoteDatasources {
 class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
   @override
   final FirebaseAuth firebaseAuth;
+  @override
   final FirebaseFirestore firestore;
+  @override
   final GoogleSignIn googleSignIn;
   @override
   //Session? get session => supabaseClient.auth.currentSession;
@@ -176,7 +182,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
       }
       await user.reload();
       print(user.emailVerified);
-      return await user.emailVerified;
+      return user.emailVerified;
     } catch (e) {
       print(e.toString());
       throw ServerException(message: e.toString());

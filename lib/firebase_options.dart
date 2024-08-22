@@ -47,28 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCfpohEQus7A8foNN7Hxizwqds1i-uMPQ8',
-    appId: '1:774792223206:web:3a2452e97216695f001e27',
-    messagingSenderId: '774792223206',
-    projectId: 'aparna-education-ab56c',
-    authDomain: 'aparna-education-ab56c.firebaseapp.com',
-    storageBucket: 'aparna-education-ab56c.appspot.com',
+    apiKey: 'AIzaSyB6a0KVPQ5cxOMgAX65cuoT9uZyoPGjAWw',
+    appId: '1:631918641698:web:8ee03cd56222c99bb9807b',
+    messagingSenderId: '631918641698',
+    projectId: 'aparna-education',
+    authDomain: 'aparna-education.firebaseapp.com',
+    storageBucket: 'aparna-education.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC8vmzrOXR0fmWKJ_KZSyRDVRSELAZa3vo',
-    appId: '1:774792223206:android:54c3a43b1f9fab6d001e27',
-    messagingSenderId: '774792223206',
-    projectId: 'aparna-education-ab56c',
-    storageBucket: 'aparna-education-ab56c.appspot.com',
+    apiKey: 'AIzaSyBmRVYtZp2yB-kbfbPS1WRLaJdidvpha1M',
+    appId: '1:631918641698:android:202513268cf50c75b9807b',
+    messagingSenderId: '631918641698',
+    projectId: 'aparna-education',
+    storageBucket: 'aparna-education.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAAznCzvseRHIZOPDq3NyHjMQNIMw_0U9Y',
-    appId: '1:774792223206:ios:9e372aae65597bdb001e27',
-    messagingSenderId: '774792223206',
-    projectId: 'aparna-education-ab56c',
-    storageBucket: 'aparna-education-ab56c.appspot.com',
+    apiKey: 'AIzaSyB3ee_CrEd6Wn0Q-Jmmguxa9o1tUJYU-C0',
+    appId: '1:631918641698:ios:50d4aaa19749c5f2b9807b',
+    messagingSenderId: '631918641698',
+    projectId: 'aparna-education',
+    storageBucket: 'aparna-education.appspot.com',
     iosBundleId: 'com.example.aparnaEducation',
   );
+
 }

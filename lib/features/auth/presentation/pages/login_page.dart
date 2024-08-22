@@ -2,7 +2,7 @@ import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:aparna_education/features/auth/presentation/pages/home_page.dart';
+import 'package:aparna_education/features/profile/presentation/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_textfield.dart';
@@ -88,19 +88,21 @@ class _LoginPageState extends State<LoginPage> {
                         listener: (context, state) {
                           if (state is AuthSuccess) {
                             showSnackbar(context, "Login Successful");
-                            Navigator.of(context).push(MaterialPageRoute(
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
                               builder: (context) {
                                 context
                                     .read<AuthBloc>()
                                     .add(AuthIsUserEmailVerified());
                                 if (state is AuthEmailVerified) {
                                   return const HomePage();
-                                } if(state is AuthEmailVerificationFailedState){
+                                }
+                                if (state is AuthEmailVerificationFailedState) {
                                   return const VerificationPage();
                                 }
                                 return const VerificationPage();
                               },
-                            ));
+                            ), (route) => false);
                           }
                           if (state is AuthFailure) {
                             showSnackbar(context, state.message);

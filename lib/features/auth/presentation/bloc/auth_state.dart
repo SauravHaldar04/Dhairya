@@ -25,5 +25,10 @@ class AuthEmailVerificationFailedState extends AuthState {
   final String message;
   AuthEmailVerificationFailedState(this.message);
 }
+final class AuthUserLoggedIn extends AuthState {
+  final User user;
+  AuthUserLoggedIn(this.user);
+}
+
 
 

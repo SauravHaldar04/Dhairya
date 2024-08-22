@@ -17,7 +17,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title: const Text(
+          'Profile Selection',
+          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+        ),
         actions: [
           IconButton(
               icon: const Icon(Icons.logout),

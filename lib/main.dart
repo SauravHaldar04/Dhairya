@@ -1,7 +1,7 @@
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/theme/theme.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:aparna_education/features/auth/presentation/pages/home_page.dart';
+import 'package:aparna_education/features/profile/presentation/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/firebase_options.dart';
@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     context.read<AuthBloc>().add(AuthIsUserLoggedIn());
-    
+    context.read<AuthBloc>().add(AuthIsUserEmailVerified());
     super.initState();
   }
 
@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Aparna Education',
       theme: AppTheme.appTheme,
-      home: BlocSelector<AuthUserCubit, AuthUserState, bool>(
+      home: BlocSelector<AuthBloc, AuthState, bool>(
         selector: (state) {
           return state is AuthUserLoggedIn;
         },
@@ -50,7 +50,6 @@ class _MyAppState extends State<MyApp> {
           if (state) {
             return BlocSelector<AuthBloc, AuthState, bool>(
               selector: (state) {
-                context.read<AuthBloc>().add(AuthIsUserEmailVerified());
                 return state is AuthEmailVerified;
               },
               builder: (context, state) {

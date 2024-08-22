@@ -20,10 +20,11 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 
 final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
-  _initAuth();
-  await Firebase.initializeApp(
+   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  _initAuth();
+
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();

@@ -5,6 +5,12 @@ class AppTheme {
   static final appTheme = ThemeData(
     scaffoldBackgroundColor: Pallete.backgroundColor,
     fontFamily: 'Poppins',
+    appBarTheme: AppBarTheme(
+      centerTitle: true,
+      backgroundColor: Pallete.primaryColor,
+      elevation: 0,
+      iconTheme: IconThemeData(color: Pallete.backgroundColor),
+    ),
   );
   static final inputDecoration = InputDecoration(
     contentPadding: const EdgeInsets.all(15),

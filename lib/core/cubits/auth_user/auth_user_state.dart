@@ -4,7 +4,7 @@ part of 'auth_user_cubit.dart';
 sealed class AuthUserState {}
 
 final class AuthUserInitial extends AuthUserState {}
-final class AuthUserLoggedIn extends AuthUserState {
-  final User user;
-  AuthUserLoggedIn(this.user);
-}
+// final class AuthUserLoggedIn extends AuthUserState {
+//   final User user;
+//   AuthUserLoggedIn(this.user);
+// }

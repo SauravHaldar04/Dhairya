@@ -51,14 +51,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEmailVerificationFailed>(_onEmailVerificationFailed);
     on<AuthIsUserEmailVerified>(_onIsUserEmailVerified);
   }
-  void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
-    _authUserCubit.updateUser(user);
-    emit(AuthSuccess(user));
-  }
+  // void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
+  //   _authUserCubit.updateUser(user);
+  //   emit(AuthSuccess(user));
+  // }
 
   void _onIsUserEmailVerified(
       AuthIsUserEmailVerified event, Emitter<AuthState> emit) async {
-    emit(AuthInitial());
+    // emit(AuthInitial());
     final result = await _verifyUserEmail(NoParams());
     result.fold((failure) {
       emit(AuthFailure(failure.message));
@@ -71,7 +71,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  void _onEmailVerification(
+  Future<void> _onEmailVerification(
     AuthEmailVerification event,
     Emitter<AuthState> emit,
   ) async {
@@ -84,18 +84,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
         (success) async {
           if (success) {
-            final authResult = await _getFirebaseAuth(NoParams());
-            await authResult.fold(
-              (failure) async {
-                emit(AuthFailure(failure.message));
-              },
-              (firebaseAuth) async {
-                // Start the verification process
-                _startEmailVerificationPolling(firebaseAuth);
-                // Emit a state indicating verification is in progress
-                emit(AuthEmailVerificationInProgress());
-              },
-            );
+            emit(AuthEmailVerificationInProgress());
+            _startEmailVerificationPolling();
           } else {
             emit(AuthFailure('Email not sent'));
           }
@@ -106,24 +96,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _startEmailVerificationPolling(auth.FirebaseAuth firebaseAuth) {
-    // This method runs independently of the Bloc
+  void _startEmailVerificationPolling() {
     const timeout = Duration(seconds: 30);
-    Timer? timer;
+    const pollInterval = Duration(seconds: 2);
+    int attempts = 0;
 
-    timer = Timer.periodic(Duration(seconds: 2), (timer) async {
-      if (timer.tick * 2 > timeout.inSeconds) {
+    Timer.periodic(pollInterval, (timer) async {
+      attempts++;
+      if (attempts * pollInterval.inSeconds > timeout.inSeconds) {
         timer.cancel();
         add(AuthEmailVerificationFailed('Email verification timed out'));
         return;
       }
 
       try {
-        await firebaseAuth.currentUser!.reload();
-        if (firebaseAuth.currentUser!.emailVerified) {
-          timer.cancel();
-          add(AuthEmailVerificationCompleted());
-        }
+        final authResult = await _getFirebaseAuth(NoParams());
+        await authResult.fold(
+          (failure) async {
+            timer.cancel();
+            add(AuthEmailVerificationFailed(failure.message));
+          },
+          (firebaseAuth) async {
+            await firebaseAuth.currentUser?.reload();
+            if (firebaseAuth.currentUser?.emailVerified == true) {
+              timer.cancel();
+              add(AuthEmailVerificationCompleted());
+            }
+          },
+        );
       } catch (e) {
         timer.cancel();
         add(AuthEmailVerificationFailed('Error during verification: $e'));
@@ -138,7 +138,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthFailure(failure.message));
     }, (user) {
       print(user.email);
-      _emitAuthSuccess(user, emit);
+      emit(AuthUserLoggedIn(user));
     });
   }
 
@@ -157,6 +157,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthSignUp(AuthSignUp event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
     final result = await _userSignup(UserSignupParams(
         email: event.email,
         password: event.password,
@@ -165,7 +166,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold((failure) {
       emit(AuthFailure(failure.message));
     }, (user) {
-      _emitAuthSuccess(user, emit);
+      emit(AuthSuccess(user));
     });
   }
 
@@ -175,7 +176,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold((failure) {
       emit(AuthFailure(failure.message));
     }, (user) {
-      _emitAuthSuccess(user, emit);
+      emit(AuthSuccess(user));
     });
   }
 
@@ -184,7 +185,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold((failure) {
       emit(AuthFailure(failure.message));
     }, (user) {
-      _emitAuthSuccess(user, emit);
+      emit(AuthSuccess(user));
     });
   }
 }
