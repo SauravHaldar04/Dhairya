@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static final appTheme = ThemeData(
+    colorSchemeSeed: Pallete.primaryColor,
+    datePickerTheme: DatePickerThemeData(
+      headerForegroundColor: Pallete.primaryColor,
+      // headerTextStyle: TextStyle(color: Pallete.backgroundColor, fontSize: 20),
+      // inputDecoration: inputDecoration.copyWith(
+      //   hintText: 'Select Date',
+      //   hintStyle: TextStyle(color: Pallete.inactiveColor),
+      // ),
+    ),
+    //primaryColor: Pallete.primaryColor,
     scaffoldBackgroundColor: Pallete.backgroundColor,
     fontFamily: 'Poppins',
     appBarTheme: AppBarTheme(
@@ -14,8 +24,12 @@ class AppTheme {
   );
   static final inputDecoration = InputDecoration(
     contentPadding: const EdgeInsets.all(15),
+    disabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Pallete.inactiveColor, width: 2),
+      borderRadius: BorderRadius.circular(10),
+    ),
     focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Pallete.secondaryColor, width: 2),
+      borderSide: BorderSide(width: 2),
       borderRadius: BorderRadius.circular(10),
     ),
     enabledBorder: OutlineInputBorder(
