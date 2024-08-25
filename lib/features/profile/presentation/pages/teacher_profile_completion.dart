@@ -3,10 +3,16 @@ import 'dart:io';
 import 'package:address_form/address_form.dart';
 import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/format_date.dart';
+import 'package:aparna_education/core/utils/loader.dart';
+import 'package:aparna_education/core/utils/pickFile.dart';
 import 'package:aparna_education/core/utils/pickimage.dart';
+import 'package:aparna_education/core/utils/view_pdf.dart';
 import 'package:aparna_education/core/widgets/csc_picker.dart';
+import 'package:aparna_education/core/widgets/dropdownwithsearch.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
+import 'package:aparna_education/core/widgets/project_dropdown.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -29,9 +35,46 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
   TextEditingController streetController = TextEditingController();
   TextEditingController aptController = TextEditingController();
   TextEditingController postcodeController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController workExpController = TextEditingController();
   String? country;
   String? state;
   String? city;
+  File? resume;
+  bool resumeLoading = false;
+  String selectedGender = "Gender";
+  List<String> selectedSubjects = [];
+  List<String> subjects = [
+    "Maths",
+    "Science",
+    "English",
+    "Hindi",
+    "History",
+    "Geography",
+    "Civics",
+    "Economics",
+    "Biology",
+    "Physics",
+    "Chemistry",
+    "Computer Science"
+  ];
+  String? selected = "Subjects";
+  void uploadResume() async {
+    setState(() {
+      resumeLoading = true;
+    });
+    final file = await pickFile();
+    if (file == null) {
+      setState(() {
+        resumeLoading = false;
+      });
+      return;
+    }
+    setState(() {
+      resume = file;
+      resumeLoading = false;
+    });
+  }
 
   final mainKey = GlobalKey<AddressFormState>();
   File? image;
@@ -41,6 +84,10 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
     setState(() {
       image = file;
     });
+  }
+
+  void viewResume(File file) async {
+    await viewPdf(file, context);
   }
 
   @override
@@ -56,15 +103,17 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              const Text("Complete your profile",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Pallete.primaryColor)),
+              Center(
+                child: const Text("Complete your profile",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Pallete.primaryColor)),
+              ),
               const SizedBox(height: 20),
               image != null
                   ? Container(
@@ -132,10 +181,52 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ProjectTextfield(
-                          text: "Gender", controller: genderController),
-                    ),
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: DropdownWithSearch(
+                            disabledDecoration: BoxDecoration(
+                              color: Pallete.whiteColor,
+                              border: Border.all(
+                                  color: Pallete.inactiveColor, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            itemStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold),
+                            dropdownHeadingStyle: const TextStyle(
+                                color: Pallete.primaryColor,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Pallete.primaryColor, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            unselectedItemStyle: const TextStyle(
+                              color: Pallete.greyColor,
+                              fontSize: 16,
+                            ),
+                            selectedItemStyle: const TextStyle(
+                              color: Colors.black,
+                              //:
+                              //Pallete.greyColor,
+                              fontSize: 16,
+                            ),
+                            title: "Gender",
+                            placeHolder: "Gender",
+                            items: const [
+                              "Male",
+                              "Female",
+                              "Other",
+                              "Prefer not to say",
+                              "Non-binary",
+                              "Transgender"
+                            ],
+                            selected: selectedGender,
+                            onChanged: (val) {
+                              selectedGender = val;
+                            },
+                            label: "Gender")),
                   ),
                   Expanded(
                     child: GestureDetector(
@@ -237,6 +328,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 height: 20,
               ),
               IntlPhoneField(
+                controller: phoneController,
                 decoration: const InputDecoration(
                   hintText: 'Phone Number',
                   hintStyle: TextStyle(color: Colors.grey),
@@ -255,6 +347,166 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 onChanged: (phone) {
                   print(phone.completeNumber);
                 },
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ProjectTextfield(
+                text: "Work Experience (in years)",
+                controller: workExpController,
+                keyboardType: const TextInputType.numberWithOptions(),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              DropdownWithSearch(
+                  disabledDecoration: BoxDecoration(
+                    color: Pallete.whiteColor,
+                    border: Border.all(color: Pallete.inactiveColor, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  itemStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                  dropdownHeadingStyle: const TextStyle(
+                      color: Pallete.primaryColor,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Pallete.primaryColor, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  unselectedItemStyle: const TextStyle(
+                    color: Pallete.greyColor,
+                    fontSize: 16,
+                  ),
+                  selectedItemStyle: const TextStyle(
+                    color: Colors.black,
+                    //:
+                    //Pallete.greyColor,
+                    fontSize: 16,
+                  ),
+                  title: "Select Subjects",
+                  placeHolder: "Search Subjects",
+                  items: subjects,
+                  selected: selected,
+                  onChanged: (val) {
+                    setState(() {
+                      if (selectedSubjects.contains(val)) return;
+                      selectedSubjects.add(val);
+                      print(selectedSubjects);
+                    });
+                  },
+                  label: "Select Subjects"),
+              const SizedBox(
+                height: 20,
+              ),
+              if (selectedSubjects.isNotEmpty)
+                Wrap(
+                  spacing: 10,
+                  children: selectedSubjects.map((e) {
+                    return Chip(
+                      side: const BorderSide(
+                          color: Pallete.primaryColor, width: 2),
+                      color: WidgetStatePropertyAll(Pallete.primaryColor),
+                      onDeleted: () {
+                        setState(() {
+                          selectedSubjects.remove(e);
+                        });
+                      },
+                      deleteIcon: Icon(Icons.close),
+                      deleteIconColor: Pallete.backgroundColor,
+                      padding: const EdgeInsets.all(5),
+                      label: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          e,
+                          style: const TextStyle(
+                              color: Pallete.backgroundColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              const SizedBox(
+                height: 20,
+              ),
+              GestureDetector(
+                onTap: uploadResume,
+                child: resume != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Pallete.primaryColor.withOpacity(0.2),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                              )
+                            ],
+                            color: Pallete.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          width: double.infinity,
+                          height: 70,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              GestureDetector(
+                                  onTap: () {
+                                    viewResume(resume!);
+                                  },
+                                  child: Icon(Icons.file_present, size: 40)),
+                              Text('Resume Uploaded Successfully'),
+                              IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      resume = null;
+                                    });
+                                  },
+                                  icon: Icon(Icons.delete))
+                            ],
+                          ),
+                        ),
+                      )
+                    : DottedBorder(
+                        color: Pallete.primaryColor,
+                        strokeWidth: 1,
+                        borderType: BorderType.RRect,
+                        strokeCap: StrokeCap.round,
+                        radius: const Radius.circular(10),
+                        dashPattern: const [10, 4],
+                        child: Container(
+                          width: double.infinity,
+                          height: 150,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (resumeLoading)
+                                const Center(child: Loader())
+                              else
+                                const Icon(
+                                  Icons.folder_open_rounded,
+                                  size: 40,
+                                  color: Pallete.greyColor,
+                                ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                "Upload Your Resume",
+                                style: TextStyle(
+                                    color: Pallete.greyColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w300),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
               ),
               const SizedBox(
                 height: 20,

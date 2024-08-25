@@ -89,7 +89,9 @@ class DropdownWithSearch<T> extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: selected.toString() == "Country" ||
                               selected.toString() == "State" ||
-                              selected.toString() == "City"
+                              selected.toString() == "City" ||
+                              selected.toString() == "Gender" ||
+                              selected.toString() == "Subjects"
                           ? unselectedItemStyle
                           : selectedItemStyle != null
                               ? selectedItemStyle
