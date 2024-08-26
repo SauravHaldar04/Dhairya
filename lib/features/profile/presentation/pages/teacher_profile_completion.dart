@@ -43,6 +43,25 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
   File? resume;
   bool resumeLoading = false;
   String selectedGender = "Gender";
+  List<String> selectedAcademicBoard = [];
+  List<String> academicBoards = [
+    "CBSE",
+    "ICSE",
+    "MSBSHSE",
+    "WBBSE",
+    "UPBSE",
+    "BSEB",
+    "GSEB",
+    "RBSE",
+    "MPBSE",
+    "KSEEB",
+    "PSEB",
+    "HPSOS",
+    "NIOS",    
+    "IGCSE",
+    "IB",
+    "Others"
+  ];
   List<String> selectedSubjects = [];
   List<String> subjects = [
     "Maths",
@@ -116,16 +135,18 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
               ),
               const SizedBox(height: 20),
               image != null
-                  ? Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      width: MediaQuery.of(context).size.height * 0.3,
-                      child: ClipOval(
-                        child: Image.file(
-                          image!,
-                          fit: BoxFit.cover,
+                  ? Center(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        height: MediaQuery.of(context).size.height * 0.3,
+                        width: MediaQuery.of(context).size.height * 0.3,
+                        child: ClipOval(
+                          child: Image.file(
+                            image!,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     )
@@ -212,7 +233,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                               //Pallete.greyColor,
                               fontSize: 16,
                             ),
-                            title: "Gender",
+                            title: selectedGender,
                             placeHolder: "Gender",
                             items: const [
                               "Male",
@@ -224,7 +245,9 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                             ],
                             selected: selectedGender,
                             onChanged: (val) {
-                              selectedGender = val;
+                              setState(() {
+                                selectedGender = val;
+                              });
                             },
                             label: "Gender")),
                   ),
@@ -352,10 +375,85 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 height: 20,
               ),
               ProjectTextfield(
-                text: "Work Experience (in years)",
+                text: "Work Experience (yy-mm)",
                 controller: workExpController,
                 keyboardType: const TextInputType.numberWithOptions(),
               ),
+              const SizedBox(
+                height: 20,
+              ),
+              DropdownWithSearch(
+                  disabledDecoration: BoxDecoration(
+                    color: Pallete.whiteColor,
+                    border: Border.all(color: Pallete.inactiveColor, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  itemStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                  dropdownHeadingStyle: const TextStyle(
+                      color: Pallete.primaryColor,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Pallete.primaryColor, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  unselectedItemStyle: const TextStyle(
+                    color: Pallete.greyColor,
+                    fontSize: 16,
+                  ),
+                  selectedItemStyle: const TextStyle(
+                    color: Colors.black,
+                    //:
+                    //Pallete.greyColor,
+                    fontSize: 16,
+                  ),
+                  title: "Select Academic Board",
+                  placeHolder: "Search Academic Board",
+                  items: academicBoards,
+                  selected: "Academic Board",
+                  onChanged: (val) {
+                    setState(() {
+                      if (selectedAcademicBoard.contains(val)) return;
+                      selectedAcademicBoard.add(val);
+                      print(selectedSubjects);
+                    });
+                  },
+                  label: "Select Academic Board"),
+              const SizedBox(
+                height: 20,
+              ),
+              if (selectedAcademicBoard.isNotEmpty)
+                Wrap(
+                  spacing: 10,
+                  children: selectedAcademicBoard.map((e) {
+                    return Chip(
+                      side: const BorderSide(
+                          color: Pallete.primaryColor, width: 2),
+                      color: WidgetStatePropertyAll(Pallete.primaryColor),
+                      onDeleted: () {
+                        setState(() {
+                          selectedAcademicBoard.remove(e);
+                        });
+                      },
+                      deleteIcon: Icon(Icons.close),
+                      deleteIconColor: Pallete.backgroundColor,
+                      padding: const EdgeInsets.all(5),
+                      label: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          e,
+                          style: const TextStyle(
+                              color: Pallete.backgroundColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
               const SizedBox(
                 height: 20,
               ),
@@ -511,9 +609,11 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
               const SizedBox(
                 height: 20,
               ),
-              ProjectButton(
-                text: "Submit",
-                onPressed: () {},
+              Center(
+                child: ProjectButton(
+                  text: "Submit",
+                  onPressed: () {},
+                ),
               ),
             ],
           ),
