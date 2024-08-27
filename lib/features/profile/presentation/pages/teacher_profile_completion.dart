@@ -57,7 +57,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
     "KSEEB",
     "PSEB",
     "HPSOS",
-    "NIOS",    
+    "NIOS",
     "IGCSE",
     "IB",
     "Others"
@@ -78,6 +78,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
     "Computer Science"
   ];
   String? selected = "Subjects";
+  String? selectedBoard = "Academic Board";
   void uploadResume() async {
     setState(() {
       resumeLoading = true;
@@ -413,7 +414,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                   title: "Select Academic Board",
                   placeHolder: "Search Academic Board",
                   items: academicBoards,
-                  selected: "Academic Board",
+                  selected: selectedBoard,
                   onChanged: (val) {
                     setState(() {
                       if (selectedAcademicBoard.contains(val)) return;

@@ -91,7 +91,8 @@ class DropdownWithSearch<T> extends StatelessWidget {
                               selected.toString() == "State" ||
                               selected.toString() == "City" ||
                               selected.toString() == "Gender" ||
-                              selected.toString() == "Subjects"
+                              selected.toString() == "Subjects" ||
+                              selected.toString() == "Academic Board"
                           ? unselectedItemStyle
                           : selectedItemStyle != null
                               ? selectedItemStyle
