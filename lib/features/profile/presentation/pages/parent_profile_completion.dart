@@ -16,11 +16,12 @@ class ParentProfileCompletion extends StatefulWidget {
   const ParentProfileCompletion({super.key});
 
   @override
-  State<ParentProfileCompletion> createState() => _ParentProfileCompletionState();
+  State<ParentProfileCompletion> createState() =>
+      _ParentProfileCompletionState();
 }
 
 class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
-    TextEditingController genderController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController firstNameController = TextEditingController();
@@ -30,7 +31,7 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
   TextEditingController aptController = TextEditingController();
   TextEditingController postcodeController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  TextEditingController workExpController = TextEditingController();
+  TextEditingController occupationController = TextEditingController();
   String? country;
   String? state;
   String? city;
@@ -44,10 +45,11 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
       image = file;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:  AppBar(
+      appBar: AppBar(
         title: const Text(
           'Parent Profile Completion',
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
@@ -306,6 +308,11 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                   print(phone.completeNumber);
                 },
               ),
+              const SizedBox(
+                height: 20,
+              ),
+              ProjectTextfield(
+                  text: "Occupation", controller: occupationController),
               const SizedBox(
                 height: 20,
               ),
