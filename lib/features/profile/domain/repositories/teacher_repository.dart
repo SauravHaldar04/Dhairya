@@ -1,13 +1,14 @@
 import 'dart:io';
 
 import 'package:aparna_education/core/error/failure.dart';
+import 'package:aparna_education/core/success/success.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract interface class TeacherRepository {
   Future<Either<Failure,Teacher>> getTeacher(String uid);
   Future<Either<Failure,List<Teacher>>> getTeachers();
-  Future<Either<Failure,void>> addTeacher({
+  Future<Either<Failure,Success>> addTeacher({
     required String firstName,
     required String middleName,
     required String lastName,

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
+import 'package:aparna_education/core/network/check_internet_connection.dart';
+import 'package:aparna_education/core/success/success.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/profile/data/datasources/teacher_remote_datasorce.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
@@ -9,10 +11,11 @@ import 'package:aparna_education/features/profile/domain/repositories/teacher_re
 import 'package:fpdart/src/either.dart';
 class TeacherRepositoryImpl implements TeacherRepository{
 final TeacherRemoteDatasource teacherRemoteDatasource;
+final CheckInternetConnection checkInternetConnection;
 
-  TeacherRepositoryImpl({required this.teacherRemoteDatasource});
+  TeacherRepositoryImpl(this.checkInternetConnection, {required this.teacherRemoteDatasource});
   @override
-  Future<Either<Failure, void>> addTeacher({
+  Future<Either<Failure, Success>> addTeacher({
     required String firstName,
     required String middleName,
     required String lastName,
@@ -32,6 +35,10 @@ final TeacherRemoteDatasource teacherRemoteDatasource;
     required File resume,
   }) async{
     try{
+       bool isConnected = await checkInternetConnection.isConnected;
+      if (!isConnected) {
+        return Left(Failure('No internet connection'));
+      }
         await teacherRemoteDatasource.addTeacher(
           firstName: firstName,
           middleName: middleName,
@@ -52,7 +59,7 @@ final TeacherRemoteDatasource teacherRemoteDatasource;
           resume: resume
 
           );
-          return Right(null);
+          return Right(Success("Teacher Profile Added Successfully"));
     }
    on ServerException catch(e){
       return Left(Failure(e.toString()));
