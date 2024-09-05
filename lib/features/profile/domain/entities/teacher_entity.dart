@@ -9,14 +9,18 @@ class Teacher extends User {
   final DateTime dob;
   final String workExp;
   final File resume;
+  final String board;
   final String phoneNumber;
   final String address;
   final String city;
   final String state;
   final String country;
   final String pincode;
+  final String middleName;
 
   Teacher({
+    required this.middleName,
+    required this.board,
     required this.subjects,
     required this.profilePic,
     required this.gender,
