@@ -22,7 +22,7 @@ class TeacherModel extends Teacher {
     required DateTime dob,
     required String workExp,
     required File resume,
-    required String board,
+    required List<String> board,
   }) : super(
           uid: uid,
           email: email,
@@ -62,7 +62,7 @@ class TeacherModel extends Teacher {
     DateTime? dob,
     String? workExp,
     File? resume,
-    String? board,
+    List<String>? board,
   }) {
     return TeacherModel(
       uid: uid ?? this.uid,

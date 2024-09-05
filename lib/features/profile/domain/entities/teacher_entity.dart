@@ -9,7 +9,7 @@ class Teacher extends User {
   final DateTime dob;
   final String workExp;
   final File resume;
-  final String board;
+  final List<String> board;
   final String phoneNumber;
   final String address;
   final String city;
