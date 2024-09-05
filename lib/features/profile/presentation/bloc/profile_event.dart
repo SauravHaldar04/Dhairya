@@ -4,8 +4,6 @@ part of 'profile_bloc.dart';
 sealed class ProfileEvent {}
 
 class CreateProfile extends ProfileEvent {
-  final String uid;
-  final String email;
   final String firstName;
   final String middleName;
   final String lastName;
@@ -23,8 +21,6 @@ class CreateProfile extends ProfileEvent {
   final String workExp;
   final File resume;
   CreateProfile({
-    required this.uid,
-    required this.email,
     required this.firstName,
     required this.middleName,
     required this.lastName,

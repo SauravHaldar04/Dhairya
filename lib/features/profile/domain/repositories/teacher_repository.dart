@@ -12,7 +12,6 @@ abstract interface class TeacherRepository {
     required String firstName,
     required String middleName,
     required String lastName,
-    required String email,
     required String phoneNumber,
     required String address,
     required String city,

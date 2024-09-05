@@ -15,7 +15,7 @@ class AddTeacher implements Usecase<Success, AddTeacherParams> {
       firstName: params.firstName,
       middleName: params.middleName,
       lastName: params.lastName,
-      email: params.email,
+
       phoneNumber: params.phoneNumber,
       address: params.address,
       city: params.city,
@@ -36,7 +36,6 @@ class AddTeacher implements Usecase<Success, AddTeacherParams> {
 class AddTeacherParams {
   final String firstName;
   final String lastName;
-  final String email;
   final String middleName;
   final List<String> subjects;
   final String profilePic;
@@ -54,7 +53,6 @@ class AddTeacherParams {
   AddTeacherParams({
     required this.firstName,
     required this.lastName,
-    required this.email,
     required this.middleName,
     required this.subjects,
     required this.profilePic,

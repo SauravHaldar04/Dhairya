@@ -20,7 +20,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final result = await _addTeacher.call(AddTeacherParams(
         firstName: event.address,
         lastName: event.lastName,
-        email: event.email,
         middleName: event.middleName,
         subjects: event.subjects,
         profilePic: event.profilePic,

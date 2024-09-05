@@ -12,9 +12,11 @@ import 'package:aparna_education/core/widgets/dropdownwithsearch.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/core/widgets/project_dropdown.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
+import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 class TeacherProfileCompletion extends StatefulWidget {
@@ -28,7 +30,7 @@ class TeacherProfileCompletion extends StatefulWidget {
 class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
   TextEditingController genderController = TextEditingController();
   TextEditingController ageController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
+
   TextEditingController firstNameController = TextEditingController();
   TextEditingController middleNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
@@ -38,7 +40,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController workExpController = TextEditingController();
   String? country;
-  String? state;
+  String? State;
   String? city;
   File? resume;
   bool resumeLoading = false;
@@ -321,7 +323,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 onStateChanged: (val) {
                   if (val == "State") return;
                   setState(() {
-                    state = val;
+                    State = val;
                   });
                 },
               ),
@@ -611,9 +613,54 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 height: 20,
               ),
               Center(
-                child: ProjectButton(
-                  text: "Submit",
-                  onPressed: () {},
+                child: BlocConsumer<ProfileBloc, ProfileState>(
+                  listener: (context, state) {
+                    if (state is ProfileSuccess) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: Pallete.primaryColor,
+                        ),
+                      );
+                    }
+                    if (state is ProfileFailure) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is ProfileLoading) {
+                      return Center(child: const Loader());
+                    }
+                    return ProjectButton(
+                      text: "Submit",
+                      onPressed: () {
+                        context.read<ProfileBloc>().add(CreateProfile(
+                              address:
+                                  '${streetController.text}, ${aptController.text}, ${city}, ${State}, ${country}, ${postcodeController.text}',
+                              board: selectedAcademicBoard,
+                              city: city!,
+                              country: country!,
+                              dob: DateTime.parse(ageController.text),
+                              gender: selectedGender,
+                              workExp: workExpController.text,
+                              phoneNumber: phoneController.text,
+                              pincode: postcodeController.text,
+                              profilePic: image!.path,
+                              resume: resume!,
+                              state: State!,
+                              subjects: selectedSubjects,
+                              firstName: firstNameController.text,
+                              middleName: middleNameController.text,
+                              lastName: lastNameController.text,
+                            ));
+                      },
+                    );
+                  },
                 ),
               ),
             ],

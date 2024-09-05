@@ -15,7 +15,6 @@ abstract interface class TeacherRemoteDatasource {
     required String firstName,
     required String middleName,
     required String lastName,
-    required String email,
     required String phoneNumber,
     required String address,
     required String city,
@@ -56,7 +55,6 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
       {required String firstName,
       required String middleName,
       required String lastName,
-      required String email,
       required String phoneNumber,
       required String address,
       required String city,
@@ -72,8 +70,8 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
       required File resume}) async {
     try {
       final teacher = TeacherModel(
-          uid: firebaseAuth.currentUser!.email!,
-          email: email,
+          uid: firebaseAuth.currentUser!.uid,
+          email: firebaseAuth.currentUser!.email!,
           firstName: firstName,
           middleName: middleName,
           lastName: lastName,
