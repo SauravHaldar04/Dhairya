@@ -10,6 +10,11 @@ import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/profile/data/datasources/teacher_remote_datasorce.dart';
+import 'package:aparna_education/features/profile/data/repositories/teacher_repository_impl.dart';
+import 'package:aparna_education/features/profile/domain/repositories/teacher_repository.dart';
+import 'package:aparna_education/features/profile/domain/usecases/add_teacher.dart';
+import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,10 +25,11 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 
 final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
-   await Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   _initAuth();
+  _initProfile();
 
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -89,4 +95,30 @@ void _initAuth() {
           verifyUserEmail: serviceLocator(),
           getFirebaseAuth: serviceLocator(),
         ));
+}
+
+void _initProfile() {
+  serviceLocator
+    ..registerFactory<TeacherRemoteDatasource>(
+      () => TeacherRemoteDatasorceImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory<TeacherRepository>(
+      () => TeacherRepositoryImpl(
+        serviceLocator(),
+        teacherRemoteDatasource: serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => AddTeacher(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => ProfileBloc(
+        addTeacher: serviceLocator(),
+      ),
+    );
 }

@@ -1,6 +1,7 @@
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/theme/theme.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
@@ -17,6 +18,7 @@ void main() async {
     providers: [
       BlocProvider(create: (context) => serviceLocator<AuthUserCubit>()),
       BlocProvider(create: (context) => serviceLocator<AuthBloc>()),
+      BlocProvider(create: (context) => serviceLocator<ProfileBloc>()),
     ],
     child: const MyApp(),
   ));
