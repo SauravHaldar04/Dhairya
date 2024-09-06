@@ -8,7 +8,7 @@ class CreateProfile extends ProfileEvent {
   final String middleName;
   final String lastName;
   final List<String> subjects;
-  final String profilePic;
+  final File profilePic;
   final String address;
   final String city;
   final String state;

@@ -43,6 +43,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
   String? State;
   String? city;
   File? resume;
+  DateTime? dateTime;
   bool resumeLoading = false;
   String selectedGender = "Gender";
   List<String> selectedAcademicBoard = [];
@@ -265,6 +266,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                         );
                         if (date == null) return;
                         setState(() {
+                          dateTime = date;
                           ageController.text = formatDateMMYYYY(date);
                         });
                       },
@@ -645,12 +647,12 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                               board: selectedAcademicBoard,
                               city: city!,
                               country: country!,
-                              dob: DateTime.parse(ageController.text),
+                              dob: dateTime!,
                               gender: selectedGender,
                               workExp: workExpController.text,
                               phoneNumber: phoneController.text,
                               pincode: postcodeController.text,
-                              profilePic: image!.path,
+                              profilePic: image!,
                               resume: resume!,
                               state: State!,
                               subjects: selectedSubjects,

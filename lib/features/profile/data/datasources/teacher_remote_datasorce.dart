@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aparna_education/core/error/server_exception.dart';
+import 'package:aparna_education/core/network/download.dart';
 import 'package:aparna_education/features/profile/data/models/teacher_model.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +24,7 @@ abstract interface class TeacherRemoteDatasource {
     required String pincode,
     required String gender,
     required DateTime dob,
-    required String profilePic,
+    required File profilePic,
     required List<String> board,
     required String workExp,
     required List<String> subjects,
@@ -63,12 +64,13 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
       required String pincode,
       required String gender,
       required DateTime dob,
-      required String profilePic,
+      required File profilePic,
       required List<String> board,
       required String workExp,
       required List<String> subjects,
       required File resume}) async {
     try {
+      final imageUrl = await uploadAndGetDownloadUrl('profilePics', profilePic);
       final teacher = TeacherModel(
           uid: firebaseAuth.currentUser!.uid,
           email: firebaseAuth.currentUser!.email!,
@@ -76,7 +78,7 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
           middleName: middleName,
           lastName: lastName,
           subjects: subjects,
-          profilePic: profilePic,
+          profilePic: imageUrl,
           address: address,
           city: city,
           state: state,

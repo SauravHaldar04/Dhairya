@@ -38,7 +38,7 @@ class AddTeacherParams {
   final String lastName;
   final String middleName;
   final List<String> subjects;
-  final String profilePic;
+  final File profilePic;
   final List<String> board;
   final String gender;
   final DateTime dob;

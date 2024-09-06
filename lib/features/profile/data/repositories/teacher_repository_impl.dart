@@ -27,7 +27,7 @@ final CheckInternetConnection checkInternetConnection;
     required String pincode,
     required String gender,
     required DateTime dob,
-    required String profilePic,
+    required File profilePic,
     required List<String> board,
     required String workExp,
     required List<String> subjects,
