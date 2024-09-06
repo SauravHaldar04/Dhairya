@@ -5,10 +5,11 @@ sealed class AuthEvent {}
 
 final class AuthSignUp extends AuthEvent {
   final String firstName;
+  final String middleName;
   final String lastName;
   final String email;
   final String password;
-  AuthSignUp(this.email, this.password,  this.firstName, this.lastName);
+  AuthSignUp(this.email, this.password,  this.firstName, this.lastName,this.middleName);
 }
 
 final class AuthLogIn extends AuthEvent {

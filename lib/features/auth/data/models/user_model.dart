@@ -8,11 +8,13 @@ class UserModel extends User {
     required String uid,
     required String email,
     required String firstName,
+    required String middleName,
     required String lastName,
   }) : super(
           uid: uid,
           email: email,
           firstName: firstName,
+          middleName: middleName,
           lastName: lastName,
         );
   
@@ -22,12 +24,14 @@ class UserModel extends User {
     String? uid,
     String? email,
     String? firstName,
+    String? middleName,
     String? lastName,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
+      middleName: middleName ?? this.middleName,
       lastName: lastName ?? this.lastName,
     );
   }
@@ -37,6 +41,7 @@ class UserModel extends User {
       'uid': uid,
       'email': email,
       'firstName': firstName,
+      'middleName': middleName,
       'lastName': lastName,
     };
   }
@@ -46,6 +51,7 @@ class UserModel extends User {
       uid: map['uid'] as String,
       email: map['email'] as String,
       firstName: map['firstName'] as String,
+      middleName: map['middleName'] as String,
       lastName: map['lastName'] as String,
     );
   }
@@ -56,7 +62,7 @@ class UserModel extends User {
 
   @override
   String toString() {
-    return 'UserModel(uid: $uid, email: $email, firstName: $firstName, lastName: $lastName)';
+    return 'UserModel(uid: $uid, email: $email, firstName: $firstName, middleName: $middleName, lastName: $lastName)';
   }
 
   @override
@@ -67,6 +73,7 @@ class UserModel extends User {
       other.uid == uid &&
       other.email == email &&
       other.firstName == firstName &&
+      other.middleName == middleName &&
       other.lastName == lastName;
   }
 
@@ -75,6 +82,7 @@ class UserModel extends User {
     return uid.hashCode ^
       email.hashCode ^
       firstName.hashCode ^
+      middleName.hashCode ^
       lastName.hashCode;
   }
 }

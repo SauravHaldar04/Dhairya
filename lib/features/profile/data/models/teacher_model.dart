@@ -21,7 +21,7 @@ class TeacherModel extends Teacher {
     required String gender,
     required DateTime dob,
     required String workExp,
-    required File resume,
+    required String resume,
     required List<String> board,
   }) : super(
           uid: uid,
@@ -61,7 +61,7 @@ class TeacherModel extends Teacher {
     String? gender,
     DateTime? dob,
     String? workExp,
-    File? resume,
+    String? resume,
     List<String>? board,
   }) {
     return TeacherModel(
@@ -104,7 +104,7 @@ class TeacherModel extends Teacher {
       'gender': gender,
       'dob': dob,
       'workExp': workExp,
-      'resume': resume.path,
+      'resume': resume,
       'board': board,
     };
   }
@@ -127,7 +127,7 @@ class TeacherModel extends Teacher {
       gender: map['gender'],
       dob: map['dob'],
       workExp: map['workExp'],
-      resume: File(map['resume']),
+      resume: map['resume'],
       board: map['board'],
     );
   }

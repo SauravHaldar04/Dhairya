@@ -16,6 +16,7 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController middleNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -97,6 +98,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                 height: 20,
                               ),
                               AuthTextfield(
+                                controller: firstNameController,
+                                text: 'Middle Name',
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              AuthTextfield(
                                 controller: lastNameController,
                                 text: 'Last Name',
                               ),
@@ -137,6 +145,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       passwordController.text.trim(),
                                       firstNameController.text.trim(),
                                       lastNameController.text.trim(),
+                                      middleNameController.text.trim(),
                                     ));
                               },
                             ),

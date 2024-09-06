@@ -10,10 +10,11 @@ abstract interface class AuthRemoteDatasources {
   FirebaseAuth get firebaseAuth;
   FirebaseFirestore get firestore;
   GoogleSignIn get googleSignIn;
-  
+
   Future<UserModel> signInWithEmailAndPassword({
     required String firstName,
     required String lastName,
+    required String middleName,
     required String email,
     required String password,
   });
@@ -63,6 +64,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
   Future<UserModel> signInWithEmailAndPassword({
     required String firstName,
     required String lastName,
+    required String middleName,
     required String email,
     required String password,
   }) async {
@@ -70,6 +72,7 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
       final response = await firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       final user = UserModel(
+          middleName: middleName,
           email: email,
           firstName: firstName,
           uid: response.user!.uid,
@@ -127,12 +130,15 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
       if (user.user == null) {
         throw ServerException(message: 'User is null');
       } else {
+        String fullName = user.user!.displayName ?? '';
+        List<String> nameParts = fullName.split(' ');
         await firestore.collection('users').doc(user.user!.uid).update(
             UserModel(
                     uid: user.user!.uid,
                     email: user.user!.email ?? '',
-                    firstName: user.user!.displayName ?? '',
-                    lastName: user.user!.displayName ?? '')
+                    firstName: nameParts.isNotEmpty ? nameParts[0] : '',
+                    lastName: nameParts.length > 1 ? nameParts[1] : '',
+                    middleName: '')
                 .toMap());
       }
       String firstName = '';
@@ -146,7 +152,8 @@ class AuthRemoteDatasourcesImpl implements AuthRemoteDatasources {
           uid: user.user!.uid,
           email: user.user!.email ?? '',
           firstName: firstName,
-          lastName: lastName);
+          lastName: lastName,
+          middleName: '');
     } catch (e) {
       print(e.toString());
       throw ServerException(message: e.toString());

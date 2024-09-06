@@ -24,11 +24,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> signInWithEmailAndPassword(
       {required String firstName,
       required String lastName,
+      required String middleName,
       required String email,
       required String password}) {
     return _getUser(() async =>
         await authRemoteDatasources.signInWithEmailAndPassword(
             firstName: firstName,
+            middleName: middleName,
             lastName: lastName,
             email: email,
             password: password));

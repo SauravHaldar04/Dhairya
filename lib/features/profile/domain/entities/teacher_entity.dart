@@ -8,7 +8,7 @@ class Teacher extends User {
   final String gender;
   final DateTime dob;
   final String workExp;
-  final File resume;
+  final String resume;
   final List<String> board;
   final String phoneNumber;
   final String address;
@@ -42,5 +42,6 @@ class Teacher extends User {
           email: email,
           firstName: firstName,
           lastName: lastName,
+          middleName: middleName,
         );
 }

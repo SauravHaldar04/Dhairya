@@ -71,6 +71,7 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
       required File resume}) async {
     try {
       final imageUrl = await uploadAndGetDownloadUrl('profilePics', profilePic);
+      final resumeUrl = await uploadAndGetDownloadUrl('resumes', resume);
       final teacher = TeacherModel(
           uid: firebaseAuth.currentUser!.uid,
           email: firebaseAuth.currentUser!.email!,
@@ -88,7 +89,7 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
           gender: gender,
           dob: dob,
           workExp: workExp,
-          resume: resume,
+          resume: resumeUrl,
           board: board);
       await firestore.collection('teachers').doc(firebaseAuth.currentUser!.uid).set(teacher.toMap());
     } catch (e) {
