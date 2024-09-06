@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/entities/user_entity.dart';
 import 'package:aparna_education/core/usecase/usecase.dart';
-import 'package:aparna_education/features/auth/domain/usecases/current_user.dart';
+import 'package:aparna_education/core/usecase/current_user.dart';
 import 'package:aparna_education/features/auth/domain/usecases/get_firebase_auth.dart';
 import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';

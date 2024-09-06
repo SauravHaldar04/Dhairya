@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:aparna_education/core/entities/user_entity.dart';
+import 'package:aparna_education/core/usecase/current_user.dart';
+import 'package:aparna_education/core/usecase/usecase.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_teacher.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
@@ -9,12 +12,16 @@ part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final AddTeacher _addTeacher;
+  final CurrentUser _getCurrentUser;
   ProfileBloc({
     required AddTeacher addTeacher,
+    required CurrentUser getCurrentUser,
   })  : _addTeacher = addTeacher,
+        _getCurrentUser = getCurrentUser,
         super(ProfileInitial()) {
     on<ProfileEvent>((event, emit) => emit(ProfileLoading()));
     on<CreateProfile>(_onCreateProfile);
+    on<GetCurrentUser>(_onGetCurrentUser);
   }
   void _onCreateProfile(CreateProfile event, Emitter<ProfileState> emit) async {
     final result = await _addTeacher.call(AddTeacherParams(
@@ -36,5 +43,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         resume: event.resume));
     result.fold((l) => emit(ProfileFailure(l.message)),
         (r) => emit(ProfileSuccess(r.message)));
+  }
+  void _onGetCurrentUser(GetCurrentUser event, Emitter<ProfileState> emit)async{
+    final result = await _getCurrentUser.call(NoParams());
+    result.fold((l) => emit(ProfileFailure(l.message)),
+        (r) => emit(ProfileUser(r)));
   }
 }

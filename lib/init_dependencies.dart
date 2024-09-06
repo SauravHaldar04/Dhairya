@@ -3,7 +3,7 @@ import 'package:aparna_education/core/network/check_internet_connection.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
-import 'package:aparna_education/features/auth/domain/usecases/current_user.dart';
+import 'package:aparna_education/core/usecase/current_user.dart';
 import 'package:aparna_education/features/auth/domain/usecases/get_firebase_auth.dart';
 import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
@@ -119,6 +119,7 @@ void _initProfile() {
     ..registerFactory(
       () => ProfileBloc(
         addTeacher: serviceLocator(),
+        getCurrentUser: serviceLocator(),
       ),
     );
 }

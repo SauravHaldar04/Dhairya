@@ -98,7 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 height: 20,
                               ),
                               AuthTextfield(
-                                controller: firstNameController,
+                                controller: middleNameController,
                                 text: 'Middle Name',
                               ),
                               SizedBox(

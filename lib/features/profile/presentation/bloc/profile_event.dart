@@ -39,3 +39,5 @@ class CreateProfile extends ProfileEvent {
     required this.resume,
   });
 }
+
+class GetCurrentUser extends ProfileEvent {}

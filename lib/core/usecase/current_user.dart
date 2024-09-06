@@ -4,7 +4,7 @@ import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/usecase/usecase.dart';
+import 'usecase.dart';
 
 class CurrentUser implements Usecase<User,NoParams>{
   final AuthRepository repository;
