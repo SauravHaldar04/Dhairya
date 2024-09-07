@@ -40,7 +40,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
   TextEditingController postcodeController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController workExpController = TextEditingController();
-  
+
   String? country;
   String? State;
   String? city;
@@ -118,18 +118,12 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
 
   void getUser() async {
     context.read<ProfileBloc>().add(GetCurrentUser());
-    setState(() {
-      firstNameController.text = user!.firstName;
-      middleNameController.text = user!.middleName;
-      lastNameController.text = user!.lastName;
-    });
-    print(user!.firstName);
   }
 
   @override
   void initState() {
     getUser();
-    
+
     super.initState();
   }
 
@@ -154,6 +148,9 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
           }
           if (state is ProfileUser) {
             user = state.user;
+            firstNameController.text = user!.firstName;
+            middleNameController.text = user!.middleName;
+            lastNameController.text = user!.lastName;
           }
           return SingleChildScrollView(
             child: Padding(
@@ -223,23 +220,17 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                     height: 20,
                   ),
                   ProjectTextfield(
-                     
-                      text: "First Name",
-                      controller: firstNameController),
+                      text: "First Name", controller: firstNameController),
                   const SizedBox(
                     height: 20,
                   ),
                   ProjectTextfield(
-                    
-                      text: "Middle Name",
-                      controller: middleNameController),
+                      text: "Middle Name", controller: middleNameController),
                   const SizedBox(
                     height: 20,
                   ),
                   ProjectTextfield(
-                     
-                      text: "Last Name",
-                      controller: lastNameController),
+                      text: "Last Name", controller: lastNameController),
                   const SizedBox(height: 20),
                   Row(
                     children: [

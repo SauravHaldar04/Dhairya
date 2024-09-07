@@ -91,7 +91,19 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
           workExp: workExp,
           resume: resumeUrl,
           board: board);
-      await firestore.collection('teachers').doc(firebaseAuth.currentUser!.uid).set(teacher.toMap());
+      await firestore
+          .collection('teachers')
+          .doc(firebaseAuth.currentUser!.uid)
+          .set(teacher.toMap());
+      await firestore
+          .collection('users')
+          .doc(firebaseAuth.currentUser!.uid)
+          .update({
+        'firstName': firstName,
+        'lastName': lastName,
+        'middleName': middleName,
+        'role': 'teacher'
+      });
     } catch (e) {
       throw ServerException(message: e.toString());
     }
