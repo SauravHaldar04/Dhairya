@@ -2,14 +2,11 @@ import 'dart:io';
 
 import 'package:aparna_education/core/entities/user_entity.dart';
 
-class Teacher extends User {
-  final List<String> subjects;
+class Parent extends User {
   final String profilePic;
   final String gender;
   final DateTime dob;
-  final String workExp;
-  final String resume;
-  final List<String> board;
+  final String occupation;
   final String phoneNumber;
   final String address;
   final String city;
@@ -17,16 +14,11 @@ class Teacher extends User {
   final String country;
   final String pincode;
 
-
-  Teacher({
-
-    required this.board,
-    required this.subjects,
+  Parent(
+    {required  this.occupation,
     required this.profilePic,
     required this.gender,
     required this.dob,
-    required this.workExp,
-    required this.resume,
     required this.phoneNumber,
     required this.address,
     required this.city,
@@ -36,8 +28,8 @@ class Teacher extends User {
     required String uid,
     required String email,
     required String firstName,
-    required String lastName,
     required String middleName,
+    required String lastName,
   }) : super(
           uid: uid,
           email: email,
