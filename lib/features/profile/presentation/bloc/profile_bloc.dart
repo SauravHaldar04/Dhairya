@@ -22,6 +22,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileEvent>((event, emit) => emit(ProfileLoading()));
     on<CreateProfile>(_onCreateProfile);
     on<GetCurrentUser>(_onGetCurrentUser);
+    //on<CreateParentProfile>(_onCreateParentProfile);
   }
   void _onCreateProfile(CreateProfile event, Emitter<ProfileState> emit) async {
     final result = await _addTeacher.call(AddTeacherParams(
@@ -49,4 +50,5 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     result.fold((l) => emit(ProfileFailure(l.message)),
         (r) => emit(ProfileUser(r)));
   }
+  
 }
