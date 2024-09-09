@@ -44,7 +44,7 @@ class CreateParentProfile extends ProfileEvent {
   final String firstName;
   final String middleName;
   final String lastName;
-  final String profilePic;
+  final File profilePic;
   final String gender;
   final DateTime dob;
   final String occupation;
