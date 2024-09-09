@@ -10,9 +10,13 @@ import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/profile/data/datasources/parent_remote_datasource.dart';
 import 'package:aparna_education/features/profile/data/datasources/teacher_remote_datasorce.dart';
+import 'package:aparna_education/features/profile/data/repositories/parent_repository_impl.dart';
 import 'package:aparna_education/features/profile/data/repositories/teacher_repository_impl.dart';
+import 'package:aparna_education/features/profile/domain/repositories/parent_repository.dart';
 import 'package:aparna_education/features/profile/domain/repositories/teacher_repository.dart';
+import 'package:aparna_education/features/profile/domain/usecases/add_parent.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_teacher.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/firebase_options.dart';
@@ -116,8 +120,26 @@ void _initProfile() {
         serviceLocator(),
       ),
     )
+    ..registerFactory<ParentRemoteDatasource>(
+      () => ParentRemoteDatasourceImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory<ParentRepository>(
+      () => ParentRepositoryImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => AddParent(
+        serviceLocator(),
+      ),
+    )
     ..registerFactory(
       () => ProfileBloc(
+        addParent: serviceLocator(),
         addTeacher: serviceLocator(),
         getCurrentUser: serviceLocator(),
       ),
