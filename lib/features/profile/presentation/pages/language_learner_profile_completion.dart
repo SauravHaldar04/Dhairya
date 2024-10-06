@@ -19,12 +19,13 @@ class LanguageLearnerProfileCompletion extends StatefulWidget {
   const LanguageLearnerProfileCompletion({super.key});
 
   @override
-  State<LanguageLearnerProfileCompletion> createState() => _LanguageLearnerProfileCompletionState();
+  State<LanguageLearnerProfileCompletion> createState() =>
+      _LanguageLearnerProfileCompletionState();
 }
 
-class _LanguageLearnerProfileCompletionState extends State<LanguageLearnerProfileCompletion> {
- 
- TextEditingController genderController = TextEditingController();
+class _LanguageLearnerProfileCompletionState
+    extends State<LanguageLearnerProfileCompletion> {
+  TextEditingController genderController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController firstNameController = TextEditingController();
@@ -43,6 +44,29 @@ class _LanguageLearnerProfileCompletionState extends State<LanguageLearnerProfil
   final mainKey = GlobalKey<AddressFormState>();
   File? image;
   User? user;
+  List<String> languages = [
+    "English",
+    "Hindi",
+    "Marathi",
+    "Gujarati",
+    "Bengali",
+    "Punjabi",
+    "Kannada",
+    "Odia",
+    "Malayalam",
+    "Assamese",
+    "Maithili",
+    "Sanskrit",
+    "Sindhi",
+    "Urdu",
+    "Tamil",
+    "Telugu",
+    "French",
+    "German",
+    "Spanish",
+    "Italian",
+  ];
+  List<String> selectedLanguages =[];
   void selectImage() async {
     final file = await pickImage();
     if (file == null) return;
@@ -56,6 +80,7 @@ class _LanguageLearnerProfileCompletionState extends State<LanguageLearnerProfil
     context.read<ProfileBloc>().add(GetCurrentUser());
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -349,6 +374,81 @@ class _LanguageLearnerProfileCompletionState extends State<LanguageLearnerProfil
                   ),
                   ProjectTextfield(
                       text: "Occupation", controller: occupationController),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                   DropdownWithSearch(
+                      disabledDecoration: BoxDecoration(
+                        color: Pallete.whiteColor,
+                        border:
+                            Border.all(color: Pallete.inactiveColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      itemStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold),
+                      dropdownHeadingStyle: const TextStyle(
+                          color: Pallete.primaryColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: Pallete.primaryColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      unselectedItemStyle: const TextStyle(
+                        color: Pallete.greyColor,
+                        fontSize: 16,
+                      ),
+                      selectedItemStyle: const TextStyle(
+                        color: Colors.black,
+                        //:
+                        //Pallete.greyColor,
+                        fontSize: 16,
+                      ),
+                      title: "Select Academic Board",
+                      placeHolder: "Search Academic Board",
+                      items: languages,
+                      selected: selectedLanguages,
+                      onChanged: (val) {
+                        setState(() {
+                          if (selectedLanguages.contains(val)) return;
+                          selectedLanguages.add(val);
+                          print(selectedLanguages);
+                        });
+                      },
+                      label: "Select Languages"),
+                      SizedBox(height: 20,),
+                       if (selectedLanguages.isNotEmpty)
+                    Wrap(
+                      spacing: 10,
+                      children: selectedLanguages.map((e) {
+                        return Chip(
+                          side: const BorderSide(
+                              color: Pallete.primaryColor, width: 2),
+                          color: WidgetStatePropertyAll(Pallete.primaryColor),
+                          onDeleted: () {
+                            setState(() {
+                              selectedLanguages.remove(e);
+                            });
+                          },
+                          deleteIcon: Icon(Icons.close),
+                          deleteIconColor: Pallete.backgroundColor,
+                          padding: const EdgeInsets.all(5),
+                          label: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              e,
+                              style: const TextStyle(
+                                  color: Pallete.backgroundColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   const SizedBox(
                     height: 20,
                   ),

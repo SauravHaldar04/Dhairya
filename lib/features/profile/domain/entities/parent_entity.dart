@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aparna_education/core/entities/user_entity.dart';
+import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
 
 class Parent extends User {
   final String profilePic;
@@ -13,9 +14,11 @@ class Parent extends User {
   final String state;
   final String country;
   final String pincode;
+  final List<Student> students;
 
-  Parent(
-    {required  this.occupation,
+  Parent({
+    this.students = const [], 
+    required this.occupation,
     required this.profilePic,
     required this.gender,
     required this.dob,
@@ -37,4 +40,19 @@ class Parent extends User {
           lastName: lastName,
           middleName: middleName,
         );
+
+  Parent.empty()
+      
+      :students = const [], 
+      profilePic = '',
+        gender = '',
+        dob = DateTime.now(),
+        occupation = '',
+        phoneNumber = '',
+        address = '',
+        city = '',
+        state = '',
+        country = '',
+        pincode = '',
+        super.empty();
 }

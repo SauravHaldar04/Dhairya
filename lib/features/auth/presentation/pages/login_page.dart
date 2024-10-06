@@ -100,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                 if (state is AuthEmailVerificationFailedState) {
                                   return const VerificationPage();
                                 }
+                                else 
                                 return const VerificationPage();
                               },
                             ), (route) => false);
