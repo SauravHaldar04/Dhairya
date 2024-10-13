@@ -4,12 +4,12 @@ import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/core/network/check_internet_connection.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart'as auth;
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 import 'package:fpdart/src/either.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDatasources authRemoteDatasources;
+  final AuthRemoteDataSources authRemoteDatasources;
   final CheckInternetConnection checkInternetConnection;
   const AuthRepositoryImpl(
       this.authRemoteDatasources, this.checkInternetConnection);
@@ -28,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
       required String email,
       required String password}) {
     return _getUser(() async =>
-        await authRemoteDatasources.signInWithEmailAndPassword(
+        await authRemoteDatasources.signUpWithEmailAndPassword(
             firstName: firstName,
             middleName: middleName,
             lastName: lastName,
@@ -77,7 +77,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(Failure('No internet connection'));
       }
 
-     await authRemoteDatasources.verifyEmail();
+      await authRemoteDatasources.verifyEmail();
       return const Right(true);
     } catch (e) {
       return Left(Failure(e.toString()));
@@ -85,7 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure,auth.FirebaseAuth>> getFirebaseAuth() async{
+  Future<Either<Failure, auth.FirebaseAuth>> getFirebaseAuth() async {
     try {
       if (!await checkInternetConnection.isConnected) {
         return Left(Failure('No internet connection'));
@@ -96,15 +96,27 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(Failure(e.toString()));
     }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> isUserEmailVerified()async {
+  Future<Either<Failure, bool>> isUserEmailVerified() async {
     try {
       if (!await checkInternetConnection.isConnected) {
         return Left(Failure('No internet connection'));
       }
       final isVerified = await authRemoteDatasources.isUserEmailVerified();
       return Right(isVerified);
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateEmailVerification() async{
+    try {
+      if (!await checkInternetConnection.isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      return Right(authRemoteDatasources.updateEmailVerification());
     } catch (e) {
       return Left(Failure(e.toString()));
     }

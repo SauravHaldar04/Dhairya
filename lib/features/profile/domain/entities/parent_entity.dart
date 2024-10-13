@@ -33,7 +33,9 @@ class Parent extends User {
     required String firstName,
     required String middleName,
     required String lastName,
+
   }) : super(
+         emailVerified: true,
           uid: uid,
           email: email,
           firstName: firstName,

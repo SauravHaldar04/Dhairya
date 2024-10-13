@@ -10,7 +10,9 @@ class UserModel extends User {
     required String firstName,
     required String middleName,
     required String lastName,
+    required bool emailVerified,
   }) : super(
+          emailVerified: emailVerified,
           uid: uid,
           email: email,
           firstName: firstName,
@@ -26,8 +28,10 @@ class UserModel extends User {
     String? firstName,
     String? middleName,
     String? lastName,
+    bool? emailVerified,
   }) {
     return UserModel(
+      emailVerified: emailVerified??false,
       uid: uid ?? this.uid,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
@@ -48,6 +52,7 @@ class UserModel extends User {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
+      emailVerified: map['emailVerified']??false,
       uid: map['uid'] as String,
       email: map['email'] as String,
       firstName: map['firstName'] as String,
@@ -62,7 +67,7 @@ class UserModel extends User {
 
   @override
   String toString() {
-    return 'UserModel(uid: $uid, email: $email, firstName: $firstName, middleName: $middleName, lastName: $lastName)';
+    return 'UserModel(uid: $uid, email: $email, firstName: $firstName, middleName: $middleName, lastName: $lastName,emailVerified: $emailVerified)';
   }
 
   @override
@@ -74,7 +79,8 @@ class UserModel extends User {
       other.email == email &&
       other.firstName == firstName &&
       other.middleName == middleName &&
-      other.lastName == lastName;
+      other.lastName == lastName&&
+      other.emailVerified == emailVerified;
   }
 
   @override
@@ -83,6 +89,7 @@ class UserModel extends User {
       email.hashCode ^
       firstName.hashCode ^
       middleName.hashCode ^
+      emailVerified.hashCode ^
       lastName.hashCode;
   }
 }

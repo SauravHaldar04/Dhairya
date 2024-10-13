@@ -39,6 +39,7 @@ class Teacher extends User {
     required String lastName,
     required String middleName,
   }) : super(
+    emailVerified: true,
           uid: uid,
           email: email,
           firstName: firstName,

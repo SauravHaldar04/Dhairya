@@ -66,7 +66,8 @@ class _LanguageLearnerProfileCompletionState
     "Spanish",
     "Italian",
   ];
-  List<String> selectedLanguages =[];
+  List<String> selectedLanguagesKnown = [];
+  List<String> selectedLanguagesToLearn = [];
   void selectImage() async {
     final file = await pickImage();
     if (file == null) return;
@@ -86,7 +87,7 @@ class _LanguageLearnerProfileCompletionState
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Parent Profile Completion',
+          'Language Learner Profile Completion',
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
@@ -377,7 +378,7 @@ class _LanguageLearnerProfileCompletionState
                   const SizedBox(
                     height: 20,
                   ),
-                   DropdownWithSearch(
+                  DropdownWithSearch(
                       disabledDecoration: BoxDecoration(
                         color: Pallete.whiteColor,
                         border:
@@ -407,30 +408,32 @@ class _LanguageLearnerProfileCompletionState
                         //Pallete.greyColor,
                         fontSize: 16,
                       ),
-                      title: "Select Academic Board",
-                      placeHolder: "Search Academic Board",
+                      title: "Select Lanuages to learn",
+                      placeHolder: "Select Languages",
                       items: languages,
-                      selected: selectedLanguages,
+                      selected: selectedLanguagesToLearn,
                       onChanged: (val) {
                         setState(() {
-                          if (selectedLanguages.contains(val)) return;
-                          selectedLanguages.add(val);
-                          print(selectedLanguages);
+                          if (selectedLanguagesToLearn.contains(val)) return;
+                          selectedLanguagesToLearn.add(val);
+                          print(selectedLanguagesToLearn);
                         });
                       },
                       label: "Select Languages"),
-                      SizedBox(height: 20,),
-                       if (selectedLanguages.isNotEmpty)
+                  SizedBox(
+                    height: 20,
+                  ),
+                  if (selectedLanguagesToLearn.isNotEmpty)
                     Wrap(
                       spacing: 10,
-                      children: selectedLanguages.map((e) {
+                      children: selectedLanguagesToLearn.map((e) {
                         return Chip(
                           side: const BorderSide(
                               color: Pallete.primaryColor, width: 2),
                           color: WidgetStatePropertyAll(Pallete.primaryColor),
                           onDeleted: () {
                             setState(() {
-                              selectedLanguages.remove(e);
+                              selectedLanguagesToLearn.remove(e);
                             });
                           },
                           deleteIcon: Icon(Icons.close),

@@ -33,4 +33,5 @@ class Student extends Parent {
       required super.firstName,
       required super.middleName,
       required super.lastName});
+      
 }

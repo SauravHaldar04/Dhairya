@@ -5,8 +5,10 @@ class User {
   final String firstName;
   final String middleName;
   final String lastName;
+  final bool emailVerified;
 
   User({
+    required this.emailVerified,
     required this.uid,
     required this.middleName,
     required this.email,
@@ -15,7 +17,10 @@ class User {
   });
 
   User.empty()
-      : uid = '',
+
+      : 
+      emailVerified = false,
+      uid = '',
         email = '',
         firstName = '',
         middleName = '',

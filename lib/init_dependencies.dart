@@ -6,6 +6,8 @@ import 'package:aparna_education/features/auth/domain/repository/auth_repository
 import 'package:aparna_education/core/usecase/current_user.dart';
 import 'package:aparna_education/features/auth/domain/usecases/get_firebase_auth.dart';
 import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
+import 'package:aparna_education/features/auth/domain/usecases/is_user_email_verified.dart';
+import 'package:aparna_education/features/auth/domain/usecases/update_email_verification.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
@@ -26,6 +28,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:logger/logger.dart';
 
 final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
@@ -38,9 +41,11 @@ Future<void> initDependencies() async {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  final Logger logger = Logger();
   serviceLocator.registerSingleton<GoogleSignIn>(googleSignIn);
   serviceLocator.registerSingleton<FirebaseAuth>(firebaseAuth);
   serviceLocator.registerSingleton<FirebaseFirestore>(firebaseFirestore);
+  serviceLocator.registerSingleton<Logger>(logger);
   serviceLocator.registerFactory(() => InternetConnection());
   serviceLocator.registerFactory<CheckInternetConnection>(
       () => CheckInternetConnectionImpl(
@@ -51,8 +56,9 @@ Future<void> initDependencies() async {
 
 void _initAuth() {
   serviceLocator
-    ..registerFactory<AuthRemoteDatasources>(
-      () => AuthRemoteDatasourcesImpl(
+    ..registerFactory<AuthRemoteDataSources>(
+      () => AuthRemoteDataSourcesImpl(
+        serviceLocator(),
         serviceLocator(),
         serviceLocator(),
         serviceLocator(),
@@ -89,8 +95,24 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
-    ..registerFactory(() => GetFirebaseAuth(serviceLocator()))
+    ..registerFactory(
+      () => IsUserEmailVerified(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => UpdateEmailVerification(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => GetFirebaseAuth(
+        serviceLocator(),
+      ),
+    )
     ..registerFactory(() => AuthBloc(
+      updateEmailVerification: serviceLocator(),
+      logger: serviceLocator(),
           userSignup: serviceLocator(),
           userLogin: serviceLocator(),
           currentUser: serviceLocator(),
@@ -98,6 +120,7 @@ void _initAuth() {
           googleSignIn: serviceLocator(),
           verifyUserEmail: serviceLocator(),
           getFirebaseAuth: serviceLocator(),
+          isUserEmailVerified: serviceLocator(),
         ));
 }
 

@@ -18,6 +18,7 @@ abstract interface class AuthRepository{
   Future<Either<Failure,User>> getCurrentUser();
   Future<Either<Failure,User>> signInWithGoogle();
   Future<Either<Failure,bool>> verifyEmail();
+  Future<Either<Failure,void>> updateEmailVerification();
   Future<Either<Failure,auth.FirebaseAuth>> getFirebaseAuth();
   Future<Either<Failure,bool>> isUserEmailVerified();
 }
