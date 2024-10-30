@@ -1,5 +1,6 @@
 // auth_remote_datasources.dart
 
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/features/auth/data/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -122,6 +123,7 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
         firstName: firstName,
         uid: user.uid,
         lastName: lastName,
+        userType: Usertype.none,
       );
 
       await firestore.collection('users').doc(user.uid).set(newUser.toMap());
@@ -180,6 +182,7 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
         firstName: firstName,
         lastName: lastName,
         middleName: '',
+        userType: Usertype.none,
       );
 
       await firestore.collection('users').doc(user.uid).set(userModel.toMap(),

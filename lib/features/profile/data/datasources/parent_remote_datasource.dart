@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/core/network/download.dart';
 import 'package:aparna_education/features/profile/data/models/parent_model.dart';
@@ -70,6 +71,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
         profilePic: imageUrl,
         gender: gender,
         dob: dob,
+        usertype: Usertype.parent,
       );
       await firestore.collection('parents').doc(uid).set(parent.toMap());
       await firestore.collection('users').doc(uid).update({

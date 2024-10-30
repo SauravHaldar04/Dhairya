@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aparna_education/core/entities/user_entity.dart';
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 
 class Teacher extends User {
   final List<String> subjects;
@@ -16,6 +17,7 @@ class Teacher extends User {
   final String state;
   final String country;
   final String pincode;
+  Usertype usertype = Usertype.teacher;
 
 
   Teacher({
@@ -38,6 +40,7 @@ class Teacher extends User {
     required String firstName,
     required String lastName,
     required String middleName,
+    required this.usertype,
   }) : super(
     emailVerified: true,
           uid: uid,
@@ -45,5 +48,6 @@ class Teacher extends User {
           firstName: firstName,
           lastName: lastName,
           middleName: middleName,
+          userType: Usertype.teacher,
         );
 }

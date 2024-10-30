@@ -29,6 +29,7 @@ class StudentModel extends Student {
     required super.dob,
     required super.phoneNumber,
     required super.gender,
+    required super.usertype,
   });
 
   factory StudentModel.fromMap(Map<String, dynamic> map) {
@@ -55,7 +56,7 @@ class StudentModel extends Student {
       lastName: map['lastName'],
       dob: DateTime.parse(map['dob']),
       phoneNumber: map['phoneNumber'],
-      gender: map['gender'],
+      gender: map['gender'], usertype: map['usertype'],
     );
   }
 
@@ -84,6 +85,7 @@ class StudentModel extends Student {
       'dob': dob.toIso8601String(),
       'phoneNumber': phoneNumber,
       'gender': gender,
+      'usertype': usertype,
     };
   }
 

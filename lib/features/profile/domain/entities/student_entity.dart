@@ -1,3 +1,4 @@
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
 
 class Student extends Parent {
@@ -9,6 +10,9 @@ class Student extends Parent {
   final bool isLanguageLearner;
   final List<String> languagesKnown;
   final List<String> languagesToLearn;
+  @override
+  Usertype usertype = Usertype.student;
+  
   Student(
       {required this.parent,
       required this.standard,
@@ -32,6 +36,10 @@ class Student extends Parent {
       required super.email,
       required super.firstName,
       required super.middleName,
-      required super.lastName});
+      required super.lastName,
+      required super.usertype
+      }
+      
+      );
       
 }

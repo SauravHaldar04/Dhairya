@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
 
 class ParentModel extends Parent {
@@ -18,7 +19,9 @@ class ParentModel extends Parent {
       required super.uid,
       required super.email,
       required super.firstName,
-      required super.lastName});
+      required super.lastName, required super.usertype
+
+      });
       ParentModel copyWith({
     String? uid,
     String? email,
@@ -52,7 +55,7 @@ class ParentModel extends Parent {
       pincode: pincode ?? this.pincode,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       gender: gender ?? this.gender,
-      dob: dob ?? this.dob,
+      dob: dob ?? this.dob, usertype: usertype ?? Usertype.none,
 
     );
   }
@@ -74,6 +77,7 @@ class ParentModel extends Parent {
       'phoneNumber': phoneNumber,
       'gender': gender,
       'dob': dob,
+      'usertype': usertype,
 
     };
   }
@@ -95,6 +99,7 @@ class ParentModel extends Parent {
       phoneNumber: map['phoneNumber'],
       gender: map['gender'],
       dob: map['dob'],
+      usertype: map['usertype'],
 
     );
   }

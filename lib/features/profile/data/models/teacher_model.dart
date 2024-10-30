@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
 
 class TeacherModel extends Teacher {
@@ -23,6 +24,8 @@ class TeacherModel extends Teacher {
     required String workExp,
     required String resume,
     required List<String> board,
+    required Usertype usertype,
+
   }) : super(
           uid: uid,
           email: email,
@@ -42,6 +45,7 @@ class TeacherModel extends Teacher {
           workExp: workExp,
           resume: resume,
           board: board,
+          usertype: Usertype.teacher,
         );
 
   TeacherModel copyWith({
@@ -83,6 +87,7 @@ class TeacherModel extends Teacher {
       workExp: workExp ?? this.workExp,
       resume: resume ?? this.resume,
       board: board ?? this.board,
+      usertype: usertype?? Usertype.teacher,
     );
   }
 
@@ -106,6 +111,7 @@ class TeacherModel extends Teacher {
       'workExp': workExp,
       'resume': resume,
       'board': board,
+      'usertype': usertype,
     };
   }
 
@@ -129,6 +135,7 @@ class TeacherModel extends Teacher {
       workExp: map['workExp'],
       resume: map['resume'],
       board: map['board'],
+      usertype: map['usertype'],
     );
   }
 

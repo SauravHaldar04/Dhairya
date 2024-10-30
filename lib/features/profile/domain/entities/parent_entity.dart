@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aparna_education/core/entities/user_entity.dart';
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
 
 class Parent extends User {
@@ -15,6 +16,7 @@ class Parent extends User {
   final String country;
   final String pincode;
   final List<Student> students;
+  Usertype usertype = Usertype.parent;
 
   Parent({
     this.students = const [], 
@@ -33,6 +35,7 @@ class Parent extends User {
     required String firstName,
     required String middleName,
     required String lastName,
+    required this.usertype,
 
   }) : super(
          emailVerified: true,
@@ -41,6 +44,7 @@ class Parent extends User {
           firstName: firstName,
           lastName: lastName,
           middleName: middleName,
+          userType:usertype ,
         );
 
   Parent.empty()

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/core/network/download.dart';
 import 'package:aparna_education/features/profile/data/models/teacher_model.dart';
@@ -90,7 +91,9 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
           dob: dob,
           workExp: workExp,
           resume: resumeUrl,
-          board: board);
+          board: board,
+          usertype: Usertype.teacher
+          );
       await firestore
           .collection('teachers')
           .doc(firebaseAuth.currentUser!.uid)
