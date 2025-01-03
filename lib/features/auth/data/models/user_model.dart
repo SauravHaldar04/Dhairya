@@ -53,7 +53,7 @@ class UserModel extends User {
       'middleName': middleName,
       'lastName': lastName,
       'emailVerified': emailVerified,
-      'userType': userType,
+      'userType': userType.toString(),
     };
   }
 
