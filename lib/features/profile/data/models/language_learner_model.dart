@@ -23,7 +23,8 @@ class LanguageLearnerModel extends LanguageLearner {
       required super.country,
       required super.pincode,
       required super.languagesKnown,
-      required super.languagesToLearn});
+      required super.languagesToLearn
+      });
   LanguageLearner copyWith({
     String? profilePic,
     String? gender,

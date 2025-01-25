@@ -327,21 +327,21 @@ class _LanguageLearnerProfileCompletionState
                     height: 20,
                   ),
                   ProjectTextfield(
-                      enabled: city != null,
+                      enabled: true,
                       text: "Street/Locality",
                       controller: streetController),
                   const SizedBox(
                     height: 20,
                   ),
                   ProjectTextfield(
-                      enabled: streetController.text.isNotEmpty,
+                      enabled: true,
                       text: "Apt, suite, etc.",
                       controller: aptController),
                   const SizedBox(
                     height: 20,
                   ),
                   ProjectTextfield(
-                    enabled: aptController.text.isNotEmpty,
+                    enabled: true,
                     text: "Postcode",
                     controller: postcodeController,
                     keyboardType: const TextInputType.numberWithOptions(),
@@ -411,7 +411,7 @@ class _LanguageLearnerProfileCompletionState
                       title: "Select Lanuages to learn",
                       placeHolder: "Select Languages",
                       items: languages,
-                      selected: selectedLanguagesToLearn,
+                      selected: "Languages to Learn",
                       onChanged: (val) {
                         setState(() {
                           if (selectedLanguagesToLearn.contains(val)) return;
@@ -455,6 +455,83 @@ class _LanguageLearnerProfileCompletionState
                   const SizedBox(
                     height: 20,
                   ),
+                  DropdownWithSearch(
+                      disabledDecoration: BoxDecoration(
+                        color: Pallete.whiteColor,
+                        border:
+                            Border.all(color: Pallete.inactiveColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      itemStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold),
+                      dropdownHeadingStyle: const TextStyle(
+                          color: Pallete.primaryColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: Pallete.primaryColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      unselectedItemStyle: const TextStyle(
+                        color: Pallete.greyColor,
+                        fontSize: 16,
+                      ),
+                      selectedItemStyle: const TextStyle(
+                        color: Colors.black,
+                        //:
+                        //Pallete.greyColor,
+                        fontSize: 16,
+                      ),
+                      title: "Select Lanuages Already Known",
+                      placeHolder: "Select Languages",
+                      items: languages,
+                      selected: "Languages Known",
+                      onChanged: (val) {
+                        setState(() {
+                          if (selectedLanguagesKnown.contains(val)) return;
+                          selectedLanguagesKnown.add(val);
+                          print(selectedLanguagesKnown);
+                        });
+                      },
+                      label: "Select Languages"),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  if (selectedLanguagesKnown.isNotEmpty)
+                    Wrap(
+                      spacing: 10,
+                      children: selectedLanguagesKnown.map((e) {
+                        return Chip(
+                          side: const BorderSide(
+                              color: Pallete.primaryColor, width: 2),
+                          color: WidgetStatePropertyAll(Pallete.primaryColor),
+                          onDeleted: () {
+                            setState(() {
+                              selectedLanguagesKnown.remove(e);
+                            });
+                          },
+                          deleteIcon: Icon(Icons.close),
+                          deleteIconColor: Pallete.backgroundColor,
+                          padding: const EdgeInsets.all(5),
+                          label: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              e,
+                              style: const TextStyle(
+                                  color: Pallete.backgroundColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Center(
                     child: ProjectButton(
                       text: "Submit",
@@ -471,24 +548,29 @@ class _LanguageLearnerProfileCompletionState
                               city != null &&
                               State != null &&
                               country != null &&
-                              postcodeController.text.isNotEmpty;
+                              postcodeController.text.isNotEmpty &&
+                              selectedLanguagesToLearn.isNotEmpty &&
+                              selectedLanguagesKnown.isNotEmpty;
                         }
 
                         if (_validateFields()) {
-                          context.read<ProfileBloc>().add(CreateParentProfile(
-                              firstName: firstNameController.text,
-                              middleName: middleNameController.text,
-                              lastName: lastNameController.text,
-                              profilePic: image!,
-                              occupation: occupationController.text,
-                              gender: selectedGender,
-                              dob: selectedDate!,
-                              phoneNumber: phoneController.text,
-                              address: streetController.text,
-                              city: city!,
-                              state: State!,
-                              country: country!,
-                              pincode: postcodeController.text));
+                          context.read<ProfileBloc>().add(
+                              CreateLanguageLearnerProfile(
+                                  firstName: firstNameController.text.trim(),
+                                  middleName: middleNameController.text.trim(),
+                                  lastName: lastNameController.text.trim(),
+                                  profilePic: image!,
+                                  gender: genderController.text,
+                                  dob: selectedDate!,
+                                  occupation: occupationController.text.trim(),
+                                  phoneNumber: phoneController.text.trim(),
+                                  address: addressController.text.trim(),
+                                  city: city!,
+                                  state: State!,
+                                  country: country!,
+                                  pincode: postcodeController.text.trim(),
+                                  languagesKnown: selectedLanguagesKnown,
+                                  languagesToLearn: selectedLanguagesToLearn));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

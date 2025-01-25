@@ -92,8 +92,7 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
           workExp: workExp,
           resume: resumeUrl,
           board: board,
-          usertype: Usertype.teacher
-          );
+          usertype: Usertype.teacher);
       await firestore
           .collection('teachers')
           .doc(firebaseAuth.currentUser!.uid)
@@ -105,7 +104,7 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
         'firstName': firstName,
         'lastName': lastName,
         'middleName': middleName,
-        'role': 'teacher'
+        'userType': 'Usertype.teacher',
       });
     } catch (e) {
       throw ServerException(message: e.toString());

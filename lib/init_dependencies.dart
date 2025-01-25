@@ -12,12 +12,16 @@ import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/profile/data/datasources/language_learner_remote_datasource.dart';
 import 'package:aparna_education/features/profile/data/datasources/parent_remote_datasource.dart';
 import 'package:aparna_education/features/profile/data/datasources/teacher_remote_datasorce.dart';
+import 'package:aparna_education/features/profile/data/repositories/language_learner_repository_impl.dart';
 import 'package:aparna_education/features/profile/data/repositories/parent_repository_impl.dart';
 import 'package:aparna_education/features/profile/data/repositories/teacher_repository_impl.dart';
+import 'package:aparna_education/features/profile/domain/repositories/language_learner_repository.dart';
 import 'package:aparna_education/features/profile/domain/repositories/parent_repository.dart';
 import 'package:aparna_education/features/profile/domain/repositories/teacher_repository.dart';
+import 'package:aparna_education/features/profile/domain/usecases/add_language_learner.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_parent.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_teacher.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
@@ -111,8 +115,8 @@ void _initAuth() {
       ),
     )
     ..registerFactory(() => AuthBloc(
-      updateEmailVerification: serviceLocator(),
-      logger: serviceLocator(),
+          updateEmailVerification: serviceLocator(),
+          logger: serviceLocator(),
           userSignup: serviceLocator(),
           userLogin: serviceLocator(),
           currentUser: serviceLocator(),
@@ -160,11 +164,29 @@ void _initProfile() {
         serviceLocator(),
       ),
     )
+    ..registerFactory<LanguageLearnerRemoteDatasource>(
+      () => LanguageLearnerRemoteDatasourceImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory<LanguageLearnerRepository>(
+      () => LanguageLearnerRepositoryImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => AddLanguageLearner(
+        serviceLocator(),
+      ),
+    )
     ..registerFactory(
       () => ProfileBloc(
         addParent: serviceLocator(),
         addTeacher: serviceLocator(),
         getCurrentUser: serviceLocator(),
+        addLanguageLearner: serviceLocator(),
       ),
     );
 }

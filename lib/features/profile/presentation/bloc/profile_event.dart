@@ -72,3 +72,38 @@ class CreateParentProfile extends ProfileEvent {
 }
 
 class GetCurrentUser extends ProfileEvent {}
+class CreateLanguageLearnerProfile extends ProfileEvent {
+  final String firstName;
+  final String middleName;
+  final String lastName;
+  final File profilePic;
+  final String gender;
+  final DateTime dob;
+  final String occupation;
+  final String phoneNumber;
+  final String address;
+  final String city;
+  final String state;
+  final String country;
+  final String pincode;
+  final List<String> languagesKnown;
+  final List<String> languagesToLearn;
+
+  CreateLanguageLearnerProfile({
+    required this.firstName,
+    required this.middleName,
+    required this.lastName,
+    required this.profilePic,
+    required this.gender,
+    required this.dob,
+    required this.occupation,
+    required this.phoneNumber,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.country,
+    required this.pincode,
+    required this.languagesKnown,
+    required this.languagesToLearn,
+  });
+}

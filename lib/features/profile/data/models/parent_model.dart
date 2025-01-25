@@ -110,7 +110,7 @@ class ParentModel extends Parent {
 
   @override
   String toString() {
-    return 'TeacherModel(uid: $uid, email: $email, firstName: $firstName, middleName: $middleName, lastName: $lastName)';
+    return 'ParentModel(uid: $uid, email: $email, firstName: $firstName, middleName: $middleName, lastName: $lastName)';
   }
 
   @override

@@ -78,7 +78,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
         'firstName': firstName,
         'lastName': lastName,
         'middleName': middleName,
-        'role': 'parent',
+        'userType': 'UserType.parent',
       });
     } catch (e) {
       throw ServerException(message: e.toString());

@@ -22,8 +22,6 @@ class UserModel extends User {
           lastName: lastName,
           userType: userType,
         );
-  
-  
 
   UserModel copyWith({
     String? uid,
@@ -35,7 +33,7 @@ class UserModel extends User {
     Usertype? userType,
   }) {
     return UserModel(
-      emailVerified: emailVerified??false,
+      emailVerified: emailVerified ?? false,
       uid: uid ?? this.uid,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
@@ -53,25 +51,26 @@ class UserModel extends User {
       'middleName': middleName,
       'lastName': lastName,
       'emailVerified': emailVerified,
-      'userType': userType.toString(),
+      'userType': userType.toStringValue(),
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      emailVerified: map['emailVerified']??false,
+      emailVerified: map['emailVerified'] ?? false,
       uid: map['uid'] as String,
       email: map['email'] as String,
       firstName: map['firstName'] as String,
       middleName: map['middleName'] as String,
       lastName: map['lastName'] as String,
-      userType: map['userType'] as Usertype,
+      userType: getEnumFromString(map['userType']),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory UserModel.fromJson(String source) => UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory UserModel.fromJson(String source) =>
+      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -81,25 +80,24 @@ class UserModel extends User {
   @override
   bool operator ==(covariant UserModel other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.uid == uid &&
-      other.email == email &&
-      other.firstName == firstName &&
-      other.middleName == middleName &&
-      other.lastName == lastName&&
-      other.emailVerified == emailVerified&&
-      other.userType == userType;
+
+    return other.uid == uid &&
+        other.email == email &&
+        other.firstName == firstName &&
+        other.middleName == middleName &&
+        other.lastName == lastName &&
+        other.emailVerified == emailVerified &&
+        other.userType == userType;
   }
 
   @override
   int get hashCode {
     return uid.hashCode ^
-      email.hashCode ^
-      firstName.hashCode ^
-      middleName.hashCode ^
-      emailVerified.hashCode ^
-      lastName.hashCode ^
-      userType.hashCode;
+        email.hashCode ^
+        firstName.hashCode ^
+        middleName.hashCode ^
+        emailVerified.hashCode ^
+        lastName.hashCode ^
+        userType.hashCode;
   }
 }
