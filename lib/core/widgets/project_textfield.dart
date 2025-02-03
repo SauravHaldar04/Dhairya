@@ -9,9 +9,11 @@ class ProjectTextfield extends StatefulWidget {
   final TextEditingController controller;
   final bool readOnly;
   final Color? borderColor;
+  final ValueChanged? onSubmitted;
   const ProjectTextfield(
       {super.key,
       required this.text,
+      this.onSubmitted,
       this.borderColor,
       this.readOnly = false,
       this.enabled = true,
@@ -62,6 +64,7 @@ class _ProjectTextfieldState extends State<ProjectTextfield> {
               )
             : null,
       ),
+      onFieldSubmitted: widget.onSubmitted,
     );
   }
 }

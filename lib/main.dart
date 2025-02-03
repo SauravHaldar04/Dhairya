@@ -1,10 +1,14 @@
 // main.dart
 
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/theme/theme.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/home/presentation/pages/language_learner_layout_page.dart';
+import 'package:aparna_education/features/home/presentation/pages/parent_layout_page.dart';
+import 'package:aparna_education/features/home/presentation/pages/teacher_layout_page.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
@@ -84,10 +88,19 @@ class _AppInitializerState extends State<AppInitializer> {
           if (state is AuthLoading) {
             return const Loader();
           } else if (state is AuthUserLoggedIn) {
-            print(state);
-            return const VerificationPage();
-          } else if (state is AuthEmailVerified) {
-            return const HomePage();
+            if (state.user.emailVerified) {
+              if (state.user.userType == Usertype.parent) {
+                return const ParentLayoutPage();
+              } else if (state.user.userType == Usertype.teacher) {
+                return const TeacherLayoutPage();
+              } else if (state.user.userType == Usertype.languageLearner) {
+                return const LanguageLearnerLayoutPage();
+              } else {
+                return const HomePage();
+              }
+            } else {
+              return const VerificationPage();
+            }
           } else {
             return const LandingPage();
           }

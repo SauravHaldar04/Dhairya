@@ -11,6 +11,10 @@ class ParentLayoutPage extends StatefulWidget {
 class _ParentLayoutPageState extends State<ParentLayoutPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      body: const Center(
+        child: Text('Parent Layout Page'),
+      ),
+    );
   }
 }

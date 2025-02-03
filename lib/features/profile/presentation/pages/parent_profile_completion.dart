@@ -9,6 +9,7 @@ import 'package:aparna_education/core/widgets/csc_picker.dart';
 import 'package:aparna_education/core/widgets/dropdownwithsearch.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
+import 'package:aparna_education/features/home/presentation/pages/parent_layout_page.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -302,16 +303,24 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                     height: 20,
                   ),
                   ProjectTextfield(
-                      enabled: city != null,
-                      text: "Street/Locality",
-                      controller: streetController),
+                    enabled: city != null,
+                    text: "Street/Locality",
+                    controller: streetController,
+                    onSubmitted: (val) {
+                      setState(() {});
+                    },
+                  ),
                   const SizedBox(
                     height: 20,
                   ),
                   ProjectTextfield(
-                      enabled: streetController.text.isNotEmpty,
-                      text: "Apt, suite, etc.",
-                      controller: aptController),
+                    enabled: streetController.text.isNotEmpty,
+                    text: "Apt, suite, etc.",
+                    controller: aptController,
+                    onSubmitted: (val) {
+                      setState(() {});
+                    },
+                  ),
                   const SizedBox(
                     height: 20,
                   ),
@@ -320,6 +329,9 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                     text: "Postcode",
                     controller: postcodeController,
                     keyboardType: const TextInputType.numberWithOptions(),
+                    onSubmitted: (val) {
+                      setState(() {});
+                    },
                   ),
                   const SizedBox(
                     height: 20,
@@ -387,9 +399,18 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                               state: State!,
                               country: country!,
                               pincode: postcodeController.text));
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text('Profile Completed Successfully.'),
+                            backgroundColor: Pallete.primaryColor,
+                          ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ParentLayoutPage()));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
                               content: Text('Please fill in all fields.'),
                               backgroundColor: Pallete.primaryColor,
                             ),
