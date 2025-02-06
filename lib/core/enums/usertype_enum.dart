@@ -1,28 +1,29 @@
 enum Usertype { teacher, student, parent, admin, languageLearner, none }
 
-extension UsertypeExtension on Usertype {
-  String toStringValue() {
-    switch (this) {
-      case Usertype.teacher:
-        return 'Usertype.teacher';
-      case Usertype.student:
-        return 'Usertype.student';
-      case Usertype.parent:
-        return 'Usertype.parent';
-      case Usertype.admin:
-        return 'Usertype.admin';
-      case Usertype.languageLearner:
-        return 'Usertype.languageLearner';
-      case Usertype.none:
-        return 'Usertype.none';
-      default:
-        return '';
-    }
+String toStringValue(Usertype usertype) {
+  switch (usertype) {
+    case Usertype.teacher:
+      return 'Usertype.teacher';
+    case Usertype.student:
+      return 'Usertype.student';
+    case Usertype.parent:
+      return 'Usertype.parent';
+    case Usertype.admin:
+      return 'Usertype.admin';
+    case Usertype.languageLearner:
+      return 'Usertype.languageLearner';
+    case Usertype.none:
+      return 'Usertype.none';
+    default:
+      return '';
   }
 }
 
 Usertype getEnumFromString(String value) {
-  switch (value) {
+  // Normalize the string to handle case differences
+  String normalizedValue = value.replaceAll('UserType.', 'Usertype.');
+
+  switch (normalizedValue) {
     case 'Usertype.teacher':
       return Usertype.teacher;
     case 'Usertype.student':

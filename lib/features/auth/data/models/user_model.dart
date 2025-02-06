@@ -51,9 +51,10 @@ class UserModel extends User {
       'middleName': middleName,
       'lastName': lastName,
       'emailVerified': emailVerified,
-      'userType': userType.toStringValue(),
+      'userType': toStringValue(userType),
     };
   }
+
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(

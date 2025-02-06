@@ -150,13 +150,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
       (user) {
         _logger.i('User is logged in: ${user.email} ${user.emailVerified}');
-
-        if (user.emailVerified) {
-          emit(AuthEmailVerified());
-          _logger.i('User email is verified.');
-        } else {
-          emit(AuthUserLoggedIn(user));
-        }
+        print('User is logged in: ${user.email} ${user.emailVerified}');
+        emit(AuthUserLoggedIn(user));
+        // if (user.emailVerified) {
+        //   emit(AuthEmailVerified());
+        //   _logger.i('User email is verified.');
+        // } else {
+        //   emit(AuthUserLoggedIn(user));
+        // }
         
       },
     );

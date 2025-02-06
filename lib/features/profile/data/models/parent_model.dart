@@ -6,7 +6,7 @@ import 'package:aparna_education/features/profile/domain/entities/parent_entity.
 class ParentModel extends Parent {
   ParentModel(
       {required super.occupation,
-        required super.middleName,
+      required super.middleName,
       required super.profilePic,
       required super.gender,
       required super.dob,
@@ -19,10 +19,9 @@ class ParentModel extends Parent {
       required super.uid,
       required super.email,
       required super.firstName,
-      required super.lastName, required super.usertype
-
-      });
-      ParentModel copyWith({
+      required super.lastName,
+      required super.usertype});
+  ParentModel copyWith({
     String? uid,
     String? email,
     String? firstName,
@@ -38,7 +37,6 @@ class ParentModel extends Parent {
     String? phoneNumber,
     String? gender,
     DateTime? dob,
-
   }) {
     return ParentModel(
       uid: uid ?? this.uid,
@@ -55,8 +53,8 @@ class ParentModel extends Parent {
       pincode: pincode ?? this.pincode,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       gender: gender ?? this.gender,
-      dob: dob ?? this.dob, usertype: usertype ?? Usertype.none,
-
+      dob: dob ?? this.dob,
+      usertype: usertype ?? Usertype.none,
     );
   }
 
@@ -77,8 +75,7 @@ class ParentModel extends Parent {
       'phoneNumber': phoneNumber,
       'gender': gender,
       'dob': dob,
-      'usertype': usertype,
-
+      'usertype': toStringValue(usertype),
     };
   }
 
@@ -99,14 +96,14 @@ class ParentModel extends Parent {
       phoneNumber: map['phoneNumber'],
       gender: map['gender'],
       dob: map['dob'],
-      usertype: map['usertype'],
-
+      usertype: getEnumFromString(map['usertype']),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ParentModel.fromJson(String source) => ParentModel.fromMap(json.decode(source));
+  factory ParentModel.fromJson(String source) =>
+      ParentModel.fromMap(json.decode(source));
 
   @override
   String toString() {

@@ -23,8 +23,7 @@ class LanguageLearnerModel extends LanguageLearner {
       required super.country,
       required super.pincode,
       required super.languagesKnown,
-      required super.languagesToLearn
-      });
+      required super.languagesToLearn});
   LanguageLearner copyWith({
     String? profilePic,
     String? gender,
@@ -82,7 +81,7 @@ class LanguageLearnerModel extends LanguageLearner {
       'pincode': pincode,
       'languagesKnown': languagesKnown,
       'languagesToLearn': languagesToLearn,
-      'usertype': usertype.toString(),
+      'usertype': toStringValue(usertype),
     };
   }
 
@@ -105,7 +104,9 @@ class LanguageLearnerModel extends LanguageLearner {
         middleName: map['middleName'],
         firstName: map['firstName'],
         lastName: map['lastName'],
-        email: map['email']);
+        email: map['email'],
+        
+        );
   }
 
   String toJson() => json.encode(toMap());

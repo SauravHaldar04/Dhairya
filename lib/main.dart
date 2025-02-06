@@ -90,10 +90,15 @@ class _AppInitializerState extends State<AppInitializer> {
           } else if (state is AuthUserLoggedIn) {
             if (state.user.emailVerified) {
               if (state.user.userType == Usertype.parent) {
+                print('User is a parent');
+
                 return const ParentLayoutPage();
-              } else if (state.user.userType == Usertype.teacher) {
+              } else if (state.user.userType == Usertype.teacher) { 
+                print('User is a teacher');
+
                 return const TeacherLayoutPage();
               } else if (state.user.userType == Usertype.languageLearner) {
+                print('User is a language learner');
                 return const LanguageLearnerLayoutPage();
               } else {
                 return const HomePage();
@@ -102,6 +107,7 @@ class _AppInitializerState extends State<AppInitializer> {
               return const VerificationPage();
             }
           } else {
+            print('User is not logged in');
             return const LandingPage();
           }
         },
