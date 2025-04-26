@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ParentModel extends Parent {
   ParentModel(
@@ -95,7 +96,7 @@ class ParentModel extends Parent {
       pincode: map['pincode'],
       phoneNumber: map['phoneNumber'],
       gender: map['gender'],
-      dob: map['dob'],
+      dob: (map['dob'] as Timestamp).toDate(),
       usertype: getEnumFromString(map['usertype']),
     );
   }

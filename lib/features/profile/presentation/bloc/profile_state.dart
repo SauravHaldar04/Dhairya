@@ -1,23 +1,33 @@
 part of 'profile_bloc.dart';
 
 @immutable
-sealed class ProfileState {}
+abstract class ProfileState {}
 
-final class ProfileInitial extends ProfileState {}
+class ProfileInitial extends ProfileState {}
 
-final class ProfileLoading extends ProfileState {}
+class ProfileLoading extends ProfileState {}
 
-final class ProfileSuccess extends ProfileState {
+class ProfileSuccess extends ProfileState {
   final String message;
+
   ProfileSuccess(this.message);
 }
 
-final class ProfileUser extends ProfileState {
+class ProfileFailure extends ProfileState {
+  final String message;
+
+  ProfileFailure(this.message);
+}
+
+class ProfileUser extends ProfileState {
   final User user;
+
   ProfileUser(this.user);
 }
 
-final class ProfileFailure extends ProfileState {
-  final String message;
-  ProfileFailure(this.message);
+// Adding the missing state
+class ParentDataLoaded extends ProfileState {
+  final Parent parent;
+
+  ParentDataLoaded(this.parent);
 }

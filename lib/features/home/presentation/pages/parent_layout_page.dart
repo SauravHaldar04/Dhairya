@@ -1,4 +1,5 @@
 import 'package:aparna_education/features/home/presentation/pages/parent_home_page.dart';
+import 'package:aparna_education/features/profile/presentation/pages/parent_profile_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class _ParentLayoutPageState extends State<ParentLayoutPage> {
 
   final List<Widget> _pages = [
     const ParentHomePage(),
-    const Center(child: Text('Profile')),
+    const ParentProfilePage(),
     const Center(child: Text('Lectures')),
     const Center(child: Text('Calendar')),
   ];

@@ -15,12 +15,13 @@ class StudentModel extends Student {
     required super.email,
     required super.firstName,
     required super.middleName,
-    required super.lastName, required super.emailVerified, required super.userType,
+    required super.lastName,
+    required super.emailVerified,
   });
 
   factory StudentModel.fromMap(Map<String, dynamic> map) {
     return StudentModel(
-      parent: ParentModel.fromMap(map['parent']),
+      parent: map['parent'],
       standard: map['standard'],
       subjects: List<String>.from(map['subjects']),
       board: map['board'],
@@ -31,7 +32,6 @@ class StudentModel extends Student {
       middleName: map['middleName'],
       lastName: map['lastName'],
       emailVerified: map['emailVerified'],
-      userType: map['userType'],
     );
   }
 
@@ -47,8 +47,7 @@ class StudentModel extends Student {
       'firstName': firstName,
       'middleName': middleName,
       'lastName': lastName,
-      'emailVerified':emailVerified,
-      'usertype': usertype,
+      'emailVerified': emailVerified,
     };
   }
 

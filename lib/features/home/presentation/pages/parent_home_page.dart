@@ -1,3 +1,4 @@
+import 'package:aparna_education/features/profile/presentation/pages/add_student_page.dart';
 import 'package:flutter/material.dart';
 
 class ParentHomePage extends StatefulWidget {
@@ -16,9 +17,53 @@ class _ParentHomePageState extends State<ParentHomePage> {
       appBar: AppBar(
         title: const Text('Home'),
         elevation: 0,
+        actions: [
+          // Add student button in app bar
+          IconButton(
+            icon: const Icon(Icons.person_add),
+            tooltip: 'Add Student',
+            onPressed: () => _navigateToAddStudent(),
+          ),
+        ],
       ),
       body: Column(
         children: [
+          // Student management card
+          Card(
+            margin: const EdgeInsets.all(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Student Management',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Add your children to manage their education profile',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Student'),
+                    onPressed: () => _navigateToAddStudent(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Lectures section
           Expanded(
             child: lectures.isEmpty
                 ? Center(
@@ -79,6 +124,24 @@ class _ParentHomePageState extends State<ParentHomePage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Future<void> _navigateToAddStudent() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddStudentPage()),
+    );
+
+    // If student was added successfully, you might want to refresh parent data
+    if (result == true) {
+      // Optionally refresh parent data to show new student
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Student added successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
   String _formatDateTime(DateTime dateTime) {

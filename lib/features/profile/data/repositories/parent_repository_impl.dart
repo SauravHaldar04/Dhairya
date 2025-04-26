@@ -61,14 +61,30 @@ class ParentRepositoryImpl implements ParentRepository {
   }
 
   @override
-  Future<Either<Failure, Parent>> getParent(String uid) {
-    // TODO: implement getParent
-    throw UnimplementedError();
+  Future<Either<Failure, Parent>> getParent(String uid) async {
+    try {
+      bool isConnected = await checkInternetConnection.isConnected;
+      if (!isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      final parent = await parentRemoteDatasource.getParent(uid);
+      return Right(parent);
+    } on ServerException catch (e) {
+      return Left(Failure(e.toString()));
+    }
   }
 
   @override
-  Future<Either<Failure, List<Parent>>> getParents() {
-    // TODO: implement getParents
-    throw UnimplementedError();
+  Future<Either<Failure, List<Parent>>> getParents() async {
+    try {
+      bool isConnected = await checkInternetConnection.isConnected;
+      if (!isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      final parents = await parentRemoteDatasource.getParents();
+      return Right(parents);
+    } on ServerException catch (e) {
+      return Left(Failure(e.toString()));
+    }
   }
 }

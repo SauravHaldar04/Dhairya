@@ -10,16 +10,24 @@ class ProjectTextfield extends StatefulWidget {
   final bool readOnly;
   final Color? borderColor;
   final ValueChanged? onSubmitted;
-  const ProjectTextfield(
-      {super.key,
-      required this.text,
-      this.onSubmitted,
-      this.borderColor,
-      this.readOnly = false,
-      this.enabled = true,
-      this.isPassword = false,
-      this.keyboardType = TextInputType.text,
-      required this.controller});
+  final FormFieldValidator<String>? validator;
+  final TextStyle? textStyle;
+  final InputDecoration? decoration;
+  
+  const ProjectTextfield({
+    super.key,
+    required this.text,
+    this.onSubmitted,
+    this.borderColor,
+    this.readOnly = false,
+    this.enabled = true,
+    this.isPassword = false,
+    this.keyboardType = TextInputType.text,
+    required this.controller,
+    this.validator,
+    this.textStyle,
+    this.decoration,
+  });
 
   @override
   State<ProjectTextfield> createState() => _ProjectTextfieldState();
@@ -30,8 +38,7 @@ class _ProjectTextfieldState extends State<ProjectTextfield> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-
-      style: const TextStyle(
+      style: widget.textStyle ?? const TextStyle(
         color: Colors.black,
       ),
       readOnly: widget.readOnly,
@@ -39,7 +46,7 @@ class _ProjectTextfieldState extends State<ProjectTextfield> {
       controller: widget.controller,
       keyboardType: widget.keyboardType,
       obscureText: widget.isPassword ? isObscure : false,
-      decoration: AppTheme.inputDecoration.copyWith(
+      decoration: (widget.decoration ?? AppTheme.inputDecoration).copyWith(
         disabledBorder: widget.borderColor != null
             ? OutlineInputBorder(
                 borderSide: BorderSide(color: widget.borderColor!, width: 2),
@@ -65,6 +72,7 @@ class _ProjectTextfieldState extends State<ProjectTextfield> {
             : null,
       ),
       onFieldSubmitted: widget.onSubmitted,
+      validator: widget.validator,
     );
   }
 }

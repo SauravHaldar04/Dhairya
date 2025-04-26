@@ -86,14 +86,27 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
   }
 
   @override
-  Future<Parent> getParent(String uid) {
-    // TODO: implement getParent
-    throw UnimplementedError();
+  Future<Parent> getParent(String uid) async {
+    try {
+      final parentDoc = await firestore.collection('parents').doc(uid).get();
+      if (!parentDoc.exists) {
+        throw ServerException(message: 'Parent not found');
+      }
+      return ParentModel.fromMap(parentDoc.data()!);
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   @override
-  Future<List<Parent>> getParents() {
-    // TODO: implement getParents
-    throw UnimplementedError();
+  Future<List<Parent>> getParents() async {
+    try {
+      final parentsQuery = await firestore.collection('parents').get();
+      return parentsQuery.docs
+          .map((doc) => ParentModel.fromMap(doc.data()))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 }
