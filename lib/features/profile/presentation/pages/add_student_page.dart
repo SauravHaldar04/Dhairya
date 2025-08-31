@@ -266,6 +266,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                     text: 'Add Student',
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
+                        // Validate subjects
                         if (subjects.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -276,11 +277,50 @@ class _AddStudentPageState extends State<AddStudentPage> {
                           return;
                         }
 
+                        // Additional validation for data integrity
+                        final firstName = firstNameController.text.trim();
+                        final lastName = lastNameController.text.trim();
+                        final standard = standardController.text.trim();
+
+                        if (firstName.isEmpty || lastName.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('First name and last name are required'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (standard.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Standard is required'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Validate standard format (should be numeric or alphanumeric)
+                        if (!RegExp(r'^[0-9]{1,2}[a-zA-Z]?$')
+                            .hasMatch(standard)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Please enter a valid standard (e.g., 1, 12A, 10B)'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
                         context.read<ProfileBloc>().add(AddStudentProfile(
-                              firstName: firstNameController.text,
-                              middleName: middleNameController.text,
-                              lastName: lastNameController.text,
-                              standard: standardController.text,
+                              firstName: firstName,
+                              middleName: middleNameController.text.trim(),
+                              lastName: lastName,
+                              standard: standard,
                               subjects: subjects,
                               board: selectedBoard,
                               medium: selectedMedium,

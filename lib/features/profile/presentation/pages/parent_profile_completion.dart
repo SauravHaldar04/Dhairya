@@ -374,7 +374,6 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                               lastNameController.text.isNotEmpty &&
                               image != null &&
                               occupationController.text.isNotEmpty &&
-                              selectedGender != null &&
                               selectedDate != null &&
                               phoneController.text.isNotEmpty &&
                               streetController.text.isNotEmpty &&

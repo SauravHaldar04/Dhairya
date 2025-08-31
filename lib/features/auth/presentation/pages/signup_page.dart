@@ -2,6 +2,7 @@ import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_textfield.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     }
                     if (state is AuthSuccess) {
                       showSnackbar(context, "Account created successfully");
+                      // Automatically send verification email and navigate to verification page
+                      context.read<AuthBloc>().add(AuthEmailVerification());
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const VerificationPage(),
+                        ),
+                      );
                     }
                   },
                   builder: (context, state) {

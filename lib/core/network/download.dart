@@ -1,34 +1,44 @@
 import 'dart:io';
-import 'package:aparna_education/secrets/secrets.dart';
-import 'package:cloudinary/cloudinary.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:aparna_education/core/network/unified_storage.dart';
+import 'package:aparna_education/core/utils/app_logger.dart';
 
-// Future<String> uploadAndGetDownloadUrl(String folderName, File file) async {
-//   String filePath = '$folderName';
-//   Reference ref = FirebaseStorage.instance.ref().child(filePath);
-//   UploadTask uploadTask = ref.putFile(file);
-//   TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
-//   String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-//   return downloadUrl;
-// }
-
+/// Legacy wrapper for backward compatibility
+/// This delegates to the UnifiedStorageService which handles both Firebase and Supabase
 Future<String> uploadAndGetDownloadUrl(String folderName, File file) async {
-  final cloudinary = Cloudinary.unsignedConfig(
-    cloudName: Secrets.cloudName,
-  );
-  final response = await cloudinary.unsignedUpload(
-      uploadPreset: Secrets.uploadPreset,
-      file: file.path,
-      fileBytes: file.readAsBytesSync(),
-      folder: folderName,
-      fileName: file.path.split('/').last,
-      resourceType: CloudinaryResourceType.image,
-      progressCallback: (count, total) {
-        print('Uploading image from file with progress: $count/$total');
-      });
-
-  if (response.isSuccessful) {
-   return response.secureUrl!;
+  final String fileName = file.path.split('/').last;
+  AppLogger.info('🔄 Legacy upload function called for: $fileName');
+  
+  // Validate file before upload
+  if (!UnifiedStorageService.isValidFileType(file)) {
+    AppLogger.warning('❌ Legacy upload failed - Invalid file type: $fileName');
+    throw Exception('Invalid file type. Allowed: jpg, jpeg, png, gif, pdf, doc, docx');
   }
-  throw Exception('Failed to upload image');
+  
+  if (!UnifiedStorageService.isFileSizeValid(file)) {
+    AppLogger.warning('❌ Legacy upload failed - File too large: $fileName');
+    throw Exception('File size exceeds 50MB limit');
+  }
+  
+  AppLogger.info('➡️ Delegating to UnifiedStorageService: $fileName');
+  return await UnifiedStorageService.uploadAndGetDownloadUrl(folderName, file);
+}
+
+/// Upload with progress tracking
+Future<String> uploadWithProgress(String folderName, File file, Function(double)? onProgress) async {
+  final String fileName = file.path.split('/').last;
+  AppLogger.info('📊 Legacy upload with progress called for: $fileName');
+  
+  // Validate file before upload
+  if (!UnifiedStorageService.isValidFileType(file)) {
+    AppLogger.warning('❌ Legacy upload with progress failed - Invalid file type: $fileName');
+    throw Exception('Invalid file type. Allowed: jpg, jpeg, png, gif, pdf, doc, docx');
+  }
+  
+  if (!UnifiedStorageService.isFileSizeValid(file)) {
+    AppLogger.warning('❌ Legacy upload with progress failed - File too large: $fileName');
+    throw Exception('File size exceeds 50MB limit');
+  }
+  
+  AppLogger.info('➡️ Delegating to UnifiedStorageService with progress: $fileName');
+  return await UnifiedStorageService.uploadWithProgress(folderName, file, onProgress);
 }

@@ -5,6 +5,9 @@ import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/theme/theme.dart';
 import 'package:aparna_education/core/utils/loader.dart';
+import 'package:aparna_education/core/utils/app_logger.dart';
+import 'package:aparna_education/core/secrets/secrets.dart';
+import 'package:aparna_education/core/network/supabase_storage.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/home/presentation/pages/language_learner_layout_page.dart';
 import 'package:aparna_education/features/home/presentation/pages/parent_layout_page.dart';
@@ -16,11 +19,13 @@ import 'package:aparna_education/features/auth/presentation/pages/verification_p
 import 'package:aparna_education/init_dependencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:logger/logger.dart';
 
 /// The main entry point of the Aparna Education application.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await initDependencies();
 
   runApp(
@@ -90,24 +95,24 @@ class _AppInitializerState extends State<AppInitializer> {
           } else if (state is AuthUserLoggedIn) {
             if (state.user.emailVerified) {
               if (state.user.userType == Usertype.parent) {
-                print('User is a parent');
-
+                AppLogger.info('👨‍👩‍👧‍👦 User logged in as parent: ${state.user.email}');
                 return const ParentLayoutPage();
-              } else if (state.user.userType == Usertype.teacher) { 
-                print('User is a teacher');
-
+              } else if (state.user.userType == Usertype.teacher) {
+                AppLogger.info('👨‍🏫 User logged in as teacher: ${state.user.email}');
                 return const TeacherLayoutPage();
               } else if (state.user.userType == Usertype.languageLearner) {
-                print('User is a language learner');
+                AppLogger.info('🎓 User logged in as language learner: ${state.user.email}');
                 return const LanguageLearnerLayoutPage();
               } else {
+                AppLogger.warning('⚠️ Unknown user type for: ${state.user.email}');
                 return const HomePage();
               }
             } else {
+              AppLogger.info('📧 User needs email verification: ${state.user.email}');
               return const VerificationPage();
             }
           } else {
-            print('User is not logged in');
+            AppLogger.info('🚪 User is not logged in - showing landing page');
             return const LandingPage();
           }
         },

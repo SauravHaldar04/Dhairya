@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
@@ -95,23 +94,23 @@ class TeacherModel extends Teacher {
     return {
       'uid': uid,
       'email': email,
-      'firstName': firstName,
-      'middleName': middleName,
-      'lastName': lastName,
+      'first_name': firstName, // Match database schema
+      'middle_name': middleName, // Match database schema
+      'last_name': lastName, // Match database schema
       'subjects': subjects,
-      'profilePic': profilePic, // Adjusted type to String
+      'profile_pic': profilePic, // Match database schema
       'address': address,
       'city': city,
       'state': state,
       'country': country,
       'pincode': pincode,
-      'phoneNumber': phoneNumber,
+      'phone_number': phoneNumber, // Match database schema
       'gender': gender,
-      'dob': dob,
-      'workExp': workExp,
+      'dob': dob.toIso8601String(), // Convert DateTime to ISO string for Supabase
+      'work_exp': workExp, // Match database schema
       'resume': resume,
       'board': board,
-      'usertype': usertype,
+      'usertype': toStringValue(usertype), // Convert enum to string for Supabase
     };
   }
 
@@ -119,23 +118,23 @@ class TeacherModel extends Teacher {
     return TeacherModel(
       uid: map['uid'],
       email: map['email'],
-      firstName: map['firstName'],
-      middleName: map['middleName'],
-      lastName: map['lastName'],
+      firstName: map['first_name'], // Match database schema
+      middleName: map['middle_name'], // Match database schema
+      lastName: map['last_name'], // Match database schema
       subjects: List<String>.from(map['subjects']),
-      profilePic: map['profilePic'], // Adjusted type to String
+      profilePic: map['profile_pic'], // Match database schema
       address: map['address'],
       city: map['city'],
       state: map['state'],
       country: map['country'],
       pincode: map['pincode'],
-      phoneNumber: map['phoneNumber'],
+      phoneNumber: map['phone_number'], // Match database schema
       gender: map['gender'],
-      dob: map['dob'],
-      workExp: map['workExp'],
+      dob: DateTime.parse(map['dob']), // Parse ISO string back to DateTime
+      workExp: map['work_exp'], // Match database schema
       resume: map['resume'],
       board: map['board'],
-      usertype: map['usertype'],
+      usertype: getEnumFromString(map['usertype']), // Convert string back to enum
     );
   }
 

@@ -75,6 +75,38 @@ class CreateParentProfile extends ProfileEvent {
   });
 }
 
+class UpdateParentProfile extends ProfileEvent {
+  final String firstName;
+  final String lastName;
+  final String middleName;
+  final File? profilePic;
+  final String address;
+  final String city;
+  final String state;
+  final String country;
+  final String pincode;
+  final DateTime dob;
+  final String gender;
+  final String phoneNumber;
+  final String occupation;
+
+  UpdateParentProfile({
+    required this.firstName,
+    required this.lastName,
+    required this.middleName,
+    this.profilePic,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.country,
+    required this.pincode,
+    required this.dob,
+    required this.gender,
+    required this.phoneNumber,
+    required this.occupation,
+  });
+}
+
 class CreateLanguageLearnerProfile extends ProfileEvent {
   final String firstName;
   final String lastName;
@@ -125,7 +157,7 @@ class AddStudentProfile extends ProfileEvent {
   final List<String> subjects;
   final String board;
   final String medium;
-  
+
   AddStudentProfile({
     required this.firstName,
     required this.middleName,
@@ -135,4 +167,10 @@ class AddStudentProfile extends ProfileEvent {
     required this.board,
     required this.medium,
   });
+}
+
+class GetStudentsbyParent extends ProfileEvent {
+  final String uid;
+
+  GetStudentsbyParent({required this.uid});
 }

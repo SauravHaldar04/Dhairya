@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ParentModel extends Parent {
   ParentModel(
@@ -63,19 +62,19 @@ class ParentModel extends Parent {
     return {
       'uid': uid,
       'email': email,
-      'firstName': firstName,
-      'middleName': middleName,
-      'lastName': lastName,
+      'first_name': firstName, // Match database schema
+      'middle_name': middleName, // Match database schema
+      'last_name': lastName, // Match database schema
       'occupation': occupation,
-      'profilePic': profilePic, // Adjusted type to String
+      'profile_pic': profilePic, // Match database schema
       'address': address,
       'city': city,
       'state': state,
       'country': country,
       'pincode': pincode,
-      'phoneNumber': phoneNumber,
+      'phone_number': phoneNumber, // Match database schema
       'gender': gender,
-      'dob': dob,
+      'dob': dob.toIso8601String(), // Convert DateTime to ISO string for Supabase
       'usertype': toStringValue(usertype),
     };
   }
@@ -84,19 +83,19 @@ class ParentModel extends Parent {
     return ParentModel(
       uid: map['uid'],
       email: map['email'],
-      firstName: map['firstName'],
-      middleName: map['middleName'],
-      lastName: map['lastName'],
+      firstName: map['first_name'], // Match database schema
+      middleName: map['middle_name'], // Match database schema
+      lastName: map['last_name'], // Match database schema
       occupation: map['occupation'],
-      profilePic: map['profilePic'], // Adjusted type to String
+      profilePic: map['profile_pic'], // Match database schema
       address: map['address'],
       city: map['city'],
       state: map['state'],
       country: map['country'],
       pincode: map['pincode'],
-      phoneNumber: map['phoneNumber'],
+      phoneNumber: map['phone_number'], // Match database schema
       gender: map['gender'],
-      dob: (map['dob'] as Timestamp).toDate(),
+      dob: DateTime.parse(map['dob']), // Parse ISO string back to DateTime for Supabase
       usertype: getEnumFromString(map['usertype']),
     );
   }

@@ -2,21 +2,18 @@
 
 import 'dart:async';
 
-import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/entities/user_entity.dart';
 import 'package:aparna_education/core/usecase/usecase.dart';
 import 'package:aparna_education/core/usecase/current_user.dart';
-import 'package:aparna_education/features/auth/domain/usecases/get_firebase_auth.dart';
-import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/is_user_email_verified.dart';
 import 'package:aparna_education/features/auth/domain/usecases/update_email_verification.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
 
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
+
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -25,10 +22,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserSignup _userSignup;
   final UserLogin _userLogin;
   final CurrentUser _currentUser;
-  final AuthUserCubit _authUserCubit;
-  final GoogleLogin _googleSignIn;
+  //final GoogleLogin _googleSignIn;
   final VerifyUserEmail _verifyUserEmail;
-  final GetFirebaseAuth _getFirebaseAuth;
+  //final GetFirebaseAuth _getFirebaseAuth;
   final IsUserEmailVerified _isUserEmailVerified;
   final Logger _logger;
   final UpdateEmailVerification _updateEmailVerification;
@@ -41,25 +37,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required IsUserEmailVerified isUserEmailVerified,
     required UserSignup userSignup,
     required UserLogin userLogin,
-    required GoogleLogin googleSignIn,
+    // required GoogleLogin googleSignIn,
     required CurrentUser currentUser,
-    required AuthUserCubit authUserCubit,
     required VerifyUserEmail verifyUserEmail,
-    required GetFirebaseAuth getFirebaseAuth,
+    //required GetFirebaseAuth getFirebaseAuth,
     required Logger logger,
-
-  })  :
-  _updateEmailVerification = updateEmailVerification,
-   _userSignup = userSignup,
-        _isUserEmailVerified = isUserEmailVerified,
-        _userLogin = userLogin,
-        _googleSignIn = googleSignIn,
-        _currentUser = currentUser,
-        _authUserCubit = authUserCubit,
-        _verifyUserEmail = verifyUserEmail,
-        _getFirebaseAuth = getFirebaseAuth,
-        _logger = logger,
-        super(AuthInitial()) {
+  }) : _updateEmailVerification = updateEmailVerification,
+       _userSignup = userSignup,
+       _isUserEmailVerified = isUserEmailVerified,
+       _userLogin = userLogin,
+       //_googleSignIn = googleSignIn,
+       _currentUser = currentUser,
+       _verifyUserEmail = verifyUserEmail,
+       //_getFirebaseAuth = getFirebaseAuth,
+       _logger = logger,
+       super(AuthInitial()) {
     // Register event handlers
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthLogIn>(_onAuthLogIn);
@@ -120,21 +112,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  /// Handles the [AuthGoogleSignIn] event.
+  /// Handles the [AuthGoogleSignIn] event with empty implementation.
   void _onGoogleSignIn(AuthGoogleSignIn event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
-    _logger.i('Handling AuthGoogleSignIn event');
-    final result = await _googleSignIn(NoParams());
-    result.fold(
-      (failure) {
-        _logger.e('AuthGoogleSignIn failed: ${failure.message}');
-        emit(AuthFailure(failure.message));
-      },
-      (user) {
-        _logger.i('AuthGoogleSignIn succeeded for user: ${user.email}');
-        emit(AuthSuccess(user));
-      },
-    );
+    _logger.i('AuthGoogleSignIn event received - not implemented yet');
+    emit(AuthFailure('Google Sign-In not implemented yet'));
   }
 
   /// Handles the [AuthIsUserLoggedIn] event.
@@ -194,53 +175,46 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   /// Initiates polling to check if the user's email has been verified.
   void _startEmailVerificationPolling() {
-    const timeout = Duration(seconds: 30);
-    const pollInterval = Duration(seconds: 2);
-    int attempts = 0;
+  const timeout = Duration(seconds: 30);
+  const pollInterval = Duration(seconds: 2);
+  int attempts = 0;
 
-    _emailVerificationTimer = Timer.periodic(pollInterval, (timer) async {
-      attempts++;
-      _logger.i('Email verification polling attempt: $attempts');
+  _emailVerificationTimer = Timer.periodic(pollInterval, (timer) async {
+    attempts++;
+    _logger.i('Email verification polling attempt: $attempts');
 
-      if (attempts * pollInterval.inSeconds >= timeout.inSeconds) {
-        _logger.w('Email verification timed out.');
-        timer.cancel();
-        add(AuthEmailVerificationFailed('Email verification timed out'));
-        return;
-      }
+    if (attempts * pollInterval.inSeconds >= timeout.inSeconds) {
+      _logger.w('Email verification timed out.');
+      timer.cancel();
+      add(AuthEmailVerificationFailed('Email verification timed out'));
+      return;
+    }
 
-      try {
-        final authResult = await _getFirebaseAuth(NoParams());
-        authResult.fold(
-          (failure) {
-            _logger.e('Failed to get FirebaseAuth: ${failure.message}');
+    try {
+      // Use your usecase to check email verification status from Supabase
+      final isVerifiedResult = await _isUserEmailVerified(NoParams());
+      isVerifiedResult.fold(
+        (failure) {
+          _logger.e('Failed to check email verification: ${failure.message}');
+          timer.cancel();
+          add(AuthEmailVerificationFailed(failure.message));
+        },
+        (isVerified) async {
+          if (isVerified) {
+            _logger.i('User email is verified (Supabase).');
             timer.cancel();
-            add(AuthEmailVerificationFailed(failure.message));
-          },
-          (firebaseAuthInstance) async {
-            final user = firebaseAuthInstance.currentUser;
-            if (user == null) {
-              _logger.e('No current user during email verification polling.');
-              timer.cancel();
-              add(AuthEmailVerificationFailed('User is null'));
-              return;
-            }
-            await user.reload();
-            if (user.emailVerified) {
-              _logger.i('User email is verified.');
-              timer.cancel();
-             await _updateEmailVerification(NoParams());
-              add(AuthEmailVerificationCompleted());
-            }
-          },
-        );
-      } catch (e) {
-        _logger.e('Error during email verification polling: $e');
-        timer.cancel();
-        add(AuthEmailVerificationFailed('Error during verification: $e'));
-      }
-    });
-  }
+            await _updateEmailVerification(NoParams());
+            add(AuthEmailVerificationCompleted());
+          }
+        },
+      );
+    } catch (e) {
+      _logger.e('Error during email verification polling: $e');
+      timer.cancel();
+      add(AuthEmailVerificationFailed('Error during verification: $e'));
+    }
+  });
+}
 
   /// Handles the [AuthEmailVerificationCompleted] event.
   void _onEmailVerificationCompleted(

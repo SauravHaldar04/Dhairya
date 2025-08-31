@@ -2,15 +2,13 @@ import 'dart:io';
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
-import 'package:aparna_education/core/network/download.dart';
+import 'package:aparna_education/core/network/supabase_storage.dart';
 import 'package:aparna_education/features/profile/data/models/teacher_model.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class TeacherRemoteDatasource {
-  FirebaseFirestore get firestore;
-  FirebaseAuth get firebaseAuth;
+  SupabaseClient get supabaseClient;
   Future<List<Teacher>> getTeachers();
   Future<Teacher> getTeacher(String uid);
   Future<void> addTeacher({
@@ -35,21 +33,32 @@ abstract interface class TeacherRemoteDatasource {
 
 class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
   @override
-  final FirebaseFirestore firestore;
-  @override
-  final FirebaseAuth firebaseAuth;
-  TeacherRemoteDatasorceImpl(this.firestore, this.firebaseAuth);
+  final SupabaseClient supabaseClient;
+  
+  TeacherRemoteDatasorceImpl(this.supabaseClient);
 
   @override
   Future<Teacher> getTeacher(String uid) async {
-    // TODO: implement getTeacher
-    throw UnimplementedError();
+    try {
+      final response = await supabaseClient
+          .from('teachers')
+          .select()
+          .eq('uid', uid)
+          .single();
+      return TeacherModel.fromMap(response);
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   @override
   Future<List<Teacher>> getTeachers() async {
-    // TODO: implement getTeachers
-    throw UnimplementedError();
+    try {
+      final response = await supabaseClient.from('teachers').select();
+      return response.map<Teacher>((json) => TeacherModel.fromMap(json)).toList();
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   @override
@@ -71,11 +80,15 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
       required List<String> subjects,
       required File resume}) async {
     try {
-      final imageUrl = await uploadAndGetDownloadUrl('profilePics', profilePic);
-      final resumeUrl = await uploadAndGetDownloadUrl('resumes', resume);
+      final user = supabaseClient.auth.currentUser;
+      if (user == null) throw ServerException(message: 'User not authenticated');
+
+      final imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profile-pics', profilePic);
+      final resumeUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('documents', resume);
+      
       final teacher = TeacherModel(
-          uid: firebaseAuth.currentUser!.uid,
-          email: firebaseAuth.currentUser!.email!,
+          uid: user.id,
+          email: user.email!,
           firstName: firstName,
           middleName: middleName,
           lastName: lastName,
@@ -93,19 +106,15 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
           resume: resumeUrl,
           board: board,
           usertype: Usertype.teacher);
-      await firestore
-          .collection('teachers')
-          .doc(firebaseAuth.currentUser!.uid)
-          .set(teacher.toMap());
-      await firestore
-          .collection('users')
-          .doc(firebaseAuth.currentUser!.uid)
-          .update({
-        'firstName': firstName,
-        'lastName': lastName,
-        'middleName': middleName,
-        'userType': 'Usertype.teacher',
-      });
+      
+      await supabaseClient.from('teachers').insert(teacher.toMap());
+      
+      await supabaseClient.from('users').update({
+        'first_name': firstName,
+        'last_name': lastName,
+        'middle_name': middleName,
+        'user_type': toStringValue(Usertype.teacher),
+      }).eq('uid', user.id);
     } catch (e) {
       throw ServerException(message: e.toString());
     }

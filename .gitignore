@@ -44,4 +44,8 @@ app.*.map.json
 /android/app/google-services.json
 
 /ios/Runner/GoogleService-Info.plist
-/lib/secrets
+/lib/core/secrets
+
+# Supabase secrets
+/lib/core/config/secrets.dart
+secrets.dart

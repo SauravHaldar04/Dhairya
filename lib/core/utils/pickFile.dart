@@ -15,3 +15,19 @@ Future<File?> pickFile() async {
     return null;
   }
 }
+
+Future<File?> pickPdfFile() async {
+  try {
+    final pickedFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: false,
+    );
+    if (pickedFile != null) {
+      return File(pickedFile.files.single.path!);
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}

@@ -28,8 +28,6 @@ class Student{
       required this.middleName,
       required this.lastName,
       required this.emailVerified, 
-
-    
       }
       
       );

@@ -1,5 +1,4 @@
 import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/profile_selection_page.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,15 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Automatically start email verification process when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthBloc>().add(AuthEmailVerification());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -29,7 +37,7 @@ class _VerificationPageState extends State<VerificationPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content:
-                    Text('Verification in progress. Please check your email.')),
+                    Text('Verification email sent. Please check your email and click the verification link.')),
           );
         }
       },
@@ -70,7 +78,7 @@ class _VerificationPageState extends State<VerificationPage> {
                             const Text(
                               "Verify your email!",
                               style: TextStyle(
-                                fontSize: 50,
+                                fontSize: 35,
                                 fontWeight: FontWeight.w800,
                                 color: Pallete.primaryColor,
                               ),
@@ -78,12 +86,37 @@ class _VerificationPageState extends State<VerificationPage> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              "Please verify your email to continue",
+                              "We've sent you a verification email. Please check your inbox and click the verification link, then tap 'Check Verification Status' below.",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
                               ),
                               textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 20),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.blue[200]!),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: Colors.blue[600]),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      "Check your spam folder if you don't see the email in your inbox.",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.blue[800],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -98,7 +131,7 @@ class _VerificationPageState extends State<VerificationPage> {
                                     : () {
                                         context
                                             .read<AuthBloc>()
-                                            .add(AuthEmailVerification());
+                                            .add(AuthIsUserEmailVerified());
                                       },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Pallete.primaryColor,
@@ -116,7 +149,7 @@ class _VerificationPageState extends State<VerificationPage> {
                                         ),
                                       )
                                     : const Text(
-                                        'Verify Email',
+                                        'Check Verification Status',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -126,20 +159,30 @@ class _VerificationPageState extends State<VerificationPage> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            TextButton(
-                              onPressed: state is AuthLoading
-                                  ? null
-                                  : () {
-                                      context
-                                          .read<AuthBloc>()
-                                          .add(AuthEmailVerification());
-                                    },
-                              child: const Text(
-                                'Resend Email',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Pallete.primaryColor,
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: OutlinedButton(
+                                onPressed: state is AuthLoading
+                                    ? null
+                                    : () {
+                                        context
+                                            .read<AuthBloc>()
+                                            .add(AuthEmailVerification());
+                                      },
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Pallete.primaryColor),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Resend Verification Email',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Pallete.primaryColor,
+                                  ),
                                 ),
                               ),
                             ),

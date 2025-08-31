@@ -1,11 +1,15 @@
 import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
+import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/profile_selection_page.dart';
 import 'package:aparna_education/features/auth/presentation/pages/verification_page.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_button.dart';
 import 'package:aparna_education/features/auth/presentation/widgets/auth_textfield.dart';
+import 'package:aparna_education/features/home/presentation/pages/parent_layout_page.dart';
+import 'package:aparna_education/features/home/presentation/pages/teacher_layout_page.dart';
+import 'package:aparna_education/features/home/presentation/pages/language_learner_layout_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -88,22 +92,64 @@ class _LoginPageState extends State<LoginPage> {
                         listener: (context, state) {
                           if (state is AuthSuccess) {
                             showSnackbar(context, "Login Successful");
-                            Navigator.of(context).pushAndRemoveUntil(
+                            // Check email verification and route based on usertype
+                            if (state.user.emailVerified) {
+                              Widget destinationPage;
+                              if (state.user.userType == Usertype.parent) {
+                                destinationPage = const ParentLayoutPage();
+                              } else if (state.user.userType ==
+                                  Usertype.teacher) {
+                                destinationPage = const TeacherLayoutPage();
+                              } else if (state.user.userType ==
+                                  Usertype.languageLearner) {
+                                destinationPage =
+                                    const LanguageLearnerLayoutPage();
+                              } else {
+                                destinationPage = const HomePage();
+                              }
+                              Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(
-                              builder: (context) {
-                                context
-                                    .read<AuthBloc>()
-                                    .add(AuthIsUserEmailVerified());
-                                if (state is AuthEmailVerified) {
-                                  return const HomePage();
-                                }
-                                if (state is AuthEmailVerificationFailedState) {
-                                  return const VerificationPage();
-                                }
-                                else 
-                                return const VerificationPage();
-                              },
-                            ), (route) => false);
+                                    builder: (context) => destinationPage),
+                                (route) => false,
+                              );
+                            } else {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const VerificationPage()),
+                                (route) => false,
+                              );
+                            }
+                          }
+                          if (state is AuthUserLoggedIn) {
+                            // Handle existing logged-in user case
+                            if (state.user.emailVerified) {
+                              Widget destinationPage;
+                              if (state.user.userType == Usertype.parent) {
+                                destinationPage = const ParentLayoutPage();
+                              } else if (state.user.userType ==
+                                  Usertype.teacher) {
+                                destinationPage = const TeacherLayoutPage();
+                              } else if (state.user.userType ==
+                                  Usertype.languageLearner) {
+                                destinationPage =
+                                    const LanguageLearnerLayoutPage();
+                              } else {
+                                destinationPage = const HomePage();
+                              }
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => destinationPage),
+                                (route) => false,
+                              );
+                            } else {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const VerificationPage()),
+                                (route) => false,
+                              );
+                            }
                           }
                           if (state is AuthFailure) {
                             showSnackbar(context, state.message);

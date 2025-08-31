@@ -2,5 +2,18 @@
     "java.configuration.updateBuildConfiguration": "interactive",
     "files.associations": {
         "TAARAK[1].C": "cpp"
-    }
+    },
+    "workbench.editor.focusRecentEditorAfterClose": false,
+    "workbench.panel.opensMaximized": "never",
+    "workbench.sideBar.location": "left",
+    "workbench.panel.defaultLocation": "bottom",
+    "workbench.editor.centeredLayoutAutoResize": false,
+    "workbench.editor.revealIfOpen": true,
+    "workbench.editor.closeOnFileDelete": false,
+    "workbench.startupEditor": "none",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "terminal.integrated.hideOnStartup": "never",
+    "zenMode.hideActivityBar": false,
+    "zenMode.hideStatusBar": false
 }

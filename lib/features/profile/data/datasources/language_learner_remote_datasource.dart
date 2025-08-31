@@ -2,15 +2,13 @@ import 'dart:io';
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
-import 'package:aparna_education/core/network/download.dart';
+import 'package:aparna_education/core/network/supabase_storage.dart';
 import 'package:aparna_education/features/profile/data/models/language_learner_model.dart';
 import 'package:aparna_education/features/profile/domain/entities/language_learner_entity.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class LanguageLearnerRemoteDatasource {
-  FirebaseFirestore get firestore;
-  FirebaseAuth get firebaseAuth;
+  SupabaseClient get supabaseClient;
 
   Future<List<LanguageLearner>> getLanguageLearners();
   Future<LanguageLearner> getLanguageLearner(String uid);
@@ -36,11 +34,9 @@ abstract interface class LanguageLearnerRemoteDatasource {
 class LanguageLearnerRemoteDatasourceImpl
     implements LanguageLearnerRemoteDatasource {
   @override
-  final FirebaseFirestore firestore;
-  @override
-  final FirebaseAuth firebaseAuth;
+  final SupabaseClient supabaseClient;
 
-  LanguageLearnerRemoteDatasourceImpl(this.firestore, this.firebaseAuth);
+  LanguageLearnerRemoteDatasourceImpl(this.supabaseClient);
 
   @override
   Future<void> addLanguageLearner({
@@ -61,11 +57,13 @@ class LanguageLearnerRemoteDatasourceImpl
     required List<String> languagesToLearn,
   }) async {
     try {
-      final imageUrl = await uploadAndGetDownloadUrl('profilePics', profilePic);
-      final uid = firebaseAuth.currentUser!.uid;
+      final user = supabaseClient.auth.currentUser;
+      if (user == null) throw ServerException(message: 'User not authenticated');
+
+      final imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profilePics', profilePic);
       final languageLearner = LanguageLearnerModel(
-        uid: uid,
-        email: firebaseAuth.currentUser!.email!,
+        uid: user.id,
+        email: user.email!,
         firstName: firstName,
         middleName: middleName,
         lastName: lastName,
@@ -81,18 +79,16 @@ class LanguageLearnerRemoteDatasourceImpl
         dob: dob,
         languagesKnown: languagesKnown,
         languagesToLearn: languagesToLearn,
-        emailVerified: firebaseAuth.currentUser!.emailVerified,
+        emailVerified: user.emailConfirmedAt != null,
       );
-      await firestore
-          .collection('languageLearners')
-          .doc(uid)
-          .set(languageLearner.toMap());
-      await firestore.collection('users').doc(uid).update({
-        'firstName': firstName,
-        'lastName': lastName,
-        'middleName': middleName,
-        'userType': 'Usertype.languageLearner',
-      });
+      
+      await supabaseClient.from('language_learners').insert(languageLearner.toMap());
+      await supabaseClient.from('users').update({
+        'first_name': firstName,
+        'last_name': lastName,
+        'middle_name': middleName,
+        'user_type': toStringValue(Usertype.languageLearner),
+      }).eq('uid', user.id);
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -101,13 +97,12 @@ class LanguageLearnerRemoteDatasourceImpl
   @override
   Future<LanguageLearner> getLanguageLearner(String uid) async {
     try {
-      final docSnapshot =
-          await firestore.collection('languageLearners').doc(uid).get();
-      if (docSnapshot.exists) {
-        return LanguageLearnerModel.fromMap(docSnapshot.data()!);
-      } else {
-        throw ServerException(message: 'Language Learner not found');
-      }
+      final response = await supabaseClient
+          .from('language_learners')
+          .select()
+          .eq('uid', uid)
+          .single();
+      return LanguageLearnerModel.fromMap(response);
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -116,10 +111,9 @@ class LanguageLearnerRemoteDatasourceImpl
   @override
   Future<List<LanguageLearner>> getLanguageLearners() async {
     try {
-      final querySnapshot =
-          await firestore.collection('languageLearners').get();
-      return querySnapshot.docs
-          .map((doc) => LanguageLearnerModel.fromMap(doc.data()))
+      final response = await supabaseClient.from('language_learners').select();
+      return response
+          .map<LanguageLearner>((json) => LanguageLearnerModel.fromMap(json))
           .toList();
     } catch (e) {
       throw ServerException(message: e.toString());

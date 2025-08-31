@@ -65,10 +65,10 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, User>> signInWithGoogle() {
-    return _getUser(() async => await authRemoteDatasources.signInWithGoogle());
-  }
+  // @override
+  // Future<Either<Failure, User>> signInWithGoogle() {
+  //   return _getUser(() async => await authRemoteDatasources.signInWithGoogle());
+  // }
 
   @override
   Future<Either<Failure, bool>> verifyEmail() async {
@@ -84,18 +84,18 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, auth.FirebaseAuth>> getFirebaseAuth() async {
-    try {
-      if (!await checkInternetConnection.isConnected) {
-        return Left(Failure('No internet connection'));
-      }
-      final firebaseAuth = await authRemoteDatasources.getFirebaseAuth();
-      return Right(firebaseAuth);
-    } catch (e) {
-      return Left(Failure(e.toString()));
-    }
-  }
+  // @override
+  // Future<Either<Failure, auth.FirebaseAuth>> getFirebaseAuth() async {
+  //   try {
+  //     if (!await checkInternetConnection.isConnected) {
+  //       return Left(Failure('No internet connection'));
+  //     }
+  //     final firebaseAuth = await authRemoteDatasources.getFirebaseAuth();
+  //     return Right(firebaseAuth);
+  //   } catch (e) {
+  //     return Left(Failure(e.toString()));
+  //   }
+  // }
 
   @override
   Future<Either<Failure, bool>> isUserEmailVerified() async {

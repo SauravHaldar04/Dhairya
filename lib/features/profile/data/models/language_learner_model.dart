@@ -69,43 +69,42 @@ class LanguageLearnerModel extends LanguageLearner {
 
   Map<String, dynamic> toMap() {
     return {
-      'profilePic': profilePic,
+      'profile_pic': profilePic, // Match database schema
       'gender': gender,
-      'dob': dob.millisecondsSinceEpoch,
+      'dob': dob.toIso8601String(), // Convert DateTime to ISO string for Supabase
       'occupation': occupation,
-      'phoneNumber': phoneNumber,
+      'phone_number': phoneNumber, // Match database schema
       'address': address,
       'city': city,
       'state': state,
       'country': country,
       'pincode': pincode,
-      'languagesKnown': languagesKnown,
-      'languagesToLearn': languagesToLearn,
+      'languages_known': languagesKnown, // Match database schema
+      'languages_to_learn': languagesToLearn, // Match database schema
       'usertype': toStringValue(usertype),
     };
   }
 
   factory LanguageLearnerModel.fromMap(Map<String, dynamic> map) {
     return LanguageLearnerModel(
-        profilePic: map['profilePic'] ?? '',
+        profilePic: map['profile_pic'] ?? '', // Match database schema
         gender: map['gender'] ?? '',
-        dob: DateTime.fromMillisecondsSinceEpoch(map['dob']),
+        dob: DateTime.parse(map['dob']), // Parse ISO string back to DateTime for Supabase
         occupation: map['occupation'] ?? '',
-        phoneNumber: map['phoneNumber'] ?? '',
+        phoneNumber: map['phone_number'] ?? '', // Match database schema
         address: map['address'] ?? '',
         city: map['city'] ?? '',
         state: map['state'] ?? '',
         country: map['country'] ?? '',
         pincode: map['pincode'] ?? '',
-        languagesKnown: List<String>.from(map['languagesKnown']),
-        languagesToLearn: List<String>.from(map['languagesToLearn']),
-        emailVerified: map['emailVerified'],
+        languagesKnown: List<String>.from(map['languages_known']), // Match database schema
+        languagesToLearn: List<String>.from(map['languages_to_learn']), // Match database schema
+        emailVerified: map['email_verified'], // Match database schema
         uid: map['uid'],
-        middleName: map['middleName'],
-        firstName: map['firstName'],
-        lastName: map['lastName'],
+        middleName: map['middle_name'], // Match database schema
+        firstName: map['first_name'], // Match database schema
+        lastName: map['last_name'], // Match database schema
         email: map['email'],
-        
         );
   }
 

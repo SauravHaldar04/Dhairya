@@ -4,8 +4,7 @@ import 'package:aparna_education/features/auth/data/datasources/auth_remote_data
 import 'package:aparna_education/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
 import 'package:aparna_education/core/usecase/current_user.dart';
-import 'package:aparna_education/features/auth/domain/usecases/get_firebase_auth.dart';
-import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
+import 'package:aparna_education/features/auth/domain/usecases/get_current_user_id.dart';
 import 'package:aparna_education/features/auth/domain/usecases/is_user_email_verified.dart';
 import 'package:aparna_education/features/auth/domain/usecases/update_email_verification.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
@@ -26,34 +25,33 @@ import 'package:aparna_education/features/profile/domain/repositories/teacher_re
 import 'package:aparna_education/features/profile/domain/repositories/student_repository.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_language_learner.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_parent.dart';
+import 'package:aparna_education/features/profile/domain/usecases/update_parent.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_teacher.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_student.dart';
 import 'package:aparna_education/features/profile/domain/usecases/get_parent.dart';
+import 'package:aparna_education/features/profile/domain/usecases/get_students_by_parent.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:aparna_education/firebase_options.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:aparna_education/core/secrets/secrets.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:logger/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: Secrets.supabaseUrl,
+    anonKey: Secrets.supabaseAnonKey,
   );
+  
   _initAuth();
   _initProfile();
 
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final SupabaseClient supabaseClient = Supabase.instance.client;
   final Logger logger = Logger();
-  serviceLocator.registerSingleton<GoogleSignIn>(googleSignIn);
-  serviceLocator.registerSingleton<FirebaseAuth>(firebaseAuth);
-  serviceLocator.registerSingleton<FirebaseFirestore>(firebaseFirestore);
+  
+  serviceLocator.registerSingleton<SupabaseClient>(supabaseClient);
   serviceLocator.registerSingleton<Logger>(logger);
   serviceLocator.registerFactory(() => InternetConnection());
   serviceLocator.registerFactory<CheckInternetConnection>(
@@ -67,10 +65,7 @@ void _initAuth() {
   serviceLocator
     ..registerFactory<AuthRemoteDataSources>(
       () => AuthRemoteDataSourcesImpl(
-        serviceLocator(),
-        serviceLocator(),
-        serviceLocator(),
-        serviceLocator(),
+        serviceLocator<SupabaseClient>(),
       ),
     )
     ..registerFactory<AuthRepository>(
@@ -89,11 +84,11 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
-    ..registerFactory(
-      () => GoogleLogin(
-        serviceLocator(),
-      ),
-    )
+    // ..registerFactory(
+    //   () => GoogleLogin(
+    //     serviceLocator(),
+    //   ),
+    // )
     ..registerFactory(
       () => CurrentUser(
         serviceLocator(),
@@ -114,8 +109,13 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
+    // ..registerFactory(
+    //   () => GetFirebaseAuth(
+    //     serviceLocator(),
+    //   ),
+    // )
     ..registerFactory(
-      () => GetFirebaseAuth(
+      () => GetCurrentUserId(
         serviceLocator(),
       ),
     )
@@ -125,10 +125,9 @@ void _initAuth() {
           userSignup: serviceLocator(),
           userLogin: serviceLocator(),
           currentUser: serviceLocator(),
-          authUserCubit: serviceLocator(),
-          googleSignIn: serviceLocator(),
+          //googleSignIn: serviceLocator(),
           verifyUserEmail: serviceLocator(),
-          getFirebaseAuth: serviceLocator(),
+         // getFirebaseAuth: serviceLocator(),
           isUserEmailVerified: serviceLocator(),
         ));
 }
@@ -137,7 +136,6 @@ void _initProfile() {
   serviceLocator
     ..registerFactory<TeacherRemoteDatasource>(
       () => TeacherRemoteDatasorceImpl(
-        serviceLocator(),
         serviceLocator(),
       ),
     )
@@ -155,7 +153,6 @@ void _initProfile() {
     ..registerFactory<ParentRemoteDatasource>(
       () => ParentRemoteDatasourceImpl(
         serviceLocator(),
-        serviceLocator(),
       ),
     )
     ..registerFactory<ParentRepository>(
@@ -170,13 +167,17 @@ void _initProfile() {
       ),
     )
     ..registerFactory(
+      () => UpdateParent(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
       () => GetParent(
         serviceLocator(),
       ),
     )
     ..registerFactory<LanguageLearnerRemoteDatasource>(
       () => LanguageLearnerRemoteDatasourceImpl(
-        serviceLocator(),
         serviceLocator(),
       ),
     )
@@ -194,7 +195,6 @@ void _initProfile() {
     ..registerFactory<StudentRemoteDatasource>(
       () => StudentRemoteDatasourceImpl(
         serviceLocator(),
-        serviceLocator(),
       ),
     )
     ..registerFactory<StudentRepository>(
@@ -206,13 +206,21 @@ void _initProfile() {
     ..registerFactory(
       () => AddStudent(
         serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => GetStudentsByParent(
+        serviceLocator(),
       ),
     )
     ..registerFactory(
       () => ProfileBloc(
+        getStudentsByParent: serviceLocator(),
         addStudent: serviceLocator(),
         getParent: serviceLocator(),
         addParent: serviceLocator(),
+        updateParent: serviceLocator(),
         addTeacher: serviceLocator(),
         getCurrentUser: serviceLocator(),
         addLanguageLearner: serviceLocator(),

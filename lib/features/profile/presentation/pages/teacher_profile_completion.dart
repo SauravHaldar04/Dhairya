@@ -12,11 +12,9 @@ import 'package:aparna_education/core/utils/view_pdf.dart';
 import 'package:aparna_education/core/widgets/csc_picker.dart';
 import 'package:aparna_education/core/widgets/dropdownwithsearch.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
-import 'package:aparna_education/core/widgets/project_dropdown.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -88,17 +86,33 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
     setState(() {
       resumeLoading = true;
     });
-    final file = await pickFile();
-    if (file == null) {
+
+    try {
+      final file =
+          await pickFile(); // Changed from pickPdfFile to pickImage for general file picking
+      if (file == null) {
+        setState(() {
+          resumeLoading = false;
+        });
+        return;
+      }
+
+      setState(() {
+        resume = file;
+        resumeLoading = false;
+      });
+
+      if (mounted) {
+        showSnackbar(context, 'Resume uploaded successfully!');
+      }
+    } catch (e) {
       setState(() {
         resumeLoading = false;
       });
-      return;
+      if (mounted) {
+        showSnackbar(context, 'Failed to upload resume. Please try again.');
+      }
     }
-    setState(() {
-      resume = file;
-      resumeLoading = false;
-    });
   }
 
   final mainKey = GlobalKey<AddressFormState>();
@@ -372,14 +386,14 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                     height: 20,
                   ),
                   ProjectTextfield(
-                      enabled: streetController.text.isNotEmpty,
+                      enabled: true,
                       text: "Apt, suite, etc.",
                       controller: aptController),
                   const SizedBox(
                     height: 20,
                   ),
                   ProjectTextfield(
-                    enabled: aptController.text.isNotEmpty,
+                    enabled: true,
                     text: "Postcode",
                     controller: postcodeController,
                     keyboardType: const TextInputType.numberWithOptions(),

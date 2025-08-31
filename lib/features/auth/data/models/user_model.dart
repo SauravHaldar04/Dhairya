@@ -47,24 +47,24 @@ class UserModel extends User {
     return <String, dynamic>{
       'uid': uid,
       'email': email,
-      'firstName': firstName,
-      'middleName': middleName,
-      'lastName': lastName,
-      'emailVerified': emailVerified,
-      'userType': toStringValue(userType),
+      'first_name': firstName, // Match database schema
+      'middle_name': middleName, // Match database schema
+      'last_name': lastName, // Match database schema
+      'email_verified': emailVerified, // Match database schema
+      'user_type': toStringValue(userType), // Match database schema
     };
   }
 
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      emailVerified: map['emailVerified'] ?? false,
+      emailVerified: map['email_verified'] ?? false, // Match database schema
       uid: map['uid'] as String,
       email: map['email'] as String,
-      firstName: map['firstName'] as String,
-      middleName: map['middleName'] as String,
-      lastName: map['lastName'] as String,
-      userType: getEnumFromString(map['userType']),
+      firstName: map['first_name'] as String, // Match database schema
+      middleName: map['middle_name'] as String, // Match database schema
+      lastName: map['last_name'] as String, // Match database schema
+      userType: getEnumFromString(map['user_type']), // Match database schema
     );
   }
 
