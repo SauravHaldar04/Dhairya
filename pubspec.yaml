@@ -45,7 +45,6 @@ dependencies:
   get_it: ^7.7.0
   intl: ^0.19.0
   file_picker: ^8.0.7
-  google_sign_in: ^6.2.1
   address_form: ^0.0.2
   csc_picker: ^0.2.7
   intl_phone_field: ^3.2.0
@@ -56,6 +55,8 @@ dependencies:
   logger: ^2.4.0
   cloudinary: ^1.2.0
   supabase_flutter: ^2.5.6
+  google_sign_in: ^7.1.1
+  uuid: ^3.0.7
 
 dev_dependencies:
   flutter_test:

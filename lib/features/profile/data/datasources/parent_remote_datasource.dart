@@ -86,6 +86,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
         gender: gender,
         dob: dob,
         usertype: Usertype.parent,
+  studentIds: const [],
       );
       await supabaseClient.from('parents').insert(parent.toMap());
       await supabaseClient.from('users').update({
@@ -175,6 +176,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
         gender: gender,
         dob: dob,
         usertype: Usertype.parent,
+        studentIds: currentParent.studentIds,
       );
 
       await supabaseClient.from('parents').update(updatedParent.toMap()).eq('uid', user.id);

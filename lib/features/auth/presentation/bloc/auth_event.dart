@@ -2,6 +2,8 @@ part of 'auth_bloc.dart';
 
 sealed class AuthEvent {}
 
+class AuthLogout extends AuthEvent {}
+
 final class AuthSignUp extends AuthEvent {
   final String firstName;
   final String middleName;

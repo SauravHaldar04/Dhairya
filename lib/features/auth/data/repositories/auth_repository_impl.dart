@@ -71,6 +71,11 @@ class AuthRepositoryImpl implements AuthRepository {
   // }
 
   @override
+  Future<Either<Failure, User>> signInWithGoogle() {
+    return _getUser(() async => await authRemoteDatasources.signInWithGoogle());
+  }
+
+  @override
   Future<Either<Failure, bool>> verifyEmail() async {
     try {
       if (!await checkInternetConnection.isConnected) {
@@ -117,6 +122,19 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(Failure('No internet connection'));
       }
       return Right(authRemoteDatasources.updateEmailVerification());
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> logout() async {
+    try {
+      if (!await checkInternetConnection.isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      await authRemoteDatasources.logout();
+      return const Right(null);
     } catch (e) {
       return Left(Failure(e.toString()));
     }

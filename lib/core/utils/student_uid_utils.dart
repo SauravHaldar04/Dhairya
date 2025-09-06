@@ -26,25 +26,25 @@ class StudentUidUtils {
   }
 
   /// Generates a unique student UID with proper formatting
-  static String generateStudentUid(String parentUid) {
-    if (parentUid.isEmpty) {
-      throw ArgumentError('Parent UID cannot be empty');
-    }
+  // static String generateStudentUid(String parentUid) {
+  //   if (parentUid.isEmpty) {
+  //     throw ArgumentError('Parent UID cannot be empty');
+  //   }
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final randomSuffix = (timestamp % 10000).toString().padLeft(4, '0');
-    final studentUid = 'student_${parentUid}_${timestamp}_$randomSuffix';
+  //   final timestamp = DateTime.now().millisecondsSinceEpoch;
+  //   final randomSuffix = (timestamp % 10000).toString().padLeft(4, '0');
+  //   final studentUid = 'student_${parentUid}_${timestamp}_$randomSuffix';
 
-    _logger.i(
-        'StudentUidUtils: Generated student UID - $studentUid for parent - $parentUid');
+  //   _logger.i(
+  //       'StudentUidUtils: Generated student UID - $studentUid for parent - $parentUid');
 
-    // Validate the generated UID
-    if (!validateStudentUid(studentUid, parentUid)) {
-      throw StateError('Failed to generate valid student UID');
-    }
+  //   // Validate the generated UID
+  //   if (!validateStudentUid(studentUid, parentUid)) {
+  //     throw StateError('Failed to generate valid student UID');
+  //   }
 
-    return studentUid;
-  }
+  //   return studentUid;
+  // }
 
   /// Checks if a UID follows the student UID pattern
   static bool isStudentUidFormat(String uid) {

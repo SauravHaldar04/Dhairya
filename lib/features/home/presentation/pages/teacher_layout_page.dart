@@ -1,6 +1,7 @@
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 
 class TeacherLayoutPage extends StatefulWidget {
   const TeacherLayoutPage({super.key});
@@ -54,7 +55,7 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage> {
 
     if (shouldLogout == true) {
       try {
-        await Supabase.instance.client.auth.signOut();
+  context.read<AuthBloc>().add(AuthLogout());
         if (context.mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(

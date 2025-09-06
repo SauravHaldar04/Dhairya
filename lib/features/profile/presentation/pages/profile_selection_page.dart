@@ -4,9 +4,9 @@ import 'package:aparna_education/features/profile/presentation/pages/language_le
 import 'package:aparna_education/features/profile/presentation/pages/parent_profile_completion.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_profile_completion.dart';
 import 'package:aparna_education/features/profile/presentation/widgets/profile_type_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
+// Removed FirebaseAuth import; using Supabase via AuthBloc
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -33,9 +33,9 @@ class _HomePageState extends State<HomePage> {
           IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushReplacement((MaterialPageRoute(
-                    builder: (context) => const LandingPage())));
+                context.read<AuthBloc>().add(AuthLogout());
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LandingPage()));
               })
         ],
       ),

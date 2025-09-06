@@ -1,4 +1,5 @@
 import 'package:aparna_education/core/theme/app_pallete.dart';
+import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/edit_parent_profile_page.dart';
 import 'package:aparna_education/core/utils/format_date.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
@@ -91,7 +92,7 @@ class _ParentProfilePageState extends State<ParentProfilePage> {
                 );
 
                 if (shouldLogout == true) {
-                  await FirebaseAuth.instance.signOut();
+                context.read<AuthBloc>().add(AuthLogout());
                   if (context.mounted) {
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(

@@ -24,7 +24,7 @@ class StudentModel extends Student {
       subjects: List<String>.from(map['subjects']),
       board: map['board'],
       medium: map['medium'],
-      uid: map['uid'],
+    uid: map['student_id'],
       email: map['email'],
       firstName: map['first_name'], // Match database schema
       middleName: map['middle_name'], // Match database schema
@@ -40,7 +40,8 @@ class StudentModel extends Student {
       'subjects': subjects,
       'board': board,
       'medium': medium,
-      'uid': uid,
+  // 'student_id' is the primary key column name in the students table
+    'student_id': uid,
       'email': email,
       'first_name': firstName, // Match database schema
       'middle_name': middleName, // Match database schema

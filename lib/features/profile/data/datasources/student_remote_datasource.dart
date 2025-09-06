@@ -4,6 +4,7 @@ import 'package:aparna_education/features/profile/data/models/parent_model.dart'
 import 'package:aparna_education/features/profile/data/models/student_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logger/logger.dart';
+import 'package:uuid/uuid.dart';
 
 abstract interface class StudentRemoteDatasource {
   SupabaseClient get supabaseClient;
@@ -45,11 +46,11 @@ class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
       final parentId = user.id;
 
       // Get parent data to associate with student
-      final parentData = await supabaseClient
-          .from('parents')
-          .select()
-          .eq('uid', parentId)
-          .single();
+    final parentData = await supabaseClient
+      .from('parents')
+      .select()
+      .eq('uid', parentId)
+      .single();
       
       // Verify parent data exists
       ParentModel.fromMap(parentData);
@@ -68,7 +69,7 @@ class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
         }
 
         try {
-          studentUid = StudentUidUtils.generateStudentUid(parentId);
+          studentUid = const Uuid().v4();
         } catch (e) {
           _logger.e('Error generating student UID: $e');
           throw ServerException(message: 'Error generating student UID: $e');
@@ -81,20 +82,14 @@ class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
         }
 
         // Check if UID already exists in students collection
-        final existingStudents = await supabaseClient
-            .from('students')
-            .select()
-            .eq('uid', studentUid);
+    final existingStudents = await supabaseClient
+      .from('students')
+      .select()
+      .eq('student_id', studentUid);
         uidExists = existingStudents.isNotEmpty;
 
         // Also check in parents collection to ensure no collision
-        if (!uidExists) {
-          final existingParents = await supabaseClient
-              .from('parents')
-              .select()
-              .eq('uid', studentUid);
-          uidExists = existingParents.isNotEmpty;
-        }
+  // No need to check parents table for collision with student_id; different namespace
 
         if (uidExists) {
           _logger.w('Student UID collision detected, generating new UID. Attempt: $attempts');
@@ -123,7 +118,17 @@ class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
       );
 
       // Save student to database
-      await supabaseClient.from('students').insert(student.toMap());
+  await supabaseClient.from('students').insert(student.toMap());
+
+  // Append student_id to parent's student_ids array
+  final existingIds = (parentData['student_ids'] as List?)?.cast<String>() ?? [];
+  if (!existingIds.contains(studentUid)) {
+    existingIds.add(studentUid);
+    await supabaseClient
+    .from('parents')
+    .update({'student_ids': existingIds})
+    .eq('uid', parentId);
+  }
 
       _logger.i('Student added successfully with UID: $studentUid for parent: $parentId');
     } catch (e) {
@@ -135,10 +140,10 @@ class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
   @override
   Future<List<StudentModel>> getStudentsByParent(String parentId) async {
     try {
-      final response = await supabaseClient
-          .from('students')
-          .select()
-          .eq('parent_uid', parentId); // Match database schema
+    final response = await supabaseClient
+      .from('students')
+      .select()
+      .eq('parent_uid', parentId); // Match database schema
 
       return response
           .map<StudentModel>((json) => StudentModel.fromMap(json))

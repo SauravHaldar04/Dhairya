@@ -5,11 +5,13 @@ import 'package:aparna_education/features/auth/data/repositories/auth_repository
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
 import 'package:aparna_education/core/usecase/current_user.dart';
 import 'package:aparna_education/features/auth/domain/usecases/get_current_user_id.dart';
+import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/is_user_email_verified.dart';
 import 'package:aparna_education/features/auth/domain/usecases/update_email_verification.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
+import 'package:aparna_education/features/auth/domain/usecases/logout_user.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/profile/data/datasources/language_learner_remote_datasource.dart';
 import 'package:aparna_education/features/profile/data/datasources/parent_remote_datasource.dart';
@@ -84,11 +86,11 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
-    // ..registerFactory(
-    //   () => GoogleLogin(
-    //     serviceLocator(),
-    //   ),
-    // )
+    ..registerFactory(
+      () => GoogleLogin(
+        serviceLocator(),
+      ),
+    )
     ..registerFactory(
       () => CurrentUser(
         serviceLocator(),
@@ -109,6 +111,11 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => LogoutUser(
+        serviceLocator(),
+      ),
+    )
     // ..registerFactory(
     //   () => GetFirebaseAuth(
     //     serviceLocator(),
@@ -119,16 +126,17 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
-    ..registerFactory(() => AuthBloc(
+  ..registerFactory(() => AuthBloc(
           updateEmailVerification: serviceLocator(),
           logger: serviceLocator(),
           userSignup: serviceLocator(),
           userLogin: serviceLocator(),
           currentUser: serviceLocator(),
-          //googleSignIn: serviceLocator(),
+          googleSignIn: serviceLocator(),
           verifyUserEmail: serviceLocator(),
          // getFirebaseAuth: serviceLocator(),
           isUserEmailVerified: serviceLocator(),
+      logoutUser: serviceLocator(),
         ));
 }
 

@@ -1,7 +1,6 @@
 
 import 'package:aparna_education/core/entities/user_entity.dart';
 import 'package:aparna_education/core/enums/usertype_enum.dart';
-import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
 
 class Parent extends User {
   final String profilePic;
@@ -14,11 +13,12 @@ class Parent extends User {
   final String state;
   final String country;
   final String pincode;
-  final List<Student> students;
+  // List of student IDs (student_id from students table) associated with this parent
+  final List<String> studentIds;
   Usertype usertype = Usertype.parent;
 
   Parent({
-    this.students = const [], 
+    this.studentIds = const [],
     required this.occupation,
     required this.profilePic,
     required this.gender,
@@ -47,8 +47,7 @@ class Parent extends User {
         );
 
   Parent.empty()
-      
-      :students = const [], 
+      : studentIds = const [],
       profilePic = '',
         gender = '',
         dob = DateTime.now(),

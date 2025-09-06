@@ -4,23 +4,25 @@ import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
 
 class ParentModel extends Parent {
-  ParentModel(
-      {required super.occupation,
-      required super.middleName,
-      required super.profilePic,
-      required super.gender,
-      required super.dob,
-      required super.phoneNumber,
-      required super.address,
-      required super.city,
-      required super.state,
-      required super.country,
-      required super.pincode,
-      required super.uid,
-      required super.email,
-      required super.firstName,
-      required super.lastName,
-      required super.usertype});
+  ParentModel({
+    required super.occupation,
+    required super.middleName,
+    required super.profilePic,
+    required super.gender,
+    required super.dob,
+    required super.phoneNumber,
+    required super.address,
+    required super.city,
+    required super.state,
+    required super.country,
+    required super.pincode,
+    required super.uid,
+    required super.email,
+    required super.firstName,
+    required super.lastName,
+    required super.usertype,
+    super.studentIds = const [],
+  });
   ParentModel copyWith({
     String? uid,
     String? email,
@@ -37,6 +39,7 @@ class ParentModel extends Parent {
     String? phoneNumber,
     String? gender,
     DateTime? dob,
+    List<String>? studentIds,
   }) {
     return ParentModel(
       uid: uid ?? this.uid,
@@ -54,7 +57,8 @@ class ParentModel extends Parent {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       gender: gender ?? this.gender,
       dob: dob ?? this.dob,
-      usertype: usertype ?? Usertype.none,
+  usertype: usertype,
+      studentIds: studentIds ?? this.studentIds,
     );
   }
 
@@ -76,6 +80,7 @@ class ParentModel extends Parent {
       'gender': gender,
       'dob': dob.toIso8601String(), // Convert DateTime to ISO string for Supabase
       'usertype': toStringValue(usertype),
+      'student_ids': studentIds,
     };
   }
 
@@ -97,6 +102,7 @@ class ParentModel extends Parent {
       gender: map['gender'],
       dob: DateTime.parse(map['dob']), // Parse ISO string back to DateTime for Supabase
       usertype: getEnumFromString(map['usertype']),
+      studentIds: (map['student_ids'] as List?)?.cast<String>() ?? const [],
     );
   }
 

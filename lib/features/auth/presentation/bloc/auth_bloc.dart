@@ -5,14 +5,17 @@ import 'dart:async';
 import 'package:aparna_education/core/entities/user_entity.dart';
 import 'package:aparna_education/core/usecase/usecase.dart';
 import 'package:aparna_education/core/usecase/current_user.dart';
+import 'package:aparna_education/features/auth/domain/usecases/google_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/is_user_email_verified.dart';
 import 'package:aparna_education/features/auth/domain/usecases/update_email_verification.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
+import 'package:aparna_education/features/auth/domain/usecases/logout_user.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -22,12 +25,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserSignup _userSignup;
   final UserLogin _userLogin;
   final CurrentUser _currentUser;
-  //final GoogleLogin _googleSignIn;
+  final GoogleLogin _googleSignIn;
   final VerifyUserEmail _verifyUserEmail;
   //final GetFirebaseAuth _getFirebaseAuth;
   final IsUserEmailVerified _isUserEmailVerified;
   final Logger _logger;
   final UpdateEmailVerification _updateEmailVerification;
+  final LogoutUser _logoutUser;
 
   Timer? _emailVerificationTimer;
 
@@ -37,18 +41,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required IsUserEmailVerified isUserEmailVerified,
     required UserSignup userSignup,
     required UserLogin userLogin,
-    // required GoogleLogin googleSignIn,
+    required GoogleLogin googleSignIn,
     required CurrentUser currentUser,
     required VerifyUserEmail verifyUserEmail,
+    required LogoutUser logoutUser,
     //required GetFirebaseAuth getFirebaseAuth,
     required Logger logger,
   }) : _updateEmailVerification = updateEmailVerification,
        _userSignup = userSignup,
        _isUserEmailVerified = isUserEmailVerified,
        _userLogin = userLogin,
-       //_googleSignIn = googleSignIn,
+       _googleSignIn = googleSignIn,
        _currentUser = currentUser,
-       _verifyUserEmail = verifyUserEmail,
+  _verifyUserEmail = verifyUserEmail,
+  _logoutUser = logoutUser,
        //_getFirebaseAuth = getFirebaseAuth,
        _logger = logger,
        super(AuthInitial()) {
@@ -61,6 +67,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEmailVerificationCompleted>(_onEmailVerificationCompleted);
     on<AuthEmailVerificationFailed>(_onEmailVerificationFailed);
     on<AuthIsUserEmailVerified>(_onIsUserEmailVerified);
+  on<AuthLogout>(_onLogout);
   }
 
   @override
@@ -112,10 +119,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  /// Handles the [AuthGoogleSignIn] event with empty implementation.
+  /// Handles the [AuthGoogleSignIn] event.
   void _onGoogleSignIn(AuthGoogleSignIn event, Emitter<AuthState> emit) async {
-    _logger.i('AuthGoogleSignIn event received - not implemented yet');
-    emit(AuthFailure('Google Sign-In not implemented yet'));
+    emit(AuthLoading());
+    _logger.i('Handling AuthGoogleSignIn event');
+    final result = await _googleSignIn(NoParams());
+    result.fold(
+      (failure) {
+        _logger.e('Google Sign-In failed: ${failure.message}');
+        emit(AuthFailure(failure.message));
+      },
+      (user) {
+        _logger.i('Google Sign-In successful for user: ${user.email}');
+        emit(AuthUserLoggedIn(user));
+      },
+    );
   }
 
   /// Handles the [AuthIsUserLoggedIn] event.
@@ -254,6 +272,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       _logger.e('Unexpected error during isUserEmailVerified: $e');
       emit(AuthFailure('Unexpected error: $e'));
+    }
+  }
+
+  void _onLogout(AuthLogout event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+  await _logoutUser(NoParams());
+      emit(AuthLoggedOut());
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
     }
   }
 }
