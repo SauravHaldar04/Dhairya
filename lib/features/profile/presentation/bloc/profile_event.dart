@@ -149,6 +149,50 @@ class GetParentData extends ProfileEvent {
   GetParentData({required this.uid});
 }
 
+class GetTeacherData extends ProfileEvent {
+  final String uid;
+
+  GetTeacherData({required this.uid});
+}
+
+class UpdateTeacherProfile extends ProfileEvent {
+  final String firstName;
+  final String lastName;
+  final String middleName;
+  final File? profilePic;
+  final String address;
+  final String city;
+  final String state;
+  final String country;
+  final String pincode;
+  final DateTime dob;
+  final String gender;
+  final String phoneNumber;
+  final String workExp;
+  final List<String> subjects;
+  final List<String> board;
+  final File? resume;
+
+  UpdateTeacherProfile({
+    required this.firstName,
+    required this.lastName,
+    required this.middleName,
+    this.profilePic,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.country,
+    required this.pincode,
+    required this.dob,
+    required this.gender,
+    required this.phoneNumber,
+    required this.workExp,
+    required this.subjects,
+    required this.board,
+    this.resume,
+  });
+}
+
 class AddStudentProfile extends ProfileEvent {
   final String firstName;
   final String middleName;
@@ -173,4 +217,28 @@ class GetStudentsbyParent extends ProfileEvent {
   final String uid;
 
   GetStudentsbyParent({required this.uid});
+}
+
+class UpdateStudentProfile extends ProfileEvent {
+  final String studentId;
+  final String firstName;
+  final String middleName;
+  final String lastName;
+  final String standard;
+  final List<String> subjects;
+  final String board;
+  final String medium;
+  final File? profilePic;
+
+  UpdateStudentProfile({
+    required this.studentId,
+    required this.firstName,
+    required this.middleName,
+    required this.lastName,
+    required this.standard,
+    required this.subjects,
+    required this.board,
+    required this.medium,
+    this.profilePic,
+  });
 }

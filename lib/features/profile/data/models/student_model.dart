@@ -15,6 +15,7 @@ class StudentModel extends Student {
     required super.middleName,
     required super.lastName,
     required super.emailVerified,
+    super.profilePic,
   });
 
   factory StudentModel.fromMap(Map<String, dynamic> map) {
@@ -30,6 +31,7 @@ class StudentModel extends Student {
       middleName: map['middle_name'], // Match database schema
       lastName: map['last_name'], // Match database schema
       emailVerified: map['email_verified'], // Match database schema
+      profilePic: map['profile_pic'], // Match database schema
     );
   }
 
@@ -47,6 +49,7 @@ class StudentModel extends Student {
       'middle_name': middleName, // Match database schema
       'last_name': lastName, // Match database schema
       'email_verified': emailVerified, // Match database schema
+      'profile_pic': profilePic, // Match database schema
     };
   }
 

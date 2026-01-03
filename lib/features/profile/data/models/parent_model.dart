@@ -85,6 +85,12 @@ class ParentModel extends Parent {
   }
 
   factory ParentModel.fromMap(Map<String, dynamic> map) {
+    // Fix duplicate path in profile picture URL if it exists
+    String profilePicUrl = map['profile_pic'] ?? '';
+    if (profilePicUrl.contains('/profile-pictures/profile-pictures/')) {
+      profilePicUrl = profilePicUrl.replaceAll('/profile-pictures/profile-pictures/', '/profile-pictures/');
+    }
+    
     return ParentModel(
       uid: map['uid'],
       email: map['email'],
@@ -92,7 +98,7 @@ class ParentModel extends Parent {
       middleName: map['middle_name'], // Match database schema
       lastName: map['last_name'], // Match database schema
       occupation: map['occupation'],
-      profilePic: map['profile_pic'], // Match database schema
+      profilePic: profilePicUrl, // Use fixed URL
       address: map['address'],
       city: map['city'],
       state: map['state'],

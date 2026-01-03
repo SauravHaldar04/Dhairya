@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/core/network/check_internet_connection.dart';
@@ -58,6 +60,42 @@ class StudentRepositoryImpl implements StudentRepository {
       
       final students = await studentRemoteDatasource.getStudentsByParent(parentId);
       return Right(students);
+    } on ServerException catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Success>> updateStudent({
+    required String studentId,
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String standard,
+    required List<String> subjects,
+    required String board,
+    required String medium,
+    File? profilePic,
+  }) async {
+    try {
+      bool isConnected = await checkInternetConnection.isConnected;
+      if (!isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      
+      await studentRemoteDatasource.updateStudent(
+        studentId: studentId,
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        standard: standard,
+        subjects: subjects,
+        board: board,
+        medium: medium,
+        profilePic: profilePic,
+      );
+      
+      return Right(Success("Student updated successfully"));
     } on ServerException catch (e) {
       return Left(Failure(e.toString()));
     }

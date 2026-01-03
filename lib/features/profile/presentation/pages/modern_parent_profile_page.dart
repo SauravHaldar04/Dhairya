@@ -23,7 +23,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
   @override
   void initState() {
     super.initState();
-    // First get current user to get the UID, then get parent data
+    // Get current user through clean architecture
     context.read<ProfileBloc>().add(GetCurrentUser());
   }
 
@@ -32,9 +32,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
     return Scaffold(
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
-          print('Profile State: $state'); // Debug print
           if (state is ProfileFailure) {
-            print('Profile Failure: ${state.message}'); // Debug print
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -42,16 +40,11 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
               ),
             );
           } else if (state is ProfileUser) {
-            print('Profile User loaded: ${state.user.uid}'); // Debug print
             setState(() {
               currentUserId = state.user.uid;
-            });
-            // Now get the specific parent data
-            context.read<ProfileBloc>().add(GetParentData(uid: state.user.uid));
-          } else if (state is ParentDataLoaded) {
-            print('Parent Data Loaded: ${state.parent.firstName}'); // Debug print
-            setState(() {
-              currentParent = state.parent;
+              if (state.user is Parent) {
+                currentParent = state.user as Parent;
+              }
             });
           } else if (state is ProfileSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -83,50 +76,26 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                       color: Colors.grey.shade400,
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      currentUserId != null ? 'Parent Profile Not Found' : 'Profile not loaded',
-                      style: const TextStyle(
+                    const Text(
+                      'Profile not loaded',
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      currentUserId != null 
-                        ? 'Your parent profile may not be completed yet'
-                        : 'Please try refreshing',
+                      'Please try refreshing',
                       style: TextStyle(
                         color: Colors.grey.shade600,
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              currentParent = null;
-                              currentUserId = null;
-                            });
-                            context.read<ProfileBloc>().add(GetCurrentUser());
-                          },
-                          child: const Text('Refresh'),
-                        ),
-                        if (currentUserId != null) ...[
-                          const SizedBox(width: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Navigate to profile completion
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Pallete.primaryColor,
-                            ),
-                            child: const Text('Go Back', style: TextStyle(color: Colors.white)),
-                          ),
-                        ],
-                      ],
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<ProfileBloc>().add(GetCurrentUser());
+                      },
+                      child: const Text('Refresh'),
                     ),
                   ],
                 ),
@@ -260,12 +229,6 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                                     backgroundColor: Colors.white,
                                     backgroundImage: currentParent!.profilePic.isNotEmpty
                                         ? NetworkImage(currentParent!.profilePic)
-                                        : null,
-                                    onBackgroundImageError: currentParent!.profilePic.isNotEmpty 
-                                        ? (exception, stackTrace) {
-                                            print('Error loading image: ${currentParent!.profilePic}');
-                                            print('Error: $exception');
-                                          }
                                         : null,
                                     child: currentParent!.profilePic.isEmpty
                                         ? Icon(

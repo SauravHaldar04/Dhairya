@@ -9,8 +9,9 @@ class SupabaseStorageService {
   /// Upload file to Supabase Storage and get public URL
   static Future<String> uploadAndGetDownloadUrl(String folderName, File file) async {
     final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-    final String filePath = '$folderName/$fileName';
     final String bucket = _getBucketName(folderName);
+    // Don't duplicate folder name in path if it matches the bucket name
+    final String filePath = fileName;
     
     // Log upload start with file size
     final double fileSizeInMB = file.lengthSync() / (1024 * 1024);
@@ -24,13 +25,14 @@ class SupabaseStorageService {
           .from(bucket)
           .upload(filePath, file);
 
-      // Get public URL
-      String publicUrl = _supabase.storage
+      // Get signed URL (works for both public and private buckets)
+      // Signed URLs expire after a certain time (default: 1 year)
+      String signedUrl = await _supabase.storage
           .from(bucket)
-          .getPublicUrl(filePath);
+          .createSignedUrl(filePath, 31536000); // 1 year in seconds
 
-      AppLogger.storageUploadSuccess('Supabase', folderName, fileName, publicUrl);
-      return publicUrl;
+      AppLogger.storageUploadSuccess('Supabase', folderName, fileName, signedUrl);
+      return signedUrl;
     } catch (e) {
       AppLogger.storageUploadError('Supabase', folderName, fileName, e);
       
@@ -81,7 +83,7 @@ class SupabaseStorageService {
     
     try {
       String bucket = _getBucketName(folderName);
-      String filePath = '$folderName/$fileName';
+      String filePath = fileName;
       
       AppLogger.debug('[Supabase] Deleting from bucket: $bucket, path: $filePath');
       
@@ -105,7 +107,7 @@ class SupabaseStorageService {
       
       final files = await _supabase.storage
           .from(bucket)
-          .list(path: folderName);
+          .list(path: '');
           
       AppLogger.info('[Supabase] Found ${files.length} files in $folderName');
       return files;
@@ -121,7 +123,7 @@ class SupabaseStorageService {
     
     try {
       String bucket = _getBucketName(folderName);
-      String filePath = '$folderName/$fileName';
+      String filePath = fileName;
       
       await _supabase.storage
           .from(bucket)

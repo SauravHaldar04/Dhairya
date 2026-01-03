@@ -68,7 +68,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
       final user = supabaseClient.auth.currentUser;
       if (user == null) throw ServerException(message: 'User not authenticated');
 
-      final imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profile-pics', profilePic);
+      final imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profile-pictures', profilePic);
       final parent = ParentModel(
         uid: user.id,
         email: user.email!,
@@ -156,7 +156,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
       // Upload new profile picture if provided, otherwise keep existing one
       String imageUrl = currentParent.profilePic;
       if (profilePic != null) {
-        imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profilePics', profilePic);
+        imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profile-pictures', profilePic);
       }
 
       final updatedParent = ParentModel(

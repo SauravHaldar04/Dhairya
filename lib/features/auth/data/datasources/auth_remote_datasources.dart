@@ -1,6 +1,7 @@
 // auth_remote_datasources.dart
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
+import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/features/auth/data/models/user_model.dart';
 import 'package:aparna_education/core/secrets/secrets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -57,21 +58,55 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
     required String email,
     required String password,
   }) async {
-    final response = await supabaseClient.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-    if (response.user == null) throw Exception('Login failed');
-    final userData = await supabaseClient.from('users').select().eq('uid', response.user!.id).single();
-    return UserModel(
-      uid: response.user!.id,
-      email: userData['email'],
-      firstName: userData['first_name'],
-      middleName: userData['middle_name'],
-      lastName: userData['last_name'],
-      emailVerified: userData['email_verified'],
-      userType: Usertype.none,
-    );
+    try {
+      final response = await supabaseClient.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      
+      if (response.user == null) {
+        throw ServerException(message: 'Login failed. Please check your credentials.');
+      }
+      
+      final userData = await supabaseClient
+          .from('users')
+          .select()
+          .eq('uid', response.user!.id)
+          .single();
+      
+      // Debug logging
+      print('🔍 DEBUG loginWithEmailAndPassword: user_type from DB = ${userData['user_type']}');
+      final parsedType = getEnumFromString(userData['user_type']);
+      print('🔍 DEBUG loginWithEmailAndPassword: parsed userType = $parsedType');
+      
+      return UserModel(
+        uid: response.user!.id,
+        email: userData['email'],
+        firstName: userData['first_name'],
+        middleName: userData['middle_name'],
+        lastName: userData['last_name'],
+        emailVerified: userData['email_verified'],
+        userType: parsedType,
+      );
+    } on AuthException catch (e) {
+      // Handle Supabase authentication errors
+      String errorMessage = 'Login failed';
+      if (e.message.toLowerCase().contains('invalid')) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (e.message.toLowerCase().contains('not found')) {
+        errorMessage = 'No account found with this email. Please sign up first.';
+      } else if (e.message.toLowerCase().contains('email not confirmed')) {
+        errorMessage = 'Please verify your email before logging in.';
+      } else {
+        errorMessage = e.message;
+      }
+      throw ServerException(message: errorMessage);
+    } on PostgrestException catch (e) {
+      // Handle database errors
+      throw ServerException(message: 'Failed to retrieve user data: ${e.message}');
+    } catch (e) {
+      throw ServerException(message: 'An unexpected error occurred: ${e.toString()}');
+    }
   }
 
   @override
@@ -213,6 +248,12 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
     final user = supabaseClient.auth.currentUser;
     if (user == null) return null;
     final userData = await supabaseClient.from('users').select().eq('uid', user.id).single();
+    
+    // Debug logging
+    print('🔍 DEBUG getCurrentUser: user_type from DB = ${userData['user_type']}');
+    final parsedType = getEnumFromString(userData['user_type']);
+    print('🔍 DEBUG getCurrentUser: parsed userType = $parsedType');
+    
     return UserModel(
       uid: user.id,
       email: userData['email'],
@@ -220,7 +261,7 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
       middleName: userData['middle_name'],
       lastName: userData['last_name'],
       emailVerified: userData['email_verified'],
-      userType: getEnumFromString(userData['user_type']),
+      userType: parsedType,
     );
   }
 

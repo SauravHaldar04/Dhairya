@@ -46,6 +46,8 @@ app.*.map.json
 /ios/Runner/GoogleService-Info.plist
 /lib/core/secrets
 
+ADMIN_PORTAL_SETUP.md
+
 # Supabase secrets
 /lib/core/config/secrets.dart
 secrets.dart

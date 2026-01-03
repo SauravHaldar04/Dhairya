@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/success/success.dart';
 import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
@@ -15,4 +17,16 @@ abstract interface class StudentRepository {
   });
   
   Future<Either<Failure, List<Student>>> getStudentsByParent(String parentId);
+
+  Future<Either<Failure, Success>> updateStudent({
+    required String studentId,
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String standard,
+    required List<String> subjects,
+    required String board,
+    required String medium,
+    File? profilePic,
+  });
 }

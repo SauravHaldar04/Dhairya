@@ -22,27 +22,32 @@ This guide describes the recommended Supabase database schema for your app, base
 ## 2. `teachers` Table
 **Purpose:** Stores teacher-specific profile data.
 
-| Column      | Type      | Description                |
-|-------------|-----------|----------------------------|
-| uid         | text      | FK to users.uid (PK)       |
-| email       | text      | FK to users.email          |
-| first_name  | text      |                            |
-| middle_name | text      |                            |
-| last_name   | text      |                            |
-| subjects    | text[]    | Array of subjects          |
-| profile_pic | text      | URL to profile picture     |
-| address     | text      |                            |
-| city        | text      |                            |
-| state       | text      |                            |
-| country     | text      |                            |
-| pincode     | text      |                            |
-| phone_number| text      |                            |
-| gender      | text      |                            |
-| dob         | date      | Date of birth              |
-| work_exp    | text      | Work experience            |
-| resume      | text      | URL to resume              |
-| board       | text[]    | Array of boards            |
-| usertype    | text      | Enum: teacher              |
+| Column              | Type          | Description                                    |
+|---------------------|---------------|------------------------------------------------|
+| uid                 | text          | FK to users.uid (PK)                           |
+| email               | text          | FK to users.email                              |
+| first_name          | text          |                                                |
+| middle_name         | text          |                                                |
+| last_name           | text          |                                                |
+| subjects            | text[]        | Array of subjects                              |
+| profile_pic         | text          | URL to profile picture                         |
+| address             | text          |                                                |
+| city                | text          |                                                |
+| state               | text          |                                                |
+| country             | text          |                                                |
+| pincode             | text          |                                                |
+| phone_number        | text          |                                                |
+| gender              | text          |                                                |
+| dob                 | date          | Date of birth                                  |
+| work_exp            | text          | Work experience                                |
+| resume              | text          | URL to resume                                  |
+| board               | text[]        | Array of boards                                |
+| usertype            | text          | Enum: teacher                                  |
+| **verified**        | **boolean**   | **Admin verification status (default: false)** |
+| **verification_status** | **text**  | **pending/approved/rejected (default: pending)** |
+| **verification_date**   | **timestamptz** | **When teacher was verified**            |
+| **verified_by**     | **text**      | **UID of admin who verified**                  |
+| **rejection_reason**| **text**      | **Reason if rejected (nullable)**              |
 
 ---
 

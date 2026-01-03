@@ -33,11 +33,16 @@ class StudentCard extends StatelessWidget {
                   CircleAvatar(
                     radius: 24,
                     backgroundColor: Pallete.primaryColor.withOpacity(0.1),
-                    child: const Icon(
-                      Icons.person,
-                      color: Pallete.primaryColor,
-                      size: 28,
-                    ),
+                    backgroundImage: student.profilePic != null
+                        ? NetworkImage(student.profilePic!)
+                        : null,
+                    child: student.profilePic == null
+                        ? const Icon(
+                            Icons.person,
+                            color: Pallete.primaryColor,
+                            size: 28,
+                          )
+                        : null,
                   ),
                   const SizedBox(width: 12),
                   Expanded(

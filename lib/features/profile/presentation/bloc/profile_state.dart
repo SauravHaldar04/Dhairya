@@ -32,11 +32,16 @@ class ParentDataLoaded extends ProfileState {
   ParentDataLoaded(this.parent);
 }
 
+class TeacherDataLoaded extends ProfileState {
+  final Teacher teacher;
+
+  TeacherDataLoaded(this.teacher);
+}
+
 class StudentsLoaded extends ProfileState {
   final List<Student> students;
 
   StudentsLoaded({required this.students});
 
-  @override
   List<Object?> get props => [students];
 }

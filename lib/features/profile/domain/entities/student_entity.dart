@@ -1,7 +1,3 @@
-import 'package:aparna_education/core/entities/user_entity.dart';
-import 'package:aparna_education/core/enums/usertype_enum.dart';
-import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
-
 class Student{
   final String uid;
   final String email;
@@ -14,6 +10,7 @@ class Student{
   final List<String> subjects;
   final String board;
   final String medium;
+  final String? profilePic;
 
   
   Student(
@@ -27,7 +24,8 @@ class Student{
       required this.firstName,
       required this.middleName,
       required this.lastName,
-      required this.emailVerified, 
+      required this.emailVerified,
+      this.profilePic,
       }
       
       );

@@ -92,19 +92,29 @@ class _LoginPageState extends State<LoginPage> {
                         listener: (context, state) {
                           if (state is AuthSuccess) {
                             showSnackbar(context, "Login Successful");
+                            print('🔍 DEBUG login_page AuthSuccess: userType = ${state.user.userType}');
                             // Check email verification and route based on usertype
                             if (state.user.emailVerified) {
                               Widget destinationPage;
                               if (state.user.userType == Usertype.parent) {
+                                print('✅ Routing to ParentLayoutPage');
                                 destinationPage = const ParentLayoutPage();
                               } else if (state.user.userType ==
                                   Usertype.teacher) {
+                                print('✅ Routing to TeacherLayoutPage');
                                 destinationPage = const TeacherLayoutPage();
                               } else if (state.user.userType ==
                                   Usertype.languageLearner) {
+                                print('✅ Routing to LanguageLearnerLayoutPage');
                                 destinationPage =
                                     const LanguageLearnerLayoutPage();
+                              } else if (state.user.userType == Usertype.none) {
+                                print('✅ Routing to HomePage (profile selection)');
+                                // Only redirect to profile selection if usertype is none
+                                destinationPage = const HomePage();
                               } else {
+                                print('⚠️ Unknown usertype, routing to HomePage');
+                                // Fallback for any other usertype
                                 destinationPage = const HomePage();
                               }
                               Navigator.of(context).pushAndRemoveUntil(
@@ -122,19 +132,29 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           }
                           if (state is AuthUserLoggedIn) {
+                            print('🔍 DEBUG login_page AuthUserLoggedIn: userType = ${state.user.userType}');
                             // Handle existing logged-in user case
                             if (state.user.emailVerified) {
                               Widget destinationPage;
                               if (state.user.userType == Usertype.parent) {
+                                print('✅ Routing to ParentLayoutPage');
                                 destinationPage = const ParentLayoutPage();
                               } else if (state.user.userType ==
                                   Usertype.teacher) {
+                                print('✅ Routing to TeacherLayoutPage');
                                 destinationPage = const TeacherLayoutPage();
                               } else if (state.user.userType ==
                                   Usertype.languageLearner) {
+                                print('✅ Routing to LanguageLearnerLayoutPage');
                                 destinationPage =
                                     const LanguageLearnerLayoutPage();
+                              } else if (state.user.userType == Usertype.none) {
+                                print('✅ Routing to HomePage (profile selection)');
+                                // Only redirect to profile selection if usertype is none
+                                destinationPage = const HomePage();
                               } else {
+                                print('⚠️ Unknown usertype, routing to HomePage');
+                                // Fallback for any other usertype
                                 destinationPage = const HomePage();
                               }
                               Navigator.of(context).pushAndRemoveUntil(
@@ -235,16 +255,23 @@ class _LoginPageState extends State<LoginPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              height: 1,
-                              width: 100,
-                              color: Colors.grey,
+                            Expanded(
+                              child: Container(
+                                margin: const
+                                    EdgeInsets.only(right: 10.0),
+                                height: 1,
+                                
+                                color: Colors.grey,
+                              ),
                             ),
                             Text("Or sign in with google"),
-                            Container(
-                              height: 1,
-                              width: 100,
-                              color: Colors.grey,
+                            Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 10.0),
+                                height: 1,
+                                
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),

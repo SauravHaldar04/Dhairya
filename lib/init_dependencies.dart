@@ -31,6 +31,9 @@ import 'package:aparna_education/features/profile/domain/usecases/update_parent.
 import 'package:aparna_education/features/profile/domain/usecases/add_teacher.dart';
 import 'package:aparna_education/features/profile/domain/usecases/add_student.dart';
 import 'package:aparna_education/features/profile/domain/usecases/get_parent.dart';
+import 'package:aparna_education/features/profile/domain/usecases/get_teacher.dart';
+import 'package:aparna_education/features/profile/domain/usecases/update_teacher.dart';
+import 'package:aparna_education/features/profile/domain/usecases/update_student.dart';
 import 'package:aparna_education/features/profile/domain/usecases/get_students_by_parent.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/core/secrets/secrets.dart';
@@ -184,6 +187,16 @@ void _initProfile() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => GetTeacher(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => UpdateTeacher(
+        serviceLocator(),
+      ),
+    )
     ..registerFactory<LanguageLearnerRemoteDatasource>(
       () => LanguageLearnerRemoteDatasourceImpl(
         serviceLocator(),
@@ -223,10 +236,18 @@ void _initProfile() {
       ),
     )
     ..registerFactory(
+      () => UpdateStudent(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
       () => ProfileBloc(
         getStudentsByParent: serviceLocator(),
         addStudent: serviceLocator(),
+        updateStudent: serviceLocator(),
         getParent: serviceLocator(),
+        getTeacher: serviceLocator(),
+        updateTeacher: serviceLocator(),
         addParent: serviceLocator(),
         updateParent: serviceLocator(),
         addTeacher: serviceLocator(),

@@ -66,8 +66,64 @@ final CheckInternetConnection checkInternetConnection;
 
   @override
   Future<Either<Failure, Teacher>> getTeacher(String uid) async{
-    // TODO: implement getTeacher
-    throw UnimplementedError();
+    try {
+      bool isConnected = await checkInternetConnection.isConnected;
+      if (!isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      final teacher = await teacherRemoteDatasource.getTeacher(uid);
+      return Right(teacher);
+    } on ServerException catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Success>> updateTeacher({
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String phoneNumber,
+    required String address,
+    required String city,
+    required String state,
+    required String country,
+    required String pincode,
+    required String gender,
+    required DateTime dob,
+    File? profilePic,
+    required List<String> board,
+    required String workExp,
+    required List<String> subjects,
+    File? resume,
+  }) async {
+    try {
+      bool isConnected = await checkInternetConnection.isConnected;
+      if (!isConnected) {
+        return Left(Failure('No internet connection'));
+      }
+      await teacherRemoteDatasource.updateTeacher(
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        phoneNumber: phoneNumber,
+        address: address,
+        city: city,
+        state: state,
+        country: country,
+        pincode: pincode,
+        gender: gender,
+        dob: dob,
+        profilePic: profilePic,
+        board: board,
+        workExp: workExp,
+        subjects: subjects,
+        resume: resume,
+      );
+      return Right(Success("Teacher Profile Updated Successfully"));
+    } on ServerException catch (e) {
+      return Left(Failure(e.toString()));
+    }
   }
 
   @override

@@ -94,6 +94,9 @@ class _AppInitializerState extends State<AppInitializer> {
             return const Loader();
           } else if (state is AuthUserLoggedIn) {
             if (state.user.emailVerified) {
+              AppLogger.info('🔍 DEBUG: User type = ${state.user.userType}');
+              print('🔍 DEBUG main.dart: User type = ${state.user.userType}');
+              
               if (state.user.userType == Usertype.parent) {
                 AppLogger.info('👨‍👩‍👧‍👦 User logged in as parent: ${state.user.email}');
                 return const ParentLayoutPage();
@@ -103,6 +106,9 @@ class _AppInitializerState extends State<AppInitializer> {
               } else if (state.user.userType == Usertype.languageLearner) {
                 AppLogger.info('🎓 User logged in as language learner: ${state.user.email}');
                 return const LanguageLearnerLayoutPage();
+              } else if (state.user.userType == Usertype.none) {
+                AppLogger.info('👤 User needs to select profile type: ${state.user.email}');
+                return const HomePage();
               } else {
                 AppLogger.warning('⚠️ Unknown user type for: ${state.user.email}');
                 return const HomePage();

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:aparna_education/core/error/server_exception.dart';
+import 'package:aparna_education/core/network/supabase_storage.dart';
 import 'package:aparna_education/core/utils/student_uid_utils.dart';
 import 'package:aparna_education/features/profile/data/models/parent_model.dart';
 import 'package:aparna_education/features/profile/data/models/student_model.dart';
@@ -20,6 +23,18 @@ abstract interface class StudentRemoteDatasource {
   });
 
   Future<List<StudentModel>> getStudentsByParent(String parentId);
+
+  Future<void> updateStudent({
+    required String studentId,
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String standard,
+    required List<String> subjects,
+    required String board,
+    required String medium,
+    File? profilePic,
+  });
 }
 
 class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
@@ -149,6 +164,61 @@ class StudentRemoteDatasourceImpl implements StudentRemoteDatasource {
           .map<StudentModel>((json) => StudentModel.fromMap(json))
           .toList();
     } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> updateStudent({
+    required String studentId,
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String standard,
+    required List<String> subjects,
+    required String board,
+    required String medium,
+    File? profilePic,
+  }) async {
+    try {
+      final user = supabaseClient.auth.currentUser;
+      if (user == null) throw ServerException(message: 'User not authenticated');
+
+      // Fetch current student data
+      final currentStudentData = await supabaseClient
+          .from('students')
+          .select()
+          .eq('student_id', studentId)
+          .single();
+      
+      final currentStudent = StudentModel.fromMap(currentStudentData);
+
+      // Upload new profile picture if provided, otherwise keep existing one
+      String? imageUrl = currentStudent.profilePic;
+      if (profilePic != null) {
+        imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profile-pictures', profilePic);
+      }
+
+      // Update student data
+      final updatedData = {
+        'first_name': firstName,
+        'middle_name': middleName,
+        'last_name': lastName,
+        'standard': standard,
+        'subjects': subjects,
+        'board': board,
+        'medium': medium,
+        'profile_pic': imageUrl,
+      };
+
+      await supabaseClient
+          .from('students')
+          .update(updatedData)
+          .eq('student_id', studentId);
+
+      _logger.i('Student updated successfully: $studentId');
+    } catch (e) {
+      _logger.e('Error updating student: $e');
       throw ServerException(message: e.toString());
     }
   }

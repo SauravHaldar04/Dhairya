@@ -24,6 +24,11 @@ class TeacherModel extends Teacher {
     required String resume,
     required List<String> board,
     required Usertype usertype,
+    bool verified = false,
+    String verificationStatus = 'pending',
+    DateTime? verificationDate,
+    String? verifiedBy,
+    String? rejectionReason,
 
   }) : super(
           uid: uid,
@@ -44,6 +49,11 @@ class TeacherModel extends Teacher {
           workExp: workExp,
           resume: resume,
           board: board,
+          verified: verified,
+          verificationStatus: verificationStatus,
+          verificationDate: verificationDate,
+          verifiedBy: verifiedBy,
+          rejectionReason: rejectionReason,
           usertype: Usertype.teacher,
         );
 
@@ -66,6 +76,11 @@ class TeacherModel extends Teacher {
     String? workExp,
     String? resume,
     List<String>? board,
+    bool? verified,
+    String? verificationStatus,
+    DateTime? verificationDate,
+    String? verifiedBy,
+    String? rejectionReason,
   }) {
     return TeacherModel(
       uid: uid ?? this.uid,
@@ -86,6 +101,11 @@ class TeacherModel extends Teacher {
       workExp: workExp ?? this.workExp,
       resume: resume ?? this.resume,
       board: board ?? this.board,
+      verified: verified ?? this.verified,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      verificationDate: verificationDate ?? this.verificationDate,
+      verifiedBy: verifiedBy ?? this.verifiedBy,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
       usertype: usertype?? Usertype.teacher,
     );
   }
@@ -111,6 +131,11 @@ class TeacherModel extends Teacher {
       'resume': resume,
       'board': board,
       'usertype': toStringValue(usertype), // Convert enum to string for Supabase
+      'verified': verified,
+      'verification_status': verificationStatus,
+      'verification_date': verificationDate?.toIso8601String(),
+      'verified_by': verifiedBy,
+      'rejection_reason': rejectionReason,
     };
   }
 
@@ -121,8 +146,8 @@ class TeacherModel extends Teacher {
       firstName: map['first_name'], // Match database schema
       middleName: map['middle_name'], // Match database schema
       lastName: map['last_name'], // Match database schema
-      subjects: List<String>.from(map['subjects']),
-      profilePic: map['profile_pic'], // Match database schema
+      subjects: List<String>.from(map['subjects'] ?? []),
+      profilePic: map['profile_pic'] ?? '', // Match database schema
       address: map['address'],
       city: map['city'],
       state: map['state'],
@@ -132,8 +157,13 @@ class TeacherModel extends Teacher {
       gender: map['gender'],
       dob: DateTime.parse(map['dob']), // Parse ISO string back to DateTime
       workExp: map['work_exp'], // Match database schema
-      resume: map['resume'],
-      board: map['board'],
+      resume: map['resume'] ?? '',
+      board: List<String>.from(map['board'] ?? []),
+      verified: map['verified'] ?? false,
+      verificationStatus: map['verification_status'] ?? 'pending',
+      verificationDate: map['verification_date'] != null ? DateTime.parse(map['verification_date']) : null,
+      verifiedBy: map['verified_by'],
+      rejectionReason: map['rejection_reason'],
       usertype: getEnumFromString(map['usertype']), // Convert string back to enum
     );
   }

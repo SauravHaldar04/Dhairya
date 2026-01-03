@@ -189,17 +189,24 @@ class _SignUpPageState extends State<SignUpPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  height: 1,
-                                  width: 100,
-                                  color: Colors.grey,
-                                ),
-                                Text("Or sign in with google"),
-                                Container(
-                                  height: 1,
-                                  width: 100,
-                                  color: Colors.grey,
-                                ),
+                                Expanded(
+                              child: Container(
+                                margin: const
+                                    EdgeInsets.only(right: 10.0),
+                                height: 1,
+                                
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text("Or sign in with google"),
+                            Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 10.0),
+                                height: 1,
+                                
+                                color: Colors.grey,
+                              ),
+                            ),
                               ],
                             ),
                             SizedBox(

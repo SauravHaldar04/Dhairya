@@ -16,6 +16,11 @@ class Teacher extends User {
   final String state;
   final String country;
   final String pincode;
+  final bool verified;
+  final String verificationStatus;
+  final DateTime? verificationDate;
+  final String? verifiedBy;
+  final String? rejectionReason;
   Usertype usertype = Usertype.teacher;
 
 
@@ -34,6 +39,11 @@ class Teacher extends User {
     required this.state,
     required this.country,
     required this.pincode,
+    this.verified = false,
+    this.verificationStatus = 'pending',
+    this.verificationDate,
+    this.verifiedBy,
+    this.rejectionReason,
     required String uid,
     required String email,
     required String firstName,

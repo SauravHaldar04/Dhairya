@@ -60,7 +60,7 @@ class LanguageLearnerRemoteDatasourceImpl
       final user = supabaseClient.auth.currentUser;
       if (user == null) throw ServerException(message: 'User not authenticated');
 
-      final imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profilePics', profilePic);
+      final imageUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('profile-pictures', profilePic);
       final languageLearner = LanguageLearnerModel(
         uid: user.id,
         email: user.email!,

@@ -26,4 +26,23 @@ abstract interface class TeacherRepository {
     required List<String> subjects,
     required File resume,
   });
+  
+  Future<Either<Failure,Success>> updateTeacher({
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String phoneNumber,
+    required String address,
+    required String city,
+    required String state,
+    required String country,
+    required String pincode,
+    required String gender,
+    required DateTime dob,
+    File? profilePic,
+    required List<String> board,
+    required String workExp,
+    required List<String> subjects,
+    File? resume,
+  });
 }
