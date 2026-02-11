@@ -9,6 +9,7 @@ import 'package:aparna_education/core/utils/app_logger.dart';
 import 'package:aparna_education/core/secrets/secrets.dart';
 import 'package:aparna_education/core/network/supabase_storage.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/home/presentation/pages/language_learner_layout_page.dart';
 import 'package:aparna_education/features/home/presentation/pages/parent_layout_page.dart';
 import 'package:aparna_education/features/home/presentation/pages/teacher_layout_page.dart';
@@ -39,6 +40,9 @@ void main() async {
         ),
         BlocProvider<ProfileBloc>(
           create: (context) => serviceLocator<ProfileBloc>(),
+        ),
+        BlocProvider<LecturesBloc>(
+          create: (context) => serviceLocator<LecturesBloc>(),
         ),
       ],
       child: const MyApp(),

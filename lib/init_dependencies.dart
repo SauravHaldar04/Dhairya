@@ -1,5 +1,9 @@
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/network/check_internet_connection.dart';
+import 'package:aparna_education/features/lectures/data/datasources/lectures_remote_datasource.dart';
+import 'package:aparna_education/features/lectures/data/repositories/lectures_repository_impl.dart';
+import 'package:aparna_education/features/lectures/domain/repositories/lectures_repository.dart';
+import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
@@ -52,6 +56,7 @@ Future<void> initDependencies() async {
   
   _initAuth();
   _initProfile();
+  _initLectures();
 
   final SupabaseClient supabaseClient = Supabase.instance.client;
   final Logger logger = Logger();
@@ -253,6 +258,26 @@ void _initProfile() {
         addTeacher: serviceLocator(),
         getCurrentUser: serviceLocator(),
         addLanguageLearner: serviceLocator(),
+      ),
+    );
+}
+
+void _initLectures() {
+  serviceLocator
+    ..registerFactory<LecturesRemoteDataSource>(
+      () => LecturesRemoteDataSourceImpl(
+        serviceLocator<SupabaseClient>(),
+      ),
+    )
+    ..registerFactory<LecturesRepository>(
+      () => LecturesRepositoryImpl(
+         serviceLocator(),
+         serviceLocator(),
+      ),
+    )
+    ..registerLazySingleton(
+      () => LecturesBloc(
+        serviceLocator(),
       ),
     );
 }

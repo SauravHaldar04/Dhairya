@@ -317,7 +317,8 @@ class _EditTeacherProfilePageState extends State<EditTeacherProfilePage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
-            Navigator.of(context).pop(true); // Return true to indicate update
+            // Pop all routes and let the layout page handle routing based on verification status
+            Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (state is ProfileFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

@@ -187,6 +187,9 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
         resumeUrl = await SupabaseStorageService.uploadAndGetDownloadUrl('documents', resume);
       }
 
+      // If teacher was rejected, reset to pending for re-verification
+      final bool wasRejected = currentTeacher.verificationStatus == 'rejected';
+      
       final updatedTeacher = TeacherModel(
         uid: user.id,
         email: user.email!,
@@ -207,12 +210,12 @@ class TeacherRemoteDatasorceImpl implements TeacherRemoteDatasource {
         resume: resumeUrl,
         board: board,
         usertype: Usertype.teacher,
-        // Preserve verification fields from current teacher
-        verified: currentTeacher.verified,
-        verificationStatus: currentTeacher.verificationStatus,
-        verificationDate: currentTeacher.verificationDate,
-        verifiedBy: currentTeacher.verifiedBy,
-        rejectionReason: currentTeacher.rejectionReason,
+        // Reset verification if was rejected, otherwise preserve current status
+        verified: wasRejected ? false : currentTeacher.verified,
+        verificationStatus: wasRejected ? 'pending' : currentTeacher.verificationStatus,
+        verificationDate: wasRejected ? null : currentTeacher.verificationDate,
+        verifiedBy: wasRejected ? null : currentTeacher.verifiedBy,
+        rejectionReason: wasRejected ? null : currentTeacher.rejectionReason,
       );
 
       await supabaseClient.from('teachers').update(updatedTeacher.toMap()).eq('uid', user.id);

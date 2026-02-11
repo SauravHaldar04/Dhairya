@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/widgets/animations.dart';
+import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
+import 'package:aparna_education/features/profile/presentation/pages/edit_teacher_profile_page.dart';
 
 class TeacherRejectedPage extends StatelessWidget {
   final String rejectionReason;
+  final Teacher teacher;
 
   const TeacherRejectedPage({
     super.key,
     required this.rejectionReason,
+    required this.teacher,
   });
 
   @override
@@ -176,13 +180,17 @@ class TeacherRejectedPage extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              // TODO: Navigate to edit profile page
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Edit profile feature coming soon!'),
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditTeacherProfilePage(
+                                    teacher: teacher,
+                                  ),
                                 ),
                               );
+                              // The edit page will pop to the first route,
+                              // which will trigger a state refresh and show pending page
                             },
                             icon: const Icon(Icons.edit),
                             label: const Text('Update Profile & Reapply'),

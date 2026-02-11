@@ -2,8 +2,9 @@
 
 import 'package:aparna_education/core/enums/usertype_enum.dart';
 import 'package:aparna_education/core/error/server_exception.dart';
-import 'package:aparna_education/features/auth/data/models/user_model.dart';
 import 'package:aparna_education/core/secrets/secrets.dart';
+import 'package:aparna_education/features/auth/data/models/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 
@@ -150,96 +151,93 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
-      // If already signed in, just return the current user model
-      final already = supabaseClient.auth.currentUser;
-      if (already != null) {
-        final data = await supabaseClient.from('users').select().eq('uid', already.id).maybeSingle();
-        if (data != null) {
-          return UserModel(
-            uid: already.id,
-            email: data['email'],
-            firstName: data['first_name'],
-            middleName: data['middle_name'],
-            lastName: data['last_name'],
-            emailVerified: data['email_verified'],
-            userType: getEnumFromString(data['user_type']),
-          );
-        }
-      }
-
-      final completer = Completer<UserModel>();
-      late final StreamSubscription authSub;
-      authSub = supabaseClient.auth.onAuthStateChange.listen((event) async {
-        final session = event.session;
-        if ((event.event == AuthChangeEvent.signedIn || event.event == AuthChangeEvent.userUpdated) && session?.user != null && !completer.isCompleted) {
-          try {
-            final user = session!.user;
-            // Ensure user row exists
-            final existing = await supabaseClient.from('users').select().eq('uid', user.id).maybeSingle();
-            if (existing == null) {
-              final displayName = user.userMetadata?['full_name'] as String? ?? '';
-              final parts = displayName.split(' ');
-              final first = parts.isNotEmpty ? parts.first : '';
-              final last = parts.length > 1 ? parts.sublist(1).join(' ') : '';
-              await supabaseClient.from('users').insert({
-                'uid': user.id,
-                'email': user.email ?? '',
-                'first_name': first,
-                'middle_name': '',
-                'last_name': last,
-                'email_verified': user.emailConfirmedAt != null,
-                'user_type': toStringValue(Usertype.none),
-              });
-              completer.complete(UserModel(
-                uid: user.id,
-                email: user.email ?? '',
-                firstName: first,
-                middleName: '',
-                lastName: last,
-                emailVerified: user.emailConfirmedAt != null,
-                userType: Usertype.none,
-              ));
-            } else {
-              completer.complete(UserModel(
-                uid: user.id,
-                email: existing['email'],
-                firstName: existing['first_name'],
-                middleName: existing['middle_name'],
-                lastName: existing['last_name'],
-                emailVerified: existing['email_verified'],
-                userType: getEnumFromString(existing['user_type']),
-              ));
-            }
-          } catch (e) {
-            if (!completer.isCompleted) {
-              completer.completeError(Exception('Post sign-in handling failed: $e'));
-            }
-          } finally {
-            authSub.cancel();
-          }
-        }
-      });
-
-      // Trigger Supabase OAuth flow
-      try {
-        const baseUrl = Secrets.supabaseUrl; // from secrets
-        final expectedRedirect = '$baseUrl/auth/v1/callback';
-        // Debug print to help diagnose redirect_uri_mismatch issues.
-        // Remove or guard with kDebugMode in production if desired.
-        // ignore: avoid_print
-        print('[Google OAuth] Expected redirect URI: $expectedRedirect');
-      } catch (_) {}
-      await supabaseClient.auth.signInWithOAuth(
-        OAuthProvider.google,
+      // Initialize GoogleSignIn instance with client IDs
+      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+      
+      // Initialize with proper configuration
+      await googleSignIn.initialize(
+        clientId: Secrets.googleIosClientId,
+        serverClientId: Secrets.googleWebClientId,
       );
 
-      // Wait for completion
-      return await completer.future.timeout(const Duration(seconds: 60), onTimeout: () {
-        authSub.cancel();
-        throw Exception('Google OAuth timed out');
-      });
+      // Perform the authentication
+      final googleAccount = await googleSignIn.authenticate();
+
+      // Get authorization and authentication details
+      final googleAuthorization = await googleAccount.authorizationClient.authorizationForScopes([
+        'email',
+        'profile',
+        'openid',
+      ]);
+      final googleAuthentication = googleAccount.authentication;
+      final idToken = googleAuthentication.idToken;
+      final accessToken = googleAuthorization?.accessToken;
+
+      if (idToken == null) {
+        throw ServerException(message: 'No ID Token found from Google sign-in');
+      }
+
+      // Sign in to Supabase with the Google tokens
+      final response = await supabaseClient.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      final user = response.user;
+      if (user == null) {
+        throw ServerException(message: 'Failed to authenticate with Supabase');
+      }
+
+      // Check if user exists in database
+      final existing = await supabaseClient
+          .from('users')
+          .select()
+          .eq('uid', user.id)
+          .maybeSingle();
+
+      if (existing == null) {
+        // Create new user record
+        final displayName = user.userMetadata?['full_name'] as String? ?? '';
+        final parts = displayName.split(' ');
+        final firstName = parts.isNotEmpty ? parts.first : '';
+        final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+
+        await supabaseClient.from('users').insert({
+          'uid': user.id,
+          'email': user.email ?? '',
+          'first_name': firstName,
+          'middle_name': '',
+          'last_name': lastName,
+          'email_verified': true, // Google accounts are verified
+          'user_type': toStringValue(Usertype.none),
+        });
+
+        return UserModel(
+          uid: user.id,
+          email: user.email ?? '',
+          firstName: firstName,
+          middleName: '',
+          lastName: lastName,
+          emailVerified: true,
+          userType: Usertype.none,
+        );
+      } else {
+        // Return existing user
+        return UserModel(
+          uid: user.id,
+          email: existing['email'],
+          firstName: existing['first_name'],
+          middleName: existing['middle_name'],
+          lastName: existing['last_name'],
+          emailVerified: existing['email_verified'],
+          userType: getEnumFromString(existing['user_type']),
+        );
+      }
+    } on ServerException {
+      rethrow;
     } catch (e) {
-      throw Exception('Google OAuth initiation failed: $e');
+      throw ServerException(message: 'Google sign-in failed: ${e.toString()}');
     }
   }
 

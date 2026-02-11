@@ -222,6 +222,7 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
             return TeacherRejectedPage(
               rejectionReason: teacher.rejectionReason ?? 
                 'Your application did not meet our requirements.',
+              teacher: teacher,
             );
           }
           // If approved, continue with normal dashboard
