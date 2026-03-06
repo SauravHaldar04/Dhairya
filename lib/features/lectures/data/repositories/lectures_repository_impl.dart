@@ -130,7 +130,7 @@ class LecturesRepositoryImpl implements LecturesRepository {
   }
 
   @override
-  Future<Either<ServerException, List<String>>> createRecurringLectures({
+  Future<Either<ServerException, String>> createRecurringLectureTemplate({
     required String assignmentId,
     required String teacherUid,
     required String studentUid,
@@ -139,11 +139,11 @@ class LecturesRepositoryImpl implements LecturesRepository {
     required DateTime endDate,
     required TimeSlot timeSlot,
     required String recurrencePattern,
-    List<String>? recurrenceDays,
+    required List<String> recurrenceDays,
     String? notes,
     String? meetingLink,
   }) async {
-    return _handleRequest(() => remoteDataSource.createRecurringLectures(
+    return _handleRequest(() => remoteDataSource.createRecurringLectureTemplate(
           assignmentId: assignmentId,
           teacherUid: teacherUid,
           studentUid: studentUid,

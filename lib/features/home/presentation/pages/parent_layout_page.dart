@@ -4,6 +4,8 @@ import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart'
 import 'package:aparna_education/features/home/presentation/pages/parent_home_page.dart';
 import 'package:aparna_education/features/profile/presentation/pages/parent_profile_page_new.dart';
 import 'package:aparna_education/features/profile/presentation/pages/students_page.dart';
+import 'package:aparna_education/features/parents/lectures/presentation/pages/parent_lectures_home_page.dart';
+import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,11 +23,11 @@ class _ParentLayoutPageState extends State<ParentLayoutPage>
   int _selectedIndex = 0;
   late AnimationController _animationController;
 
-  final List<Widget> _pages = [
+  List<Widget> _getPages(String parentUid) => [
     const ParentHomePage(),
     const StudentsPage(),
     const ModernParentProfilePage(),
-    const Center(child: Text('Lectures - Coming Soon')),
+    ParentLecturesHomePage(parentUid: parentUid),
     const Center(child: Text('Calendar - Coming Soon')),
   ];
 
@@ -36,6 +38,9 @@ class _ParentLayoutPageState extends State<ParentLayoutPage>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
+    
+    // Fetch current user
+    context.read<ProfileBloc>().add(GetCurrentUser());
   }
 
   @override
@@ -278,9 +283,20 @@ class _ParentLayoutPageState extends State<ParentLayoutPage>
           ),
         ),
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: _pages[_selectedIndex],
+      body: BlocBuilder<ProfileBloc, ProfileState>(
+        buildWhen: (previous, current) {
+          // Only rebuild when transitioning to ProfileUser
+          return current is ProfileUser;
+        },
+        builder: (context, state) {
+          if (state is ProfileUser) {
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _getPages(state.user.uid)[_selectedIndex],
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -315,7 +331,7 @@ class _ParentLayoutPageState extends State<ParentLayoutPage>
             _buildBottomNavItem(Icons.school_rounded, 'Lectures', 3),
             _buildBottomNavItem(Icons.calendar_today_rounded, 'Calendar', 4),
           ],
-        ),
+      ),
       ),
     );
   }

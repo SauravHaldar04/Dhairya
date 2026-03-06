@@ -3,16 +3,16 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/lecture_entity.dart';
 import '../../../../core/theme/app_pallete.dart';
 
-class LectureCard extends StatelessWidget {
-  final Lecture lecture;
+class RecurringLectureGroupCard extends StatelessWidget {
+  final List<Lecture> lectures;
   final VoidCallback? onTap;
   final VoidCallback? onReschedule;
   final VoidCallback? onCancel;
   final bool showActions;
 
-  const LectureCard({
+  const RecurringLectureGroupCard({
     Key? key,
-    required this.lecture,
+    required this.lectures,
     this.onTap,
     this.onReschedule,
     this.onCancel,
@@ -20,7 +20,8 @@ class LectureCard extends StatelessWidget {
   }) : super(key: key);
 
   Color _getStatusColor() {
-    switch (lecture.status) {
+    final firstLecture = lectures.first;
+    switch (firstLecture.status) {
       case 'scheduled':
       case 'rescheduled':
         return Pallete.primaryColor;
@@ -36,7 +37,8 @@ class LectureCard extends StatelessWidget {
   }
 
   IconData _getStatusIcon() {
-    switch (lecture.status) {
+    final firstLecture = lectures.first;
+    switch (firstLecture.status) {
       case 'scheduled':
       case 'rescheduled':
         return Icons.schedule;
@@ -64,8 +66,42 @@ class LectureCard extends StatelessWidget {
     }
   }
 
+  String _getRecurrenceDaysDisplay() {
+    final firstLecture = lectures.first;
+    if (firstLecture.recurrenceDays == null || firstLecture.recurrenceDays!.isEmpty) {
+      return 'Daily';
+    }
+
+    final days = firstLecture.recurrenceDays!.map((day) {
+      return day.substring(0, 3).toUpperCase();
+    }).join('-');
+    
+    return days;
+  }
+
+  String _getDateRange() {
+    if (lectures.isEmpty) return '';
+    
+    final sortedLectures = List<Lecture>.from(lectures)
+      ..sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
+    
+    final firstDate = sortedLectures.first.scheduledDate;
+    final lastDate = sortedLectures.last.scheduledDate;
+    
+    if (firstDate.year == lastDate.year && 
+        firstDate.month == lastDate.month && 
+        firstDate.day == lastDate.day) {
+      return DateFormat('dd MMM yyyy').format(firstDate);
+    }
+    
+    return '${DateFormat('dd MMM').format(firstDate)} - ${DateFormat('dd MMM yyyy').format(lastDate)}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (lectures.isEmpty) return const SizedBox.shrink();
+    
+    final firstLecture = lectures.first;
     final statusColor = _getStatusColor();
 
     return Card(
@@ -107,7 +143,7 @@ class LectureCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          lecture.subject,
+                          firstLecture.subject,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -127,7 +163,7 @@ class LectureCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                lecture.status.toUpperCase(),
+                                firstLecture.status.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -141,137 +177,149 @@ class LectureCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (lecture.isRecurring)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Pallete.secondaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.repeat,
-                            size: 14,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Pallete.secondaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.repeat,
+                          size: 14,
+                          color: Pallete.secondaryColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _getRecurrenceDaysDisplay(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
                             color: Pallete.secondaryColor,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Recurring',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Pallete.secondaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
-              // Date and Time
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
+              // Count badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Pallete.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.event_repeat,
+                      size: 16,
+                      color: Pallete.primaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${lectures.length} ${lectures.length == 1 ? 'lecture' : 'lectures'}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.primaryColor,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            size: 18,
-                            color: Pallete.primaryColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            DateFormat('dd MMM yyyy').format(lecture.scheduledDate),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              // Date Range and Time
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          size: 18,
+                          color: Pallete.primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _getDateRange(),
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.access_time_rounded,
-                            size: 18,
-                            color: Pallete.primaryColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '${_formatTime(lecture.scheduledTime.startTime)} - ${_formatTime(lecture.scheduledTime.endTime)}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 18,
+                          color: Pallete.primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${_formatTime(firstLecture.scheduledTime.startTime)} - ${_formatTime(firstLecture.scheduledTime.endTime)}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
-              // Rescheduled Info
-              if (lecture.status == 'rescheduled' && lecture.originalDate != null) ...[
+              // Student name (if available)
+              if (firstLecture.studentFirstName != null) ...[
                 const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 18,
-                        color: Colors.orange.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Rescheduled from ${DateFormat('dd MMM').format(lecture.originalDate!)}${lecture.rescheduledReason != null ? ' - ${lecture.rescheduledReason}' : ''}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.orange.shade900,
-                          ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 18,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${firstLecture.studentFirstName} ${firstLecture.studentMiddleName ?? ''} ${firstLecture.studentLastName ?? ''}'.trim(),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade700,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
 
               // Meeting Link
-              if (lecture.meetingLink != null && lecture.meetingLink!.isNotEmpty) ...[
+              if (firstLecture.meetingLink != null && firstLecture.meetingLink!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -280,13 +328,13 @@ class LectureCard extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.videocam_outlined,
-                        size: 18,
+                        size: 16,
                         color: Colors.blue.shade700,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Online Lecture',
+                          'Online Lectures',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -294,21 +342,16 @@ class LectureCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Icon(
-                        Icons.open_in_new,
-                        size: 16,
-                        color: Colors.blue.shade700,
-                      ),
                     ],
                   ),
                 ),
               ],
 
               // Notes
-              if (lecture.notes != null && lecture.notes!.isNotEmpty) ...[
+              if (firstLecture.notes != null && firstLecture.notes!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -318,17 +361,19 @@ class LectureCard extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.note_outlined,
-                        size: 18,
+                        size: 16,
                         color: Colors.grey.shade600,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          lecture.notes!,
+                          firstLecture.notes!,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade700,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -338,7 +383,7 @@ class LectureCard extends StatelessWidget {
 
               // Action Buttons
               if (showActions && 
-                  (lecture.status == 'scheduled' || lecture.status == 'rescheduled')) ...[
+                  (firstLecture.status == 'scheduled' || firstLecture.status == 'rescheduled')) ...[
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -357,7 +402,7 @@ class LectureCard extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                           ),
                         ),
                       ),
@@ -378,7 +423,7 @@ class LectureCard extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                           ),
                         ),
                       ),

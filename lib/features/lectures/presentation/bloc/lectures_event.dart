@@ -103,7 +103,7 @@ class CreateOneTimeLectureEvent extends LecturesEvent {
   });
 }
 
-class CreateRecurringLecturesEvent extends LecturesEvent {
+class CreateRecurringLectureTemplateEvent extends LecturesEvent {
   final String assignmentId;
   final String teacherUid;
   final String studentUid;
@@ -112,11 +112,11 @@ class CreateRecurringLecturesEvent extends LecturesEvent {
   final DateTime endDate;
   final TimeSlot timeSlot;
   final String recurrencePattern;
-  final List<String>? recurrenceDays;
+  final List<String> recurrenceDays;
   final String? notes;
   final String? meetingLink;
 
-  CreateRecurringLecturesEvent({
+  CreateRecurringLectureTemplateEvent({
     required this.assignmentId,
     required this.teacherUid,
     required this.studentUid,
@@ -125,7 +125,7 @@ class CreateRecurringLecturesEvent extends LecturesEvent {
     required this.endDate,
     required this.timeSlot,
     required this.recurrencePattern,
-    this.recurrenceDays,
+    required this.recurrenceDays,
     this.notes,
     this.meetingLink,
   });

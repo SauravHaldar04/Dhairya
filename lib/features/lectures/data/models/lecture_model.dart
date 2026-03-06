@@ -24,14 +24,21 @@ class LectureModel extends Lecture {
     super.attendanceMarked = false,
     required super.createdAt,
     required super.updatedAt,
+    super.studentFirstName,
+    super.studentMiddleName,
+    super.studentLastName,
+    super.studentStandard,
   });
 
   factory LectureModel.fromMap(Map<String, dynamic> map) {
+    // Parse student data if present (from join)
+    final studentData = map['students'] as Map<String, dynamic>?;
+    
     return LectureModel(
       id: map['id'] as String,
       assignmentId: map['assignment_id'] as String,
       teacherUid: map['teacher_uid'] as String,
-      studentUid: map['student_uid'] as String,
+      studentUid: map['student_id'] as String,
       subject: map['subject'] as String,
       scheduledDate: DateTime.parse(map['scheduled_date'] as String),
       scheduledTime: TimeSlot.fromMap(map['scheduled_time'] as Map<String, dynamic>),
@@ -57,6 +64,10 @@ class LectureModel extends Lecture {
       attendanceMarked: map['attendance_marked'] as bool? ?? false,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
+      studentFirstName: studentData?['first_name'] as String?,
+      studentMiddleName: studentData?['middle_name'] as String?,
+      studentLastName: studentData?['last_name'] as String?,
+      studentStandard: studentData?['standard'] as String?,
     );
   }
 

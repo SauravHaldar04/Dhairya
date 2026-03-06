@@ -11,6 +11,13 @@ class TeacherStudentAssignment {
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  // Student details (from join)
+  final String? studentFirstName;
+  final String? studentMiddleName;
+  final String? studentLastName;
+  final String? studentStandard;
+  final String? studentBoard;
 
   const TeacherStudentAssignment({
     required this.id,
@@ -25,7 +32,19 @@ class TeacherStudentAssignment {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
+    this.studentFirstName,
+    this.studentMiddleName,
+    this.studentLastName,
+    this.studentStandard,
+    this.studentBoard,
   });
+  
+  String get studentFullName {
+    if (studentFirstName == null) return 'Unknown Student';
+    return [studentFirstName, studentMiddleName, studentLastName]
+        .where((n) => n != null && n.isNotEmpty)
+        .join(' ');
+  }
 
   TeacherStudentAssignment copyWith({
     String? id,

@@ -6,6 +6,7 @@ import 'package:aparna_education/features/lectures/domain/entities/time_slot_ent
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/day_selector.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/time_slot_picker.dart';
+import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,16 +27,13 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
   final List<String> _selectedDays = [];
   final List<TimeSlot> _timeSlots = [];
   final List<String> _selectedSubjects = [];
-
-  final List<String> _availableSubjects = [
-    'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi',
-    'Computer Science', 'History', 'Geography', 'Economics', 'Accountancy', 'Business Studies',
-  ];
+  List<String> _availableSubjects = [];
 
   @override
   void initState() {
     super.initState();
     context.read<LecturesBloc>().add(GetTeacherAvailabilityEvent(widget.teacherUid));
+    context.read<ProfileBloc>().add(GetTeacherData(uid: widget.teacherUid));
   }
 
   void _saveAvailability() {
@@ -64,9 +62,17 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Availability'), centerTitle: true),
-      body: BlocConsumer<LecturesBloc, LecturesState>(
+    return BlocListener<ProfileBloc, ProfileState>(
+      listener: (context, state) {
+        if (state is TeacherDataLoaded && _availableSubjects.isEmpty) {
+          setState(() {
+            _availableSubjects = state.teacher.subjects;
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('My Availability'), centerTitle: true),
+        body: BlocConsumer<LecturesBloc, LecturesState>(
         listener: (context, state) {
           if (state is LecturesError) showSnackbar(context, state.message);
           if (state is TeacherAvailabilityLoaded && state.availability != null) {
@@ -166,6 +172,7 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
             ),
           );
         },
+      ),
       ),
     );
   }

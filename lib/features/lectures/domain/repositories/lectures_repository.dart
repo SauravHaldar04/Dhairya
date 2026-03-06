@@ -73,8 +73,8 @@ abstract interface class LecturesRepository {
     String? meetingLink,
   });
   
-  /// Create recurring lectures (daily or weekly pattern)
-  Future<Either<ServerException, List<String>>> createRecurringLectures({
+  /// Create recurring lecture template (alarm-clock pattern)
+  Future<Either<ServerException, String>> createRecurringLectureTemplate({
     required String assignmentId,
     required String teacherUid,
     required String studentUid,
@@ -83,7 +83,7 @@ abstract interface class LecturesRepository {
     required DateTime endDate,
     required TimeSlot timeSlot,
     required String recurrencePattern, // 'daily' or 'weekly'
-    List<String>? recurrenceDays, // For weekly: ['monday', 'wednesday', 'friday']
+    required List<String> recurrenceDays, // ['monday', 'wednesday', 'friday']
     String? notes,
     String? meetingLink,
   });

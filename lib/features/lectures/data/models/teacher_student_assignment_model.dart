@@ -14,14 +14,22 @@ class TeacherStudentAssignmentModel extends TeacherStudentAssignment {
     super.notes,
     required super.createdAt,
     required super.updatedAt,
+    super.studentFirstName,
+    super.studentMiddleName,
+    super.studentLastName,
+    super.studentStandard,
+    super.studentBoard,
   });
 
   factory TeacherStudentAssignmentModel.fromMap(Map<String, dynamic> map) {
+    // Parse student data if present (from join)
+    final studentData = map['students'] as Map<String, dynamic>?;
+    
     return TeacherStudentAssignmentModel(
       id: map['id'] as String,
       lectureRequestId: map['lecture_request_id'] as String,
       teacherUid: map['teacher_uid'] as String,
-      studentUid: map['student_uid'] as String,
+      studentUid: map['student_id'] as String,
       subjects: List<String>.from(map['subjects'] as List),
       assignedBy: map['assigned_by'] as String,
       assignmentStatus: map['assignment_status'] as String,
@@ -30,6 +38,11 @@ class TeacherStudentAssignmentModel extends TeacherStudentAssignment {
       notes: map['notes'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
+      studentFirstName: studentData?['first_name'] as String?,
+      studentMiddleName: studentData?['middle_name'] as String?,
+      studentLastName: studentData?['last_name'] as String?,
+      studentStandard: studentData?['standard'] as String?,
+      studentBoard: studentData?['board'] as String?,
     );
   }
 

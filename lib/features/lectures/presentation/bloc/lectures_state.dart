@@ -55,9 +55,9 @@ class LectureCreated extends LecturesState {
   LectureCreated(this.lectureId);
 }
 
-class RecurringLecturesCreated extends LecturesState {
-  final List<String> lectureIds;
-  RecurringLecturesCreated(this.lectureIds);
+class RecurringLectureTemplateCreated extends LecturesState {
+  final String templateId;
+  RecurringLectureTemplateCreated(this.templateId);
 }
 
 class LectureRescheduled extends LecturesState {}

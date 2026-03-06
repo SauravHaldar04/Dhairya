@@ -7,6 +7,8 @@ import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bl
 import 'package:aparna_education/features/lectures/domain/entities/time_slot_entity.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/day_selector.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/time_slot_picker.dart';
+import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
 
 class ParentRequestLecturePage extends StatefulWidget {
   final String parentUid;
@@ -24,6 +26,15 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
   String? selectedStudentUid;
   final List<String> selectedSubjects = [];
   final List<TimeSlot> preferredTimeSlots = [];
+  List<Student> students = [];
+  List<String> availableSubjects = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch parent's students
+    context.read<ProfileBloc>().add(GetStudentsbyParent(uid: widget.parentUid));
+  }
 
   void _addTimeSlot(TimeSlot timeSlot, String day) {
     setState(() {
@@ -62,16 +73,24 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
-      body: BlocConsumer<LecturesBloc, LecturesState>(
+      body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, state) {
-          if (state is LectureRequestCreated) {
-            showSnackbar(context, 'Lecture request submitted successfully');
-            Navigator.pop(context);
-          } else if (state is LecturesError) {
-            showSnackbar(context, state.message);
+          if (state is StudentsLoaded) {
+            setState(() {
+              students = state.students;
+            });
           }
         },
-        builder: (context, state) {
+        child: BlocConsumer<LecturesBloc, LecturesState>(
+          listener: (context, state) {
+            if (state is LectureRequestCreated) {
+              showSnackbar(context, 'Lecture request submitted successfully');
+              Navigator.pop(context);
+            } else if (state is LecturesError) {
+              showSnackbar(context, state.message);
+            }
+          },
+          builder: (context, state) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -93,10 +112,21 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
                       isExpanded: true,
                       hint: const Text('Select Student'),
                       value: selectedStudentUid,
-                      items: const [
-                        DropdownMenuItem(value: 'student1', child: Text('Student 1')),
-                      ],
-                      onChanged: (value) => setState(() => selectedStudentUid = value),
+                      items: students.map((student) {
+                        return DropdownMenuItem<String>(
+                          value: student.uid,
+                          child: Text('${student.firstName} ${student.lastName}'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedStudentUid = value;
+                          selectedSubjects.clear();
+                          // Update available subjects based on selected student
+                          final selectedStudent = students.firstWhere((s) => s.uid == value);
+                          availableSubjects = selectedStudent.subjects;
+                        });
+                      },
                     ),
                   ),
                 ),
@@ -106,18 +136,24 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: ['Math', 'Science', 'English', 'History'].map((subject) {
-                    final isSelected = selectedSubjects.contains(subject);
-                    return FilterChip(
-                      label: Text(subject),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            selectedSubjects.add(subject);
-                          } else {
+                if (availableSubjects.isEmpty)
+                  const Text(
+                    'Please select a student first',
+                    style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                  )
+                else
+                  Wrap(
+                    spacing: 8,
+                    children: availableSubjects.map((subject) {
+                      final isSelected = selectedSubjects.contains(subject);
+                      return FilterChip(
+                        label: Text(subject),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              selectedSubjects.add(subject);
+                            } else {
                             selectedSubjects.remove(subject);
                           }
                         });
@@ -182,6 +218,7 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
             ),
           );
         },
+        ),
       ),
     );
   }

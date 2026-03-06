@@ -28,10 +28,15 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
   bool _isRecurring = false;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  TimeOfDay? _selectedEndTime;
   DateTime? _endDate;
   final _notesController = TextEditingController();
   final _meetingLinkController = TextEditingController();
   List<TeacherStudentAssignment> _assignments = [];
+  
+  // For recurring lectures - days of the week
+  final List<String> _weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  final Set<String> _selectedDays = {};
 
   @override
   void initState() {
@@ -47,53 +52,77 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
   }
 
   void _createLecture() {
-    if (_selectedAssignment == null) {
-      showSnackbar(context, 'Please select a student');
-      return;
-    }
-    if (_selectedSubject == null) {
-      showSnackbar(context, 'Please select a subject');
-      return;
-    }
-    if (_selectedDate == null || _selectedTime == null) {
-      showSnackbar(context, 'Please select date and time');
-      return;
-    }
+    try {
+      print('Create lecture button pressed');
+      
+      if (_selectedAssignment == null) {
+        showSnackbar(context, 'Please select a student');
+        return;
+      }
+      if (_selectedSubject == null) {
+        showSnackbar(context, 'Please select a subject');
+        return;
+      }
+      if (_selectedDate == null || _selectedTime == null || _selectedEndTime == null) {
+        showSnackbar(context, 'Please select date, start time and end time');
+        return;
+      }
 
-    final timeSlot = TimeSlot(
-      day: DateFormat('EEEE').format(_selectedDate!),
-      startTime: _selectedTime!.format(context),
-      endTime: TimeOfDay(hour: _selectedTime!.hour + 1, minute: _selectedTime!.minute).format(context),
-    );
+      print('Creating TimeSlot...');
+      final timeSlot = TimeSlot(
+        day: DateFormat('EEEE').format(_selectedDate!),
+        startTime: _selectedTime!.format(context),
+        endTime: _selectedEndTime!.format(context),
+      );
+      print('TimeSlot created: $timeSlot');
 
-    if (_isRecurring && _endDate != null) {
-      context.read<LecturesBloc>().add(
-        CreateRecurringLecturesEvent(
-          assignmentId: _selectedAssignment!.id,
-          teacherUid: widget.teacherUid,
-          studentUid: _selectedAssignment!.studentUid,
-          subject: _selectedSubject!,
-          startDate: _selectedDate!,
-          endDate: _endDate!,
-          timeSlot: timeSlot,
-          recurrencePattern: 'weekly',
-          notes: _notesController.text.isEmpty ? null : _notesController.text,
-          meetingLink: _meetingLinkController.text.isEmpty ? null : _meetingLinkController.text,
-        ),
-      );
-    } else {
-      context.read<LecturesBloc>().add(
-        CreateOneTimeLectureEvent(
-          assignmentId: _selectedAssignment!.id,
-          teacherUid: widget.teacherUid,
-          studentUid: _selectedAssignment!.studentUid,
-          subject: _selectedSubject!,
-          scheduledDate: _selectedDate!,
-          scheduledTime: timeSlot,
-          notes: _notesController.text.isEmpty ? null : _notesController.text,
-          meetingLink: _meetingLinkController.text.isEmpty ? null : _meetingLinkController.text,
-        ),
-      );
+      if (_isRecurring && _endDate != null) {
+        if (_selectedDays.isEmpty) {
+          showSnackbar(context, 'Please select at least one day for recurring lectures');
+          return;
+        }
+        
+        print('Creating recurring lecture template for days: $_selectedDays');
+        context.read<LecturesBloc>().add(
+          CreateRecurringLectureTemplateEvent(
+            assignmentId: _selectedAssignment!.id,
+            teacherUid: widget.teacherUid,
+            studentUid: _selectedAssignment!.studentUid,
+            subject: _selectedSubject!,
+            startDate: _selectedDate!,
+            endDate: _endDate!,
+            timeSlot: timeSlot,
+            recurrencePattern: 'weekly',
+            recurrenceDays: _selectedDays.toList(),
+            notes: _notesController.text.isEmpty ? null : _notesController.text,
+            meetingLink: _meetingLinkController.text.isEmpty ? null : _meetingLinkController.text,
+          ),
+        );
+      } else {
+        print('Creating one-time lecture event');
+        print('Assignment ID: ${_selectedAssignment!.id}');
+        print('Teacher UID: ${widget.teacherUid}');
+        print('Student UID: ${_selectedAssignment!.studentUid}');
+        print('Subject: $_selectedSubject');
+        
+        context.read<LecturesBloc>().add(
+          CreateOneTimeLectureEvent(
+            assignmentId: _selectedAssignment!.id,
+            teacherUid: widget.teacherUid,
+            studentUid: _selectedAssignment!.studentUid,
+            subject: _selectedSubject!,
+            scheduledDate: _selectedDate!,
+            scheduledTime: timeSlot,
+            notes: _notesController.text.isEmpty ? null : _notesController.text,
+            meetingLink: _meetingLinkController.text.isEmpty ? null : _meetingLinkController.text,
+          ),
+        );
+        print('Event added to bloc');
+      }
+    } catch (e, stackTrace) {
+      print('Error in _createLecture: $e');
+      print('Stack trace: $stackTrace');
+      showSnackbar(context, 'Error: $e');
     }
   }
 
@@ -102,14 +131,38 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Create Lecture'), centerTitle: true),
       body: BlocConsumer<LecturesBloc, LecturesState>(
+        listenWhen: (previous, current) => 
+          current is LecturesError || 
+          current is TeacherAssignmentsLoaded || 
+          current is LectureCreated || 
+          current is RecurringLectureTemplateCreated,
+        buildWhen: (previous, current) =>
+          current is LecturesLoading ||
+          current is TeacherAssignmentsLoaded ||
+          current is LecturesError ||
+          current is LecturesInitial,
         listener: (context, state) {
-          if (state is LecturesError) showSnackbar(context, state.message);
+          if (state is LecturesError) {
+            showSnackbar(context, state.message);
+          }
           if (state is TeacherAssignmentsLoaded) {
+            print('Assignments loaded: ${state.assignments.length}');
+            for (var assignment in state.assignments) {
+              print('Assignment: ${assignment.studentFullName}, Subjects: ${assignment.subjects}');
+            }
             setState(() => _assignments = state.assignments);
           }
-          if (state is LectureCreated || state is RecurringLecturesCreated) {
+          if (state is LectureCreated) {
             showSnackbar(context, 'Lecture created successfully');
-            Navigator.of(context).pop();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) Navigator.of(context).pop();
+            });
+          }
+          if (state is RecurringLectureTemplateCreated) {
+            showSnackbar(context, 'Recurring lecture schedule created successfully');
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) Navigator.of(context).pop();
+            });
           }
         },
         builder: (context, state) {
@@ -129,14 +182,14 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
                   hint: const Text('Choose a student'),
                   items: _assignments.map((assignment) => DropdownMenuItem(
                     value: assignment,
-                    child: Text('Student ${assignment.studentUid.substring(0, 8)}...'),
+                    child: Text(assignment.studentFullName),
                   )).toList(),
                   onChanged: (assignment) => setState(() {
                     _selectedAssignment = assignment;
-                    _selectedSubject = assignment?.subjects.first;
+                    _selectedSubject = assignment != null && assignment.subjects.isNotEmpty ? assignment.subjects.first : null;
                   }),
                 ),
-                if (_selectedAssignment != null) ...[
+                if (_selectedAssignment != null && _selectedAssignment!.subjects.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Text('Select Subject', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
@@ -148,33 +201,74 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
                   ),
                 ],
                 const SizedBox(height: 16),
-                // Date & Time
+                // Date Selector
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (date != null) setState(() => _selectedDate = date);
+                  },
+                  icon: const Icon(Icons.calendar_today),
+                  label: Text(_selectedDate == null ? 'Select Date' : DateFormat('MMM dd, yyyy').format(_selectedDate!)),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Time Selectors
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () async {
-                          final date = await showDatePicker(
+                          final time = await showTimePicker(
                             context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                            initialTime: _selectedTime ?? TimeOfDay.now(),
                           );
-                          if (date != null) setState(() => _selectedDate = date);
+                          if (time != null) {
+                            setState(() {
+                              _selectedTime = time;
+                              // Auto-set end time to 1 hour later if not already set
+                              if (_selectedEndTime == null) {
+                                _selectedEndTime = TimeOfDay(
+                                  hour: (time.hour + 1) % 24,
+                                  minute: time.minute,
+                                );
+                              }
+                            });
+                          }
                         },
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text(_selectedDate == null ? 'Select Date' : DateFormat('MMM dd, yyyy').format(_selectedDate!)),
+                        icon: const Icon(Icons.access_time),
+                        label: Text(_selectedTime == null ? 'Start Time' : _selectedTime!.format(context)),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () async {
-                          final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-                          if (time != null) setState(() => _selectedTime = time);
+                          final time = await showTimePicker(
+                            context: context,
+                            initialTime: _selectedEndTime ?? TimeOfDay(hour: (_selectedTime?.hour ?? 0 + 1) % 24, minute: _selectedTime?.minute ?? 0),
+                          );
+                          if (time != null) {
+                            // Validate end time is after start time
+                            if (_selectedTime != null) {
+                              final startMinutes = _selectedTime!.hour * 60 + _selectedTime!.minute;
+                              final endMinutes = time.hour * 60 + time.minute;
+                              if (endMinutes <= startMinutes) {
+                                showSnackbar(context, 'End time must be after start time');
+                                return;
+                              }
+                            }
+                            setState(() => _selectedEndTime = time);
+                          }
                         },
-                        icon: const Icon(Icons.access_time),
-                        label: Text(_selectedTime == null ? 'Select Time' : _selectedTime!.format(context)),
+                        icon: const Icon(Icons.access_time_filled),
+                        label: Text(_selectedEndTime == null ? 'End Time' : _selectedEndTime!.format(context)),
                       ),
                     ),
                   ],
@@ -188,6 +282,31 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
                   onChanged: (value) => setState(() => _isRecurring = value),
                 ),
                 if (_isRecurring) ...[
+                  const SizedBox(height: 16),
+                  Text('Select Days', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _weekDays.map((day) {
+                      final isSelected = _selectedDays.contains(day);
+                      return FilterChip(
+                        label: Text(day[0].toUpperCase() + day.substring(1, 3)),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedDays.add(day);
+                            } else {
+                              _selectedDays.remove(day);
+                            }
+                          });
+                        },
+                        selectedColor: Pallete.primaryColor.withOpacity(0.3),
+                        checkmarkColor: Pallete.primaryColor,
+                      );
+                    }).toList(),
+                  ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: () async {

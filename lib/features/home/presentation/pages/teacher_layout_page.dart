@@ -7,12 +7,12 @@ import 'package:aparna_education/core/widgets/animations.dart';
 import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_home_page.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_students_page.dart';
-import 'package:aparna_education/features/profile/presentation/pages/teacher_classes_page.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_reports_page.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_profile_page.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_pending_verification_page.dart';
 import 'package:aparna_education/features/profile/presentation/pages/teacher_rejected_page.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:aparna_education/features/lectures/presentation/pages/teacher_lectures_home_page.dart';
 
 class TeacherLayoutPage extends StatefulWidget {
   const TeacherLayoutPage({super.key});
@@ -25,12 +25,13 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
     with TickerProviderStateMixin {
   int _selectedIndex = 0;
   late AnimationController _fabController;
+  bool _hasRequestedTeacherData = false;
 
-  // Placeholder pages for teacher dashboard sections
-  final List<Widget> _pages = [
+  // Teacher dashboard sections with teacherUid
+  List<Widget> _getPages(String teacherUid) => [
     const TeacherHomePage(),
     const TeacherStudentsPage(), 
-    const TeacherClassesPage(),
+    TeacherLecturesHomePage(teacherUid: teacherUid),
     const TeacherReportsPage(),
     const TeacherProfilePage(),
   ];
@@ -199,8 +200,9 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
           );
         }
         
-        // When user data is loaded, fetch teacher data
-        if (state is ProfileUser) {
+        // When user data is loaded, fetch teacher data (only once)
+        if (state is ProfileUser && !_hasRequestedTeacherData) {
+          _hasRequestedTeacherData = true;
           context.read<ProfileBloc>().add(GetTeacherData(uid: state.user.uid));
         }
       },
@@ -225,10 +227,25 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
               teacher: teacher,
             );
           }
-          // If approved, continue with normal dashboard
+          // If approved, continue with normal dashboard - render with teacher UID
+          return _buildDashboard(teacher.uid);
         }
         
-        return Scaffold(
+        // For ProfileUser state without teacher data yet loaded
+        if (state is ProfileUser) {
+          return _buildDashboard(state.user.uid);
+        }
+        
+        // Default loading state
+        return const Scaffold(
+          body: CustomLoader(),
+        );
+      },
+    );
+  }
+  
+  Widget _buildDashboard(String teacherUid) {
+    return Scaffold(
           appBar: AppBar(
             title: FadeInSlide(
               delay: const Duration(milliseconds: 200),
@@ -299,7 +316,7 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
                 ),
               );
             },
-            child: _pages[_selectedIndex],
+            child: _getPages(teacherUid)[_selectedIndex],
           ),
         ),
       ),
@@ -367,9 +384,9 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.class_rounded),
+                  child: const Icon(Icons.school_rounded),
                 ),
-                label: 'Classes',
+                label: 'Lectures',
               ),
               BottomNavigationBarItem(
                 icon: AnimatedContainer(
@@ -403,8 +420,6 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
           ),
         ),
       ),
-    );
-      },
     );
   }
 }

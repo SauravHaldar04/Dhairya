@@ -25,7 +25,7 @@ class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
     // Lectures
     on<GetLecturesEvent>(_onGetLectures);
     on<CreateOneTimeLectureEvent>(_onCreateOneTimeLecture);
-    on<CreateRecurringLecturesEvent>(_onCreateRecurringLectures);
+    on<CreateRecurringLectureTemplateEvent>(_onCreateRecurringLectureTemplate);
     on<RescheduleLectureEvent>(_onRescheduleLecture);
     on<CancelLectureEvent>(_onCancelLecture);
     on<UpdateLectureStatusEvent>(_onUpdateLectureStatus);
@@ -149,6 +149,7 @@ class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
     CreateOneTimeLectureEvent event,
     Emitter<LecturesState> emit,
   ) async {
+    print('Creating one-time lecture...');
     emit(LecturesLoading());
     final result = await _repository.createOneTimeLecture(
       assignmentId: event.assignmentId,
@@ -161,17 +162,24 @@ class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
       meetingLink: event.meetingLink,
     );
     result.fold(
-      (error) => emit(LecturesError(error.message)),
-      (lectureId) => emit(LectureCreated(lectureId)),
+      (error) {
+        print('Error creating lecture: ${error.message}');
+        emit(LecturesError(error.message));
+      },
+      (lectureId) {
+        print('Lecture created successfully: $lectureId');
+        emit(LectureCreated(lectureId));
+      },
     );
   }
 
-  Future<void> _onCreateRecurringLectures(
-    CreateRecurringLecturesEvent event,
+  Future<void> _onCreateRecurringLectureTemplate(
+    CreateRecurringLectureTemplateEvent event,
     Emitter<LecturesState> emit,
   ) async {
+    print('Creating recurring lecture template...');
     emit(LecturesLoading());
-    final result = await _repository.createRecurringLectures(
+    final result = await _repository.createRecurringLectureTemplate(
       assignmentId: event.assignmentId,
       teacherUid: event.teacherUid,
       studentUid: event.studentUid,
@@ -185,8 +193,14 @@ class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
       meetingLink: event.meetingLink,
     );
     result.fold(
-      (error) => emit(LecturesError(error.message)),
-      (lectureIds) => emit(RecurringLecturesCreated(lectureIds)),
+      (error) {
+        print('Error creating recurring lecture template: ${error.message}');
+        emit(LecturesError(error.message));
+      },
+      (templateId) {
+        print('Recurring lecture template created successfully: $templateId');
+        emit(RecurringLectureTemplateCreated(templateId));
+      },
     );
   }
 

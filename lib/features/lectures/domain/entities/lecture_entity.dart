@@ -32,6 +32,12 @@ class Lecture {
   final bool attendanceMarked;
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  // Student details (from join)
+  final String? studentFirstName;
+  final String? studentMiddleName;
+  final String? studentLastName;
+  final String? studentStandard;
 
   const Lecture({
     required this.id,
@@ -55,7 +61,18 @@ class Lecture {
     this.attendanceMarked = false,
     required this.createdAt,
     required this.updatedAt,
+    this.studentFirstName,
+    this.studentMiddleName,
+    this.studentLastName,
+    this.studentStandard,
   });
+  
+  String get studentFullName {
+    if (studentFirstName == null) return 'Unknown Student';
+    return [studentFirstName, studentMiddleName, studentLastName]
+        .where((n) => n != null && n.isNotEmpty)
+        .join(' ');
+  }
 
   Lecture copyWith({
     String? id,

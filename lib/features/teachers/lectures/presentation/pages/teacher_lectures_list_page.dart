@@ -4,6 +4,7 @@ import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/domain/entities/lecture_entity.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/lecture_card.dart';
+import 'package:aparna_education/features/lectures/presentation/widgets/recurring_lecture_group_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -52,16 +53,77 @@ class _TeacherLecturesListPageState extends State<TeacherLecturesListPage> with 
   }
 
   void _loadLectures() {
+    // Load lectures with a date range to ensure recurring instances are generated
+    final now = DateTime.now();
+    final fromDate = now.subtract(const Duration(days: 30)); // Past 30 days
+    final toDate = now.add(const Duration(days: 90)); // Next 90 days
+    
     context.read<LecturesBloc>().add(
-      GetLecturesEvent(teacherUid: widget.teacherUid, status: _filterStatus),
+      GetLecturesEvent(
+        teacherUid: widget.teacherUid,
+        status: _filterStatus,
+        fromDate: fromDate,
+        toDate: toDate,
+      ),
     );
+  }
+
+  List<dynamic> _groupLectures(List<Lecture> lectures) {
+    final Map<String, List<Lecture>> recurringGroups = {};
+    final List<Lecture> oneTimeLectures = [];
+
+    for (final lecture in lectures) {
+      if (lecture.isRecurring && lecture.seriesId != null) {
+        if (!recurringGroups.containsKey(lecture.seriesId)) {
+          recurringGroups[lecture.seriesId!] = [];
+        }
+        recurringGroups[lecture.seriesId!]!.add(lecture);
+      } else {
+        oneTimeLectures.add(lecture);
+      }
+    }
+
+    // Combine groups and one-time lectures, sorted by date
+    final List<dynamic> result = [];
+    
+    // Add recurring groups (use earliest date from each group)
+    for (final group in recurringGroups.values) {
+      if (group.isNotEmpty) {
+        result.add(group);
+      }
+    }
+    
+    // Add one-time lectures
+    result.addAll(oneTimeLectures);
+    
+    // Sort by earliest date
+    result.sort((a, b) {
+      DateTime dateA;
+      DateTime dateB;
+      
+      if (a is List<Lecture>) {
+        dateA = a.first.scheduledDate;
+      } else {
+        dateA = (a as Lecture).scheduledDate;
+      }
+      
+      if (b is List<Lecture>) {
+        dateB = b.first.scheduledDate;
+      } else {
+        dateB = (b as Lecture).scheduledDate;
+      }
+      
+      return dateA.compareTo(dateB);
+    });
+    
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Lectures'),
+        title: const Text('All Lectures', textAlign: TextAlign.center),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
@@ -107,11 +169,57 @@ class _TeacherLecturesListPageState extends State<TeacherLecturesListPage> with 
             );
           }
 
+          final groupedLectures = _groupLectures(_allLectures);
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: _allLectures.length,
+            itemCount: groupedLectures.length,
             itemBuilder: (context, index) {
-              final lecture = _allLectures[index];
+              final item = groupedLectures[index];
+              
+              // Recurring lecture group
+              if (item is List<Lecture>) {
+                final lectures = item;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: RecurringLectureGroupCard(
+                    lectures: lectures,
+                    onTap: () {},
+                    onReschedule: lectures.first.status == 'scheduled' ? () {
+                      showSnackbar(context, 'Reschedule feature coming soon');
+                    } : null,
+                    onCancel: lectures.first.status == 'scheduled' ? () {
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Cancel Recurring Lectures'),
+                          content: Text('Are you sure you want to cancel all ${lectures.length} lectures in this series?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              child: const Text('No'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Cancel all lectures in the series
+                                for (final lecture in lectures) {
+                                  context.read<LecturesBloc>().add(CancelLectureEvent(lectureId: lecture.id));
+                                }
+                                Navigator.pop(dialogContext);
+                              },
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                              child: const Text('Yes, Cancel All'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } : null,
+                  ),
+                );
+              }
+              
+              // One-time lecture
+              final lecture = item as Lecture;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: LectureCard(
