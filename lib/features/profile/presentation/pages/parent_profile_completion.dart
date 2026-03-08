@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:address_form/address_form.dart';
 import 'package:aparna_education/core/entities/user_entity.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/core/utils/format_date.dart';
 import 'package:aparna_education/core/utils/pickimage.dart';
 import 'package:aparna_education/core/widgets/csc_picker.dart';
@@ -11,7 +11,6 @@ import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
 import 'package:aparna_education/features/home/presentation/pages/parent_layout_page.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -98,12 +97,12 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                 children: [
                   const SizedBox(height: 20),
                   Center(
-                    child: const Text("Complete your profile",
+                    child: Text("Complete your profile",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: Pallete.primaryColor)),
+                            color: Theme.of(context).colorScheme.primary)),
                   ),
                   const SizedBox(height: 20),
                   image != null
@@ -127,10 +126,6 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                             Container(
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                // border: Border.all(
-                                //   color: Pallete.primaryColor,
-                                //   width: 3.5,
-                                // ),
                               ),
                               height: MediaQuery.of(context).size.height * 0.3,
                               width: MediaQuery.of(context).size.width,
@@ -145,10 +140,10 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                               bottom: MediaQuery.of(context).size.height * 0.01,
                               child: IconButton(
                                 onPressed: selectImage,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.add_a_photo,
                                   size: 40,
-                                  color: Pallete.primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -177,32 +172,30 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                             padding: const EdgeInsets.only(right: 8.0),
                             child: DropdownWithSearch(
                                 disabledDecoration: BoxDecoration(
-                                  color: Pallete.whiteColor,
+                                  color: Theme.of(context).colorScheme.surface,
                                   border: Border.all(
-                                      color: Pallete.inactiveColor, width: 2),
+                                      color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 itemStyle: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold),
-                                dropdownHeadingStyle: const TextStyle(
-                                    color: Pallete.primaryColor,
+                                dropdownHeadingStyle: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Pallete.primaryColor, width: 2),
+                                      color: Theme.of(context).colorScheme.primary, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                unselectedItemStyle: const TextStyle(
-                                  color: Pallete.greyColor,
+                                unselectedItemStyle: TextStyle(
+                                  color: Theme.of(context).colorScheme.outline,
                                   fontSize: 16,
                                 ),
                                 selectedItemStyle: const TextStyle(
                                   color: Colors.black,
-                                  //:
-                                  //Pallete.greyColor,
                                   fontSize: 16,
                                 ),
                                 title: selectedGender,
@@ -240,7 +233,7 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                           },
                           child: ProjectTextfield(
                             enabled: false,
-                            borderColor: Pallete.primaryColor,
+                            borderColor: Theme.of(context).colorScheme.primary,
                             text: "Date of Birth",
                             controller: ageController,
                             keyboardType:
@@ -252,32 +245,30 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                   ),
                   const SizedBox(height: 20),
                   CSCPicker(
-                    unselectedItemStyle: const TextStyle(
-                      color: Pallete.greyColor,
+                    unselectedItemStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
                       fontSize: 16,
                     ),
                     selectedItemStyle: const TextStyle(
                       color: Colors.black,
-                      //:
-                      //Pallete.greyColor,
                       fontSize: 16,
                     ),
                     disabledDropdownDecoration: BoxDecoration(
-                      color: Pallete.whiteColor,
+                      color: Theme.of(context).colorScheme.surface,
                       border:
-                          Border.all(color: Pallete.inactiveColor, width: 2),
+                          Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     dropdownItemStyle: const TextStyle(
                         color: Colors.black,
                         fontSize: 17,
                         fontWeight: FontWeight.bold),
-                    dropdownHeadingStyle: const TextStyle(
-                        color: Pallete.primaryColor,
+                    dropdownHeadingStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 22,
                         fontWeight: FontWeight.bold),
                     dropdownDecoration: BoxDecoration(
-                      border: Border.all(color: Pallete.primaryColor, width: 2),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     onCityChanged: (val) {
@@ -338,18 +329,18 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                   ),
                   IntlPhoneField(
                     controller: phoneController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Phone Number',
-                      hintStyle: TextStyle(color: Colors.grey),
+                      hintStyle: const TextStyle(color: Colors.grey),
                       enabledBorder: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Pallete.primaryColor, width: 2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                            BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                       border: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Pallete.primaryColor, width: 2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                            BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                     initialCountryCode: 'IN',
@@ -399,9 +390,9 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                               country: country!,
                               pincode: postcodeController.text));
                           ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            content: Text('Profile Completed Successfully.'),
-                            backgroundColor: Pallete.primaryColor,
+                              .showSnackBar(SnackBar(
+                            content: const Text('Profile Completed Successfully.'),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                           ));
                           Navigator.push(
                               context,
@@ -409,9 +400,9 @@ class _ParentProfileCompletionState extends State<ParentProfileCompletion> {
                                   builder: (context) => ParentLayoutPage()));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please fill in all fields.'),
-                              backgroundColor: Pallete.primaryColor,
+                            SnackBar(
+                              content: const Text('Please fill in all fields.'),
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                             ),
                           );
                         }

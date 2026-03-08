@@ -1,6 +1,5 @@
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/domain/entities/time_slot_entity.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
@@ -9,6 +8,7 @@ import 'package:aparna_education/features/lectures/presentation/widgets/time_slo
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class TeacherAvailabilityPage extends StatefulWidget {
   final String teacherUid;
@@ -91,7 +91,7 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
           }
         },
         builder: (context, state) {
-          if (state is LecturesLoading) return const CustomLoader();
+          if (state is LecturesLoading) return AppLoading.centered();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -125,8 +125,8 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
                           ),
                         ),
                       ),
-                      icon: const Icon(Icons.add_circle),
-                      color: Pallete.primaryColor,
+                      icon: Icon(PhosphorIcons.plusCircle()),
+                      color: Theme.of(context).colorScheme.primary,
                       iconSize: 32,
                     ),
                   ],
@@ -135,12 +135,12 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
                 ..._timeSlots.asMap().entries.map((entry) => Card(
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Pallete.primaryColor.withOpacity(0.1),
-                      child: Icon(Icons.access_time, color: Pallete.primaryColor),
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(PhosphorIcons.clock(), color: Theme.of(context).colorScheme.onPrimaryContainer),
                     ),
                     title: Text('${entry.value.startTime} - ${entry.value.endTime}', style: const TextStyle(fontWeight: FontWeight.w600)),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
+                      icon: Icon(PhosphorIcons.trash(), color: Theme.of(context).colorScheme.error),
                       onPressed: () => setState(() => _timeSlots.removeAt(entry.key)),
                     ),
                   ),
@@ -160,8 +160,6 @@ class _TeacherAvailabilityPageState extends State<TeacherAvailabilityPage> {
                         if (selected) _selectedSubjects.add(subject);
                         else _selectedSubjects.remove(subject);
                       }),
-                      selectedColor: Pallete.primaryColor.withOpacity(0.3),
-                      checkmarkColor: Pallete.primaryColor,
                     );
                   }).toList(),
                 ),

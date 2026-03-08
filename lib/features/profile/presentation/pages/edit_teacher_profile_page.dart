@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
 
 class EditTeacherProfilePage extends StatefulWidget {
   final Teacher teacher;
@@ -304,8 +303,6 @@ class _EditTeacherProfilePageState extends State<EditTeacherProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: Pallete.primaryColor,
-        foregroundColor: Colors.white,
       ),
       body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, state) {
@@ -668,8 +665,8 @@ class _EditTeacherProfilePageState extends State<EditTeacherProfilePage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _updateProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.primaryColor,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)

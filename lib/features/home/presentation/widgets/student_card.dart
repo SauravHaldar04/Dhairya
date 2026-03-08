@@ -1,6 +1,6 @@
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class StudentCard extends StatelessWidget {
   final Student student;
@@ -14,12 +14,12 @@ class StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -32,16 +32,12 @@ class StudentCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: Pallete.primaryColor.withOpacity(0.1),
+                    backgroundColor: cs.primaryContainer,
                     backgroundImage: student.profilePic != null
                         ? NetworkImage(student.profilePic!)
                         : null,
                     child: student.profilePic == null
-                        ? const Icon(
-                            Icons.person,
-                            color: Pallete.primaryColor,
-                            size: 28,
-                          )
+                        ? Icon(PhosphorIconsRegular.user, color: cs.onPrimaryContainer, size: 24)
                         : null,
                   ),
                   const SizedBox(width: 12),
@@ -51,75 +47,50 @@ class StudentCard extends StatelessWidget {
                       children: [
                         Text(
                           '${student.firstName} ${student.middleName} ${student.lastName}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           student.email,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
+                          style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(PhosphorIconsRegular.caretRight, size: 16, color: cs.onSurfaceVariant),
                 ],
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Pallete.primaryColor.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(8),
+                  color: cs.surfaceContainerHighest.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            icon: Icons.school,
-                            label: 'Standard',
-                            value: student.standard,
-                          ),
-                        ),
-                        Expanded(
-                          child: _buildInfoItem(
-                            icon: Icons.library_books,
-                            label: 'Board',
-                            value: student.board,
-                          ),
-                        ),
+                        Expanded(child: _infoItem(cs, tt,
+                          icon: PhosphorIconsRegular.graduationCap,
+                          label: 'Standard', value: student.standard)),
+                        Expanded(child: _infoItem(cs, tt,
+                          icon: PhosphorIconsRegular.books,
+                          label: 'Board', value: student.board)),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            icon: Icons.language,
-                            label: 'Medium',
-                            value: student.medium,
-                          ),
-                        ),
-                        Expanded(
-                          child: _buildInfoItem(
-                            icon: Icons.verified,
-                            label: 'Email Verified',
-                            value: student.emailVerified ? 'Yes' : 'No',
-                          ),
-                        ),
+                        Expanded(child: _infoItem(cs, tt,
+                          icon: PhosphorIconsRegular.globe,
+                          label: 'Medium', value: student.medium)),
+                        Expanded(child: _infoItem(cs, tt,
+                          icon: PhosphorIconsRegular.sealCheck,
+                          label: 'Email Verified',
+                          value: student.emailVerified ? 'Yes' : 'No')),
                       ],
                     ),
                   ],
@@ -127,59 +98,29 @@ class StudentCard extends StatelessWidget {
               ),
               if (student.subjects.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                const Text(
-                  'Subjects:',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
+                Text('Subjects:', style: tt.labelMedium?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
                 Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: student.subjects.take(3).map((subject) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Pallete.secondaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Pallete.secondaryColor.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Text(
-                        subject,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Pallete.secondaryColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                    return Chip(
+                      label: Text(subject),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                     );
                   }).toList()
                     ..addAll(
                       student.subjects.length > 3
                           ? [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '+${student.subjects.length - 3} more',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
+                              Chip(
+                                label: Text('+${student.subjects.length - 3} more'),
+                                visualDensity: VisualDensity.compact,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                padding: EdgeInsets.zero,
+                                labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                               ),
                             ]
                           : [],
@@ -193,38 +134,22 @@ class StudentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem({
+  Widget _infoItem(ColorScheme cs, TextTheme tt, {
     required IconData icon,
     required String label,
     required String value,
   }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Pallete.primaryColor,
-        ),
+        Icon(icon, size: 16, color: cs.primary),
         const SizedBox(width: 4),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+              Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+              Text(value, style: tt.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis),
             ],
           ),
         ),

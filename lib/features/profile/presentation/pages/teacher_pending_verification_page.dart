@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/core/widgets/animations.dart';
 
 class TeacherPendingVerificationPage extends StatelessWidget {
@@ -14,7 +14,7 @@ class TeacherPendingVerificationPage extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Pallete.primaryColor.withOpacity(0.1),
+              Theme.of(context).colorScheme.primary.withOpacity(0.1),
               Colors.white,
             ],
           ),
@@ -139,7 +139,7 @@ class TeacherPendingVerificationPage extends StatelessWidget {
                       icon: const Icon(Icons.help_outline),
                       label: const Text('Contact Support'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Pallete.primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,

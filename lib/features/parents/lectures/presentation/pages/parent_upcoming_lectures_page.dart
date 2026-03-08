@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/lecture_card.dart';
 
@@ -32,27 +31,23 @@ class _ParentUpcomingLecturesPageState extends State<ParentUpcomingLecturesPage>
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Pallete.primaryColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Upcoming Lectures',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: const Text('Upcoming Lectures'),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.grey.shade50,
+            color: cs.surfaceContainerHighest.withOpacity(0.3),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey.shade300),
+                color: cs.surface,
+                border: Border.all(color: cs.outline.withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonHideUnderline(
@@ -76,18 +71,18 @@ class _ParentUpcomingLecturesPageState extends State<ParentUpcomingLecturesPage>
             child: BlocBuilder<LecturesBloc, LecturesState>(
               builder: (context, state) {
                 if (state is LecturesLoading) {
-                  return const Center(child: CustomLoader());
+                  return const Center(child: AppLoading());
                 }
 
                 if (state is UpcomingLecturesLoaded) {
                   if (state.lectures.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.event_busy, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('No upcoming lectures', style: TextStyle(color: Colors.grey)),
+                          Icon(Icons.event_busy, size: 64, color: cs.onSurfaceVariant),
+                          const SizedBox(height: 16),
+                          Text('No upcoming lectures', style: TextStyle(color: cs.onSurfaceVariant)),
                         ],
                       ),
                     );

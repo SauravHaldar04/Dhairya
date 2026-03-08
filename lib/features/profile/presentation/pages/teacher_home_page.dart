@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({super.key});
@@ -23,14 +23,14 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Pallete.primaryColor,
-                  Pallete.primaryColor.withOpacity(0.8),
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withOpacity(0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Pallete.primaryColor.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -138,7 +138,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             icon: Icons.group_add_rounded,
             title: 'Add Students',
             subtitle: 'Enroll new students to your classes',
-            color: Pallete.primaryColor,
+            color: Theme.of(context).colorScheme.primary,
           ),
           
           const SizedBox(height: 12),
@@ -147,7 +147,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             icon: Icons.video_call_rounded,
             title: 'Start Lecture',
             subtitle: 'Begin a live session with your students',
-            color: Pallete.secondaryColor,
+            color: Theme.of(context).colorScheme.secondary,
           ),
           
           const SizedBox(height: 12),

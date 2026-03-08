@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/parents/lectures/presentation/pages/parent_request_lecture_page.dart';
 import 'package:aparna_education/features/parents/lectures/presentation/pages/parent_lecture_requests_page.dart';
@@ -34,19 +34,14 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Pallete.primaryColor,
-        elevation: 0,
-        title: const Text(
-          'Lectures',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        title: const Text('Lectures'),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
       body: RefreshIndicator(
         onRefresh: () async => _loadData(),
@@ -56,23 +51,16 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
+              Text('Quick Actions', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: _buildActionCard(
                       context,
                       'Request Lecture',
-                      Icons.add_circle_outline,
-                      Pallete.primaryColor,
+                      PhosphorIcons.plusCircle(),
+                      cs.primary,
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -86,8 +74,8 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
                     child: _buildActionCard(
                       context,
                       'View Requests',
-                      Icons.list_alt,
-                      Pallete.secondaryColor,
+                      PhosphorIcons.listBullets(),
+                      cs.secondary,
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -105,8 +93,8 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
                     child: _buildActionCard(
                       context,
                       'Assignments',
-                      Icons.assignment,
-                      Colors.orange,
+                      PhosphorIcons.bookOpenText(),
+                      cs.tertiary,
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -120,8 +108,8 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
                     child: _buildActionCard(
                       context,
                       'Upcoming',
-                      Icons.calendar_today,
-                      Colors.green,
+                      PhosphorIcons.calendarCheck(),
+                      cs.primary,
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -132,20 +120,13 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-              const Text(
-                'Overview',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 28),
+              Text('Overview', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
               BlocBuilder<LecturesBloc, LecturesState>(
                 builder: (context, state) {
                   if (state is LecturesLoading) {
-                    return const Center(child: CustomLoader());
+                    return AppLoading.centered();
                   }
 
                   int pendingRequests = 0;
@@ -181,84 +162,69 @@ class _ParentLecturesHomePageState extends State<ParentLecturesHomePage> {
     Color color,
     VoidCallback onTap,
   ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
+    final tt = Theme.of(context).textTheme;
+
+    return Card(
+      elevation: 3,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 28, color: color),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: tt.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 28),
             ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  const SizedBox(height: 4),
+                  Text(value, style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/teacher_student_assignment_entity.dart';
-import '../../../../core/theme/app_pallete.dart';
+
 
 class AssignmentCard extends StatelessWidget {
   final TeacherStudentAssignment assignment;
@@ -72,12 +72,12 @@ class AssignmentCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Pallete.primaryColor.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       isTeacherView ? Icons.person_outline : Icons.school_outlined,
-                      color: Pallete.primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 24,
                     ),
                   ),
@@ -137,10 +137,10 @@ class AssignmentCard extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Pallete.secondaryColor.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Pallete.secondaryColor.withOpacity(0.3),
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
                       ),
                     ),
                     child: Text(
@@ -148,7 +148,7 @@ class AssignmentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Pallete.secondaryColor,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   );
@@ -169,7 +169,7 @@ class AssignmentCard extends StatelessWidget {
                     Icon(
                       Icons.calendar_today_rounded,
                       size: 18,
-                      color: Pallete.primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
                     Expanded(

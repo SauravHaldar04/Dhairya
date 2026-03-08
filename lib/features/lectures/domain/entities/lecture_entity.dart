@@ -11,6 +11,10 @@ class Lecture {
   final DateTime scheduledDate;
   final TimeSlot scheduledTime;
   
+  // Template relationship (for recurring lectures)
+  final String? templateId; // Links to recurring_lecture_templates (null = one-time lecture)
+  final bool isMaterialized; // true = stored in DB, false = virtual (calculated from template)
+  
   // Recurrence (for recurring lectures created by teacher)
   final bool isRecurring;
   final String? seriesId; // Groups recurring lectures together
@@ -47,6 +51,8 @@ class Lecture {
     required this.subject,
     required this.scheduledDate,
     required this.scheduledTime,
+    this.templateId,
+    this.isMaterialized = true,
     this.isRecurring = false,
     this.seriesId,
     this.recurrencePattern = 'one-time',
@@ -82,6 +88,8 @@ class Lecture {
     String? subject,
     DateTime? scheduledDate,
     TimeSlot? scheduledTime,
+    String? templateId,
+    bool? isMaterialized,
     bool? isRecurring,
     String? seriesId,
     String? recurrencePattern,
@@ -105,6 +113,8 @@ class Lecture {
       subject: subject ?? this.subject,
       scheduledDate: scheduledDate ?? this.scheduledDate,
       scheduledTime: scheduledTime ?? this.scheduledTime,
+      templateId: templateId ?? this.templateId,
+      isMaterialized: isMaterialized ?? this.isMaterialized,
       isRecurring: isRecurring ?? this.isRecurring,
       seriesId: seriesId ?? this.seriesId,
       recurrencePattern: recurrencePattern ?? this.recurrencePattern,

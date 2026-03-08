@@ -15,5 +15,27 @@
     "workbench.editor.enablePreviewFromQuickOpen": false,
     "terminal.integrated.hideOnStartup": "never",
     "zenMode.hideActivityBar": false,
-    "zenMode.hideStatusBar": false
+    "zenMode.hideStatusBar": false,
+    "deno.enable": true,
+    "deno.enablePaths": [
+        "./supabase/functions"
+    ],
+    "deno.lint": true,
+    "deno.unstable": false,
+    "[typescript]": {
+        "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true
+    },
+    "typescript.validate.enable": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "files.exclude": {
+        "**/supabase/functions": false
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/build": true
+    }
 }

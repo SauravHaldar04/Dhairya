@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/lecture_entity.dart';
-import '../../../../core/theme/app_pallete.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class LectureCard extends StatelessWidget {
   final Lecture lecture;
@@ -19,35 +20,35 @@ class LectureCard extends StatelessWidget {
     this.showActions = true,
   }) : super(key: key);
 
-  Color _getStatusColor() {
+  Color _statusColor(ColorScheme cs) {
     switch (lecture.status) {
       case 'scheduled':
       case 'rescheduled':
-        return Pallete.primaryColor;
+        return cs.primary;
       case 'completed':
-        return Colors.green;
+        return AppColors.success;
       case 'cancelled':
-        return Colors.red;
+        return AppColors.error;
       case 'in_progress':
-        return Colors.orange;
+        return AppColors.warning;
       default:
-        return Colors.grey;
+        return cs.outline;
     }
   }
 
-  IconData _getStatusIcon() {
+  IconData _statusIcon() {
     switch (lecture.status) {
       case 'scheduled':
       case 'rescheduled':
-        return Icons.schedule;
+        return PhosphorIcons.clock();
       case 'completed':
-        return Icons.check_circle;
+        return PhosphorIcons.checkCircle();
       case 'cancelled':
-        return Icons.cancel;
+        return PhosphorIcons.xCircle();
       case 'in_progress':
-        return Icons.play_circle;
+        return PhosphorIcons.playCircle();
       default:
-        return Icons.info;
+        return PhosphorIcons.info();
     }
   }
 
@@ -66,40 +67,29 @@ class LectureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor();
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final sColor = _statusColor(cs);
 
     return Card(
-      elevation: 2,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: statusColor.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
+              // ── Header ──
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: sColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(
-                      Icons.book_outlined,
-                      color: statusColor,
-                      size: 24,
-                    ),
+                    child: Icon(PhosphorIcons.bookOpen(), color: sColor, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -108,30 +98,22 @@ class LectureCard extends StatelessWidget {
                       children: [
                         Text(
                           lecture.subject,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                          style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Row(
                           children: [
-                            Icon(
-                              _getStatusIcon(),
-                              size: 16,
-                              color: statusColor,
-                            ),
+                            Icon(_statusIcon(), size: 14, color: sColor),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                lecture.status.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 12,
+                                lecture.status.replaceAll('_', ' ').toUpperCase(),
+                                style: tt.labelSmall?.copyWith(
+                                  color: sColor,
                                   fontWeight: FontWeight.w600,
-                                  color: statusColor,
+                                  letterSpacing: 0.5,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -145,23 +127,19 @@ class LectureCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Pallete.secondaryColor.withOpacity(0.1),
+                        color: cs.secondaryContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.repeat,
-                            size: 14,
-                            color: Pallete.secondaryColor,
-                          ),
+                          Icon(PhosphorIcons.arrowsClockwise(), size: 14, color: cs.onSecondaryContainer),
                           const SizedBox(width: 4),
                           Text(
                             'Recurring',
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: tt.labelSmall?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Pallete.secondaryColor,
+                              color: cs.onSecondaryContainer,
                             ),
                           ),
                         ],
@@ -169,216 +147,83 @@ class LectureCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
-              
-              // Date and Time
+              const SizedBox(height: 14),
+
+              // ── Date & Time chips ──
               Row(
                 children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            size: 18,
-                            color: Pallete.primaryColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            DateFormat('dd MMM yyyy').format(lecture.scheduledDate),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.access_time_rounded,
-                            size: 18,
-                            color: Pallete.primaryColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '${_formatTime(lecture.scheduledTime.startTime)} - ${_formatTime(lecture.scheduledTime.endTime)}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _infoChip(
+                    context,
+                    icon: PhosphorIcons.calendarBlank(),
+                    label: DateFormat('dd MMM yyyy').format(lecture.scheduledDate),
+                  )),
+                  const SizedBox(width: 10),
+                  Expanded(child: _infoChip(
+                    context,
+                    icon: PhosphorIcons.clock(),
+                    label: '${_formatTime(lecture.scheduledTime.startTime)} – ${_formatTime(lecture.scheduledTime.endTime)}',
+                  )),
                 ],
               ),
 
-              // Rescheduled Info
+              // ── Rescheduled banner ──
               if (lecture.status == 'rescheduled' && lecture.originalDate != null) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 18,
-                        color: Colors.orange.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Rescheduled from ${DateFormat('dd MMM').format(lecture.originalDate!)}${lecture.rescheduledReason != null ? ' - ${lecture.rescheduledReason}' : ''}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.orange.shade900,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 10),
+                _banner(
+                  context,
+                  color: AppColors.warning,
+                  icon: PhosphorIcons.info(),
+                  text: 'Rescheduled from ${DateFormat('dd MMM').format(lecture.originalDate!)}${lecture.rescheduledReason != null ? ' — ${lecture.rescheduledReason}' : ''}',
                 ),
               ],
 
-              // Meeting Link
+              // ── Meeting link ──
               if (lecture.meetingLink != null && lecture.meetingLink!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.videocam_outlined,
-                        size: 18,
-                        color: Colors.blue.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Online Lecture',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade900,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.open_in_new,
-                        size: 16,
-                        color: Colors.blue.shade700,
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 10),
+                _banner(
+                  context,
+                  color: AppColors.info,
+                  icon: PhosphorIcons.videoCamera(),
+                  text: 'Online Lecture',
+                  trailing: Icon(PhosphorIcons.arrowSquareOut(), size: 14, color: AppColors.info),
                 ),
               ],
 
-              // Notes
+              // ── Notes ──
               if (lecture.notes != null && lecture.notes!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.note_outlined,
-                        size: 18,
-                        color: Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          lecture.notes!,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 10),
+                _banner(
+                  context,
+                  color: cs.outline,
+                  icon: PhosphorIcons.notepad(),
+                  text: lecture.notes!,
                 ),
               ],
 
-              // Action Buttons
-              if (showActions && 
+              // ── Actions ──
+              if (showActions &&
                   (lecture.status == 'scheduled' || lecture.status == 'rescheduled')) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     if (onReschedule != null)
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: onReschedule,
-                          icon: const Icon(Icons.schedule, size: 16),
-                          label: const Text(
-                            'Reschedule',
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Pallete.primaryColor,
-                            side: BorderSide(color: Pallete.primaryColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
+                          icon:  Icon(PhosphorIconsRegular.clockClockwise, size: 16),
+                          label: const Text('Reschedule'),
                         ),
                       ),
-                    if (onReschedule != null && onCancel != null)
-                      const SizedBox(width: 12),
+                    if (onReschedule != null && onCancel != null) const SizedBox(width: 10),
                     if (onCancel != null)
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: onCancel,
-                          icon: const Icon(Icons.cancel_outlined, size: 16),
-                          label: const Text(
-                            'Cancel',
-                            style: TextStyle(fontSize: 13),
-                          ),
+                          icon: const Icon(PhosphorIconsRegular.x, size: 16),
+                          label: const Text('Cancel'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            foregroundColor: cs.error,
+                            side: BorderSide(color: cs.error),
                           ),
                         ),
                       ),
@@ -388,6 +233,66 @@ class LectureCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // ── Helpers ──
+
+  Widget _infoChip(BuildContext context, {required IconData icon, required String label}) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: cs.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              label,
+              style: tt.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _banner(
+    BuildContext context, {
+    required Color color,
+    required IconData icon,
+    required String text,
+    Widget? trailing,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurface),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (trailing != null) ...[const SizedBox(width: 8), trailing],
+        ],
       ),
     );
   }

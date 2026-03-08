@@ -1,4 +1,3 @@
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';

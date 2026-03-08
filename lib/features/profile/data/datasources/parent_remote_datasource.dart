@@ -93,7 +93,7 @@ class ParentRemoteDatasourceImpl implements ParentRemoteDatasource {
         'first_name': firstName,
         'last_name': lastName,
         'middle_name': middleName,
-        'user_type': 'parent',
+        'user_type': toStringValue(Usertype.parent),
       }).eq('uid', user.id);
     } catch (e) {
       throw ServerException(message: e.toString());

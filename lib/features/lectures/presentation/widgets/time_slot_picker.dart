@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/time_slot_entity.dart';
-import '../../../../core/theme/app_pallete.dart';
+
 
 class TimeSlotPicker extends StatefulWidget {
   final TimeSlot? initialTimeSlot;
@@ -110,7 +110,7 @@ class _TimeSlotPickerState extends State<TimeSlotPicker> {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
                     border: Border.all(
-                      color: startTime != null ? Pallete.primaryColor : Colors.grey.shade300,
+                      color: startTime != null ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
                       width: startTime != null ? 2 : 1.5,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -128,7 +128,7 @@ class _TimeSlotPickerState extends State<TimeSlotPicker> {
                       ),
                       Icon(
                         Icons.access_time_rounded,
-                        color: startTime != null ? Pallete.primaryColor : Colors.grey.shade400,
+                        color: startTime != null ? Theme.of(context).colorScheme.primary : Colors.grey.shade400,
                       ),
                     ],
                   ),
@@ -147,7 +147,7 @@ class _TimeSlotPickerState extends State<TimeSlotPicker> {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
                     border: Border.all(
-                      color: endTime != null ? Pallete.primaryColor : Colors.grey.shade300,
+                      color: endTime != null ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
                       width: endTime != null ? 2 : 1.5,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -165,7 +165,7 @@ class _TimeSlotPickerState extends State<TimeSlotPicker> {
                       ),
                       Icon(
                         Icons.access_time_rounded,
-                        color: endTime != null ? Pallete.primaryColor : Colors.grey.shade400,
+                        color: endTime != null ? Theme.of(context).colorScheme.primary : Colors.grey.shade400,
                       ),
                     ],
                   ),

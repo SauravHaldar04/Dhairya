@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:intl/intl.dart';
@@ -34,21 +33,17 @@ class _ParentLectureRequestsPageState extends State<ParentLectureRequestsPage> w
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Pallete.primaryColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Lecture Requests',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: const Text('Lecture Requests'),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
+          indicatorColor: cs.onPrimary,
+          labelColor: cs.onPrimary,
+          unselectedLabelColor: cs.onPrimary.withOpacity(0.7),
           tabs: const [
             Tab(text: 'Pending'),
             Tab(text: 'Approved'),
@@ -67,7 +62,7 @@ class _ParentLectureRequestsPageState extends State<ParentLectureRequestsPage> w
         },
         builder: (context, state) {
           if (state is LecturesLoading) {
-            return const Center(child: CustomLoader());
+            return const Center(child: AppLoading());
           }
 
           if (state is LectureRequestsLoaded) {
@@ -100,6 +95,7 @@ class _ParentLectureRequestsPageState extends State<ParentLectureRequestsPage> w
         itemBuilder: (context, index) {
           final request = requests[index];
           return Card(
+            elevation: 2,
             margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
               padding: const EdgeInsets.all(16),

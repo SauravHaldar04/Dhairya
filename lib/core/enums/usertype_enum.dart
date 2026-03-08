@@ -14,8 +14,6 @@ String toStringValue(Usertype usertype) {
       return 'Usertype.languageLearner';
     case Usertype.none:
       return 'Usertype.none';
-    default:
-      return '';
   }
 }
 

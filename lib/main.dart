@@ -2,12 +2,9 @@
 
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/enums/usertype_enum.dart';
-import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/theme/theme.dart';
 import 'package:aparna_education/core/utils/loader.dart';
 import 'package:aparna_education/core/utils/app_logger.dart';
-import 'package:aparna_education/core/secrets/secrets.dart';
-import 'package:aparna_education/core/network/supabase_storage.dart';
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/home/presentation/pages/language_learner_layout_page.dart';
@@ -20,12 +17,25 @@ import 'package:aparna_education/features/auth/presentation/pages/verification_p
 import 'package:aparna_education/init_dependencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
-import 'package:logger/logger.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:aparna_education/core/config/secrets.dart';
 
 /// The main entry point of the Aparna Education application.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables from .env file
+  try {
+    await dotenv.load(fileName: '.env');
+    print('✅ Environment variables loaded successfully');
+    
+    // Validate all required secrets are present
+    Secrets.validate();
+  } catch (e) {
+    print('❌ Failed to load environment variables: $e');
+    print('Please ensure .env file exists with all required variables');
+    // In production, you might want to show an error screen instead of crashing
+  }
 
   await initDependencies();
 
@@ -59,7 +69,10 @@ class MyApp extends StatelessWidget {
     // Use a separate widget to initialize the AuthBloc
     return MaterialApp(
       title: 'Aparna Education',
-      theme: AppTheme.appTheme,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const AppInitializer(),
     );
   }
@@ -97,28 +110,26 @@ class _AppInitializerState extends State<AppInitializer> {
           if (state is AuthLoading) {
             return const Loader();
           } else if (state is AuthUserLoggedIn) {
-            if (state.user.emailVerified) {
-              AppLogger.info('🔍 DEBUG: User type = ${state.user.userType}');
-              print('🔍 DEBUG main.dart: User type = ${state.user.userType}');
-              
-              if (state.user.userType == Usertype.parent) {
-                AppLogger.info('👨‍👩‍👧‍👦 User logged in as parent: ${state.user.email}');
+            final user = state.user;
+            if (user.emailVerified) {
+              if (user.userType == Usertype.parent) {
+                AppLogger.info('👨‍👩‍👧‍👦 User logged in as parent: ${user.email}');
                 return const ParentLayoutPage();
-              } else if (state.user.userType == Usertype.teacher) {
-                AppLogger.info('👨‍🏫 User logged in as teacher: ${state.user.email}');
+              } else if (user.userType == Usertype.teacher) {
+                AppLogger.info('👨‍🏫 User logged in as teacher: ${user.email}');
                 return const TeacherLayoutPage();
-              } else if (state.user.userType == Usertype.languageLearner) {
-                AppLogger.info('🎓 User logged in as language learner: ${state.user.email}');
+              } else if (user.userType == Usertype.languageLearner) {
+                AppLogger.info('🎓 User logged in as language learner: ${user.email}');
                 return const LanguageLearnerLayoutPage();
-              } else if (state.user.userType == Usertype.none) {
-                AppLogger.info('👤 User needs to select profile type: ${state.user.email}');
+              } else if (user.userType == Usertype.none) {
+                AppLogger.info('👤 User needs to select profile type: ${user.email}');
                 return const HomePage();
               } else {
-                AppLogger.warning('⚠️ Unknown user type for: ${state.user.email}');
+                AppLogger.warning('⚠️ Unknown user type for: ${user.email}');
                 return const HomePage();
               }
             } else {
-              AppLogger.info('📧 User needs email verification: ${state.user.email}');
+              AppLogger.info('📧 User needs email verification: ${user.email}');
               return const VerificationPage();
             }
           } else {

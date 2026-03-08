@@ -4,7 +4,6 @@ import 'package:aparna_education/core/error/server_exception.dart';
 import 'package:aparna_education/core/network/check_internet_connection.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 import 'package:fpdart/src/either.dart';
 

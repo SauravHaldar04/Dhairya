@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 
 class EditParentProfilePage extends StatefulWidget {
   final Parent parent;
@@ -141,8 +141,6 @@ class _EditParentProfilePageState extends State<EditParentProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: Pallete.primaryColor,
-        foregroundColor: Colors.white,
       ),
       body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, state) {
@@ -179,7 +177,7 @@ class _EditParentProfilePageState extends State<EditParentProfilePage> {
                         onTap: _pickImage,
                         child: CircleAvatar(
                           radius: 60,
-                          backgroundColor: Pallete.primaryColor,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           child: _selectedImage != null
                               ? ClipOval(
                                   child: Image.file(
@@ -453,8 +451,8 @@ class _EditParentProfilePageState extends State<EditParentProfilePage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _updateProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.primaryColor,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)

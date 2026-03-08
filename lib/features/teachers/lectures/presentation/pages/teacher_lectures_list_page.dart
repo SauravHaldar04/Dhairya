@@ -1,5 +1,5 @@
-import 'package:aparna_education/core/widgets/custom_loader.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
+import 'package:aparna_education/core/widgets/app_empty_state.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/domain/entities/lecture_entity.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
@@ -7,6 +7,7 @@ import 'package:aparna_education/features/lectures/presentation/widgets/lecture_
 import 'package:aparna_education/features/lectures/presentation/widgets/recurring_lecture_group_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class TeacherLecturesListPage extends StatefulWidget {
   final String teacherUid;
@@ -127,9 +128,6 @@ class _TeacherLecturesListPageState extends State<TeacherLecturesListPage> with 
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Pallete.primaryColor,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Pallete.primaryColor,
           tabs: const [
             Tab(text: 'All'),
             Tab(text: 'Scheduled'),
@@ -154,18 +152,13 @@ class _TeacherLecturesListPageState extends State<TeacherLecturesListPage> with 
           }
         },
         builder: (context, state) {
-          if (state is LecturesLoading) return const CustomLoader();
+          if (state is LecturesLoading) return AppLoading.centered();
 
           if (_allLectures.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.event_busy, size: 64, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  Text('No lectures found', style: TextStyle(fontSize: 18, color: Colors.grey.shade600)),
-                ],
-              ),
+            return  AppEmptyState(
+              icon: PhosphorIcons.calendarX(),
+              title: 'No lectures found',
+              subtitle: 'Lectures you create will appear here',
             );
           }
 
@@ -207,7 +200,10 @@ class _TeacherLecturesListPageState extends State<TeacherLecturesListPage> with 
                                 }
                                 Navigator.pop(dialogContext);
                               },
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.error,
+                                foregroundColor: Theme.of(context).colorScheme.onError,
+                              ),
                               child: const Text('Yes, Cancel All'),
                             ),
                           ],
@@ -244,7 +240,10 @@ class _TeacherLecturesListPageState extends State<TeacherLecturesListPage> with 
                               context.read<LecturesBloc>().add(CancelLectureEvent(lectureId: lecture.id));
                               Navigator.pop(dialogContext);
                             },
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.error,
+                              foregroundColor: Theme.of(context).colorScheme.onError,
+                            ),
                             child: const Text('Yes, Cancel'),
                           ),
                         ],

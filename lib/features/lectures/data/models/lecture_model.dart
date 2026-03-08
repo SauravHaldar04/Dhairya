@@ -1,5 +1,6 @@
 import '../../domain/entities/time_slot_entity.dart';
 import '../../domain/entities/lecture_entity.dart';
+import '../../domain/entities/recurring_lecture_template_entity.dart';
 
 class LectureModel extends Lecture {
   const LectureModel({
@@ -10,6 +11,8 @@ class LectureModel extends Lecture {
     required super.subject,
     required super.scheduledDate,
     required super.scheduledTime,
+    super.templateId,
+    super.isMaterialized = true,
     super.isRecurring = false,
     super.seriesId,
     super.recurrencePattern = 'one-time',
@@ -42,6 +45,8 @@ class LectureModel extends Lecture {
       subject: map['subject'] as String,
       scheduledDate: DateTime.parse(map['scheduled_date'] as String),
       scheduledTime: TimeSlot.fromMap(map['scheduled_time'] as Map<String, dynamic>),
+      templateId: map['template_id'] as String?,
+      isMaterialized: map['is_materialized'] as bool? ?? true,
       isRecurring: map['is_recurring'] as bool? ?? false,
       seriesId: map['series_id'] as String?,
       recurrencePattern: map['recurrence_pattern'] as String? ?? 'one-time',
@@ -80,6 +85,8 @@ class LectureModel extends Lecture {
       'subject': subject,
       'scheduled_date': scheduledDate.toIso8601String().split('T')[0],
       'scheduled_time': scheduledTime.toMap(),
+      'template_id': templateId,
+      'is_materialized': isMaterialized,
       'is_recurring': isRecurring,
       'series_id': seriesId,
       'recurrence_pattern': recurrencePattern,
@@ -106,6 +113,8 @@ class LectureModel extends Lecture {
       subject: entity.subject,
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
+      templateId: entity.templateId,
+      isMaterialized: entity.isMaterialized,
       isRecurring: entity.isRecurring,
       seriesId: entity.seriesId,
       recurrencePattern: entity.recurrencePattern,
@@ -120,6 +129,40 @@ class LectureModel extends Lecture {
       attendanceMarked: entity.attendanceMarked,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+    );
+  }
+
+  /// Creates a virtual lecture instance from a template and scheduled date
+  /// Used by LectureOccurrenceCalculator
+  factory LectureModel.fromTemplate(
+    RecurringLectureTemplate template,
+    DateTime scheduledDate,
+  ) {
+    // Generate deterministic ID for virtual instance
+    final dateStr = scheduledDate.toIso8601String().split('T')[0];
+    final virtualId = '${template.id}_$dateStr';
+
+    return LectureModel(
+      id: virtualId,
+      assignmentId: template.assignmentId,
+      teacherUid: template.teacherUid,
+      studentUid: template.studentId,
+      subject: template.subject,
+      scheduledDate: scheduledDate,
+      scheduledTime: template.scheduledTime,
+      templateId: template.id,
+      isMaterialized: false, // Virtual instance
+      isRecurring: true,
+      seriesId: template.seriesId,
+      recurrencePattern: template.recurrencePattern,
+      recurrenceDays: template.recurrenceDays,
+      recurrenceEndDate: template.endDate,
+      status: 'scheduled',
+      notes: template.notes,
+      meetingLink: template.meetingLink,
+      attendanceMarked: false,
+      createdAt: template.createdAt,
+      updatedAt: template.updatedAt,
     );
   }
 

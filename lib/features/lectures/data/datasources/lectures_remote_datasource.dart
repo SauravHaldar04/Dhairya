@@ -5,8 +5,10 @@ import '../models/lecture_model.dart';
 import '../models/teacher_availability_model.dart';
 import '../models/teacher_student_assignment_model.dart';
 import '../models/recurring_lecture_template_model.dart';
+import '../models/lecture_notification_model.dart';
 import '../../domain/entities/time_slot_entity.dart';
 import '../../domain/entities/recurring_lecture_template_entity.dart';
+import '../../domain/services/lecture_occurrence_calculator.dart';
 
 abstract interface class LecturesRemoteDataSource {
   // Lecture Requests
@@ -73,6 +75,51 @@ abstract interface class LecturesRemoteDataSource {
     String? meetingLink,
   });
   
+  Future<List<RecurringLectureTemplateModel>> getTemplates({
+    String? teacherUid,
+    String? studentUid,
+    bool? isActive,
+  });
+  
+  Future<void> updateTemplate({
+    required String templateId,
+    DateTime? startDate,
+    DateTime? endDate,
+    TimeSlot? scheduledTime,
+    List<String>? recurrenceDays,
+    bool? isActive,
+    bool? notificationEnabled,
+    int? notificationMinutesBefore,
+    String? notes,
+    String? meetingLink,
+  });
+  
+  Future<void> deleteTemplate(String templateId);
+  
+  Future<String> materializeLecture({
+    required String virtualLectureId,
+    required String templateId,
+    required DateTime scheduledDate,
+    required TimeSlot scheduledTime,
+    String? reason,
+  });
+  
+  // Lecture Notifications
+  Future<String> scheduleNotification({
+    String? lectureId,
+    String? templateId,
+    required DateTime scheduledFor,
+    required String notificationType,
+  });
+  
+  Future<List<LectureNotificationModel>> getNotifications({
+    String? lectureId,
+    String? templateId,
+    bool? isSent,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
+  
   Future<List<String>> generateLectureInstancesFromTemplate({
     required String templateId,
     required DateTime fromDate,
@@ -124,8 +171,12 @@ abstract interface class LecturesRemoteDataSource {
 
 class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
   final SupabaseClient supabaseClient;
+  final LectureOccurrenceCalculator occurrenceCalculator;
 
-  LecturesRemoteDataSourceImpl(this.supabaseClient);
+  LecturesRemoteDataSourceImpl(
+    this.supabaseClient, {
+    LectureOccurrenceCalculator? occurrenceCalculator,
+  }) : occurrenceCalculator = occurrenceCalculator ?? LectureOccurrenceCalculator();
 
   @override
   Future<List<LectureRequestModel>> getLectureRequests({
@@ -266,18 +317,10 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
     DateTime? toDate,
   }) async {
     try {
-      // STEP 1: Auto-generate instances for active templates
-      if (fromDate != null && toDate != null) {
-        await _ensureInstancesExist(
-          teacherUid: teacherUid,
-          studentUid: studentUid,
-          fromDate: fromDate,
-          toDate: toDate,
-        );
-      }
+      // ALARM-CLOCK PATTERN: Generate virtual instances on-demand
       
-      // STEP 2: Query lectures normally with student details
-      var query = supabaseClient
+      // STEP 1: Fetch materialized lectures (actual rows in DB)
+      var lectureQuery = supabaseClient
           .from('lectures')
           .select('''
             *,
@@ -292,26 +335,77 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
           ''');
       
       if (teacherUid != null) {
-        query = query.eq('teacher_uid', teacherUid);
+        lectureQuery = lectureQuery.eq('teacher_uid', teacherUid);
       }
       if (studentUid != null) {
-        query = query.eq('student_id', studentUid);
+        lectureQuery = lectureQuery.eq('student_id', studentUid);
       }
       if (status != null) {
-        query = query.eq('status', status);
+        lectureQuery = lectureQuery.eq('status', status);
       }
       if (fromDate != null) {
-        query = query.gte('scheduled_date', fromDate.toIso8601String().split('T')[0]);
+        lectureQuery = lectureQuery.gte('scheduled_date', fromDate.toIso8601String().split('T')[0]);
       }
       if (toDate != null) {
-        query = query.lte('scheduled_date', toDate.toIso8601String().split('T')[0]);
+        lectureQuery = lectureQuery.lte('scheduled_date', toDate.toIso8601String().split('T')[0]);
       }
       
-      final response = await query.order('scheduled_date', ascending: true);
-      
-      return (response as List)
+      final lectureResponse = await lectureQuery.order('scheduled_date', ascending: true);
+      final materializedLectures = (lectureResponse as List)
           .map((item) => LectureModel.fromMap(item))
           .toList();
+      
+      // STEP 2: Fetch active templates
+      var templateQuery = supabaseClient
+          .from('recurring_lecture_templates')
+          .select()
+          .eq('is_active', true);
+      
+      if (teacherUid != null) {
+        templateQuery = templateQuery.eq('teacher_uid', teacherUid);
+      }
+      if (studentUid != null) {
+        templateQuery = templateQuery.eq('student_id', studentUid);
+      }
+      
+      final templateResponse = await templateQuery;
+      final templates = (templateResponse as List)
+          .map((item) => RecurringLectureTemplateModel.fromMap(item))
+          .toList();
+      
+      // STEP 3: Generate virtual instances from templates
+      final virtualLectures = <LectureModel>[];
+      
+      if (fromDate != null && toDate != null && templates.isNotEmpty) {
+        for (final template in templates) {
+          final occurrences = occurrenceCalculator.getOccurrencesInRange(
+            template,
+            startDate: fromDate,
+            endDate: toDate,
+          );
+          
+          // Filter out dates where a materialized lecture already exists
+          final materializedDates = materializedLectures
+              .where((l) => l.templateId == template.id)
+              .map((l) => '${l.scheduledDate.year}-${l.scheduledDate.month}-${l.scheduledDate.day}')
+              .toSet();
+          
+          for (final occurrence in occurrences) {
+            final dateKey = '${occurrence.scheduledDate.year}-${occurrence.scheduledDate.month}-${occurrence.scheduledDate.day}';
+            if (!materializedDates.contains(dateKey)) {
+              virtualLectures.add(LectureModel.fromEntity(occurrence));
+            }
+          }
+        }
+      }
+      
+      // STEP 4: Merge materialized + virtual lectures
+      final allLectures = [...materializedLectures, ...virtualLectures];
+      
+      // Sort by date
+      allLectures.sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
+      
+      return allLectures;
     } catch (e) {
       throw ServerException(message: 'Failed to get lectures: ${e.toString()}');
     }
@@ -540,7 +634,7 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
       final lecturesData = datesToCreate.map((date) => {
         'assignment_id': template.assignmentId,
         'teacher_uid': template.teacherUid,
-        'student_id': template.studentUid,
+        'student_id': template.studentId,
         'subject': template.subject,
         'scheduled_date': date.toIso8601String().split('T')[0],
         'scheduled_time': template.scheduledTime.toMap(),
@@ -617,9 +711,221 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
         .toSet();
   }
 
-  String _getDayName(int weekday) {
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    return days[weekday - 1];
+  @override
+  Future<List<RecurringLectureTemplateModel>> getTemplates({
+    String? teacherUid,
+    String? studentUid,
+    bool? isActive,
+  }) async {
+    try {
+      var query = supabaseClient.from('recurring_lecture_templates').select();
+      
+      if (teacherUid != null) {
+        query = query.eq('teacher_uid', teacherUid);
+      }
+      if (studentUid != null) {
+        query = query.eq('student_id', studentUid);
+      }
+      if (isActive != null) {
+        query = query.eq('is_active', isActive);
+      }
+      
+      final response = await query.order('start_date', ascending: false);
+      
+      return (response as List)
+          .map((item) => RecurringLectureTemplateModel.fromMap(item))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Failed to get templates: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> updateTemplate({
+    required String templateId,
+    DateTime? startDate,
+    DateTime? endDate,
+    TimeSlot? scheduledTime,
+    List<String>? recurrenceDays,
+    bool? isActive,
+    bool? notificationEnabled,
+    int? notificationMinutesBefore,
+    String? notes,
+    String? meetingLink,
+  }) async {
+    try {
+      final updateData = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      if (startDate != null) {
+        updateData['start_date'] = startDate.toIso8601String().split('T')[0];
+      }
+      if (endDate != null) {
+        updateData['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
+      if (scheduledTime != null) {
+        updateData['scheduled_time'] = scheduledTime.toMap();
+      }
+      if (recurrenceDays != null) {
+        updateData['recurrence_days'] = recurrenceDays;
+      }
+      if (isActive != null) {
+        updateData['is_active'] = isActive;
+      }
+      if (notificationEnabled != null) {
+        updateData['notification_enabled'] = notificationEnabled;
+      }
+      if (notificationMinutesBefore != null) {
+        updateData['notification_minutes_before'] = notificationMinutesBefore;
+      }
+      if (notes != null) {
+        updateData['notes'] = notes;
+      }
+      if (meetingLink != null) {
+        updateData['meeting_link'] = meetingLink;
+      }
+      
+      await supabaseClient
+          .from('recurring_lecture_templates')
+          .update(updateData)
+          .eq('id', templateId);
+    } catch (e) {
+      throw ServerException(message: 'Failed to update template: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> deleteTemplate(String templateId) async {
+    try {
+      // Soft delete - just mark as inactive
+      await supabaseClient
+          .from('recurring_lecture_templates')
+          .update({
+            'is_active': false,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', templateId);
+    } catch (e) {
+      throw ServerException(message: 'Failed to delete template: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<String> materializeLecture({
+    required String virtualLectureId,
+    required String templateId,
+    required DateTime scheduledDate,
+    required TimeSlot scheduledTime,
+    String? reason,
+  }) async {
+    try {
+      // Fetch template to get default values
+      final templateData = await supabaseClient
+          .from('recurring_lecture_templates')
+          .select()
+          .eq('id', templateId)
+          .single();
+      
+      final template = RecurringLectureTemplateModel.fromMap(templateData);
+      
+      // Insert materialized lecture
+      final lectureData = {
+        'assignment_id': template.assignmentId,
+        'teacher_uid': template.teacherUid,
+        'student_id': template.studentId,
+        'subject': template.subject,
+        'scheduled_date': scheduledDate.toIso8601String().split('T')[0],
+        'scheduled_time': scheduledTime.toMap(),
+        'template_id': templateId,
+        'is_materialized': true,
+        'is_recurring': true,
+        'series_id': template.seriesId,
+        'recurrence_pattern': template.recurrencePattern,
+        'recurrence_days': template.recurrenceDays,
+        'recurrence_end_date': template.endDate?.toIso8601String().split('T')[0],
+        'status': 'scheduled',
+        'notes': template.notes,
+        'meeting_link': template.meetingLink,
+        'attendance_marked': false,
+        if (reason != null) 'rescheduled_reason': reason,
+      };
+      
+      final response = await supabaseClient
+          .from('lectures')
+          .insert(lectureData)
+          .select('id')
+          .single();
+      
+      return response['id'] as String;
+    } catch (e) {
+      throw ServerException(message: 'Failed to materialize lecture: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<String> scheduleNotification({
+    String? lectureId,
+    String? templateId,
+    required DateTime scheduledFor,
+    required String notificationType,
+  }) async {
+    try {
+      final notificationData = {
+        'lecture_id': lectureId,
+        'template_id': templateId,
+        'scheduled_for': scheduledFor.toIso8601String(),
+        'notification_type': notificationType,
+        'is_sent': false,
+      };
+      
+      final response = await supabaseClient
+          .from('lecture_notifications')
+          .insert(notificationData)
+          .select('id')
+          .single();
+      
+      return response['id'] as String;
+    } catch (e) {
+      throw ServerException(message: 'Failed to schedule notification: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<LectureNotificationModel>> getNotifications({
+    String? lectureId,
+    String? templateId,
+    bool? isSent,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    try {
+      var query = supabaseClient.from('lecture_notifications').select();
+      
+      if (lectureId != null) {
+        query = query.eq('lecture_id', lectureId);
+      }
+      if (templateId != null) {
+        query = query.eq('template_id', templateId);
+      }
+      if (isSent != null) {
+        query = query.eq('is_sent', isSent);
+      }
+      if (fromDate != null) {
+        query = query.gte('scheduled_for', fromDate.toIso8601String());
+      }
+      if (toDate != null) {
+        query = query.lte('scheduled_for', toDate.toIso8601String());
+      }
+      
+      final response = await query.order('scheduled_for', ascending: true);
+      
+      return (response as List)
+          .map((item) => LectureNotificationModel.fromMap(item))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Failed to get notifications: ${e.toString()}');
+    }
   }
 
   @override

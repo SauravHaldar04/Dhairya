@@ -1,5 +1,5 @@
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/edit_parent_profile_page.dart';
 import 'package:aparna_education/core/utils/format_date.dart';
@@ -67,7 +67,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
         builder: (context, state) {
           if (state is ProfileLoading) {
             return Center(
-              child: CircularProgressIndicator(color: Pallete.primaryColor),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
 
@@ -121,7 +121,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                               Navigator.pop(context);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Pallete.primaryColor,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                             ),
                             child: const Text('Go Back', style: TextStyle(color: Colors.white)),
                           ),
@@ -145,8 +145,8 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Pallete.primaryColor,
-                        Pallete.primaryColor.withOpacity(0.8),
+                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).colorScheme.primaryContainer,
                       ],
                     ),
                   ),
@@ -391,8 +391,12 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
   }
 
   Widget _buildInfoCard(String title, IconData icon, Color color, List<Widget> children) {
-    return AnimatedCard(
-      child: Column(
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -412,10 +416,10 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
               const SizedBox(width: 12),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: cs.onSurface,
                 ),
               ),
             ],
@@ -423,11 +427,13 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
           const SizedBox(height: 16),
           ...children,
         ],
+        ),
       ),
     );
   }
 
   Widget _buildInfoRow(String label, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -440,7 +446,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade600,
+                color: cs.onSurfaceVariant,
               ),
             ),
           ),
@@ -448,10 +454,10 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
           Expanded(
             child: Text(
               value.isEmpty ? 'Not provided' : value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: cs.onSurface,
               ),
             ),
           ),
@@ -461,12 +467,14 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
   }
 
   void _showLogoutDialog() {
+    final cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return ScaleInAnimation(
           child: AlertDialog(
+            backgroundColor: cs.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
@@ -494,9 +502,9 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                 ),
               ],
             ),
-            content: const Text(
+            content: Text(
               'Are you sure you want to logout?',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: cs.onSurface),
             ),
             actions: [
               TextButton(
@@ -504,7 +512,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                 child: Text(
                   'Cancel',
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: cs.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

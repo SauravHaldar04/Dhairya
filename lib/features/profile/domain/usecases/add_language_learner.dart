@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/success/success.dart';
 import 'package:aparna_education/core/usecase/usecase.dart';
-import 'package:aparna_education/features/profile/domain/entities/language_learner_entity.dart';
 import 'package:aparna_education/features/profile/domain/repositories/language_learner_repository.dart';
 import 'package:fpdart/fpdart.dart';
 

@@ -131,7 +131,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
       (user) {
         _logger.i('Google Sign-In successful for user: ${user.email}');
-        emit(AuthUserLoggedIn(user));
+        emit(AuthSuccess(user));
       },
     );
   }

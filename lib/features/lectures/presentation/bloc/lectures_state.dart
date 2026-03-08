@@ -79,6 +79,36 @@ class LectureSeriesLoaded extends LecturesState {
 }
 
 // ============================================================
+// RECURRING LECTURE TEMPLATE STATES (Alarm-Clock Pattern)
+// ============================================================
+class TemplatesLoaded extends LecturesState {
+  final List<RecurringLectureTemplate> templates;
+  TemplatesLoaded(this.templates);
+}
+
+class TemplateUpdated extends LecturesState {}
+
+class TemplateDeleted extends LecturesState {}
+
+class LectureMaterialized extends LecturesState {
+  final String lectureId;
+  LectureMaterialized(this.lectureId);
+}
+
+// ============================================================
+// LECTURE NOTIFICATION STATES
+// ============================================================
+class NotificationScheduled extends LecturesState {
+  final String notificationId;
+  NotificationScheduled(this.notificationId);
+}
+
+class NotificationsLoaded extends LecturesState {
+  final List<LectureNotification> notifications;
+  NotificationsLoaded(this.notifications);
+}
+
+// ============================================================
 // TEACHER AVAILABILITY STATES
 // ============================================================
 class TeacherAvailabilityLoaded extends LecturesState {

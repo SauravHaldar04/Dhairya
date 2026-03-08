@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_pallete.dart';
+
 
 class DaySelector extends StatefulWidget {
   final List<String> selectedDays;
@@ -75,16 +75,16 @@ class _DaySelectorState extends State<DaySelector> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? Pallete.primaryColor : Colors.grey.shade50,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? Pallete.primaryColor : Colors.grey.shade300,
+                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
                     width: isSelected ? 2 : 1.5,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: Pallete.primaryColor.withOpacity(0.3),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),

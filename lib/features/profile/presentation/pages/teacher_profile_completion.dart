@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:address_form/address_form.dart';
 import 'package:aparna_education/core/entities/user_entity.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/core/utils/format_date.dart';
-import 'package:aparna_education/core/utils/loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/core/utils/pickFile.dart';
 import 'package:aparna_education/core/utils/pickimage.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
@@ -158,7 +158,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
         },
         builder: (context, state) {
           if (state is ProfileLoading) {
-            return const Center(child: Loader());
+            return const Center(child: AppLoading());
           }
           if (state is ProfileUser) {
             user = state.user;
@@ -174,12 +174,12 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                 children: [
                   const SizedBox(height: 20),
                   Center(
-                    child: const Text("Complete your profile",
+                    child: Text("Complete your profile",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: Pallete.primaryColor)),
+                            color: Theme.of(context).colorScheme.primary)),
                   ),
                   const SizedBox(height: 20),
                   image != null
@@ -203,10 +203,6 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                             Container(
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                // border: Border.all(
-                                //   color: Pallete.primaryColor,
-                                //   width: 3.5,
-                                // ),
                               ),
                               height: MediaQuery.of(context).size.height * 0.3,
                               width: MediaQuery.of(context).size.width,
@@ -221,10 +217,10 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                               bottom: MediaQuery.of(context).size.height * 0.01,
                               child: IconButton(
                                 onPressed: selectImage,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.add_a_photo,
                                   size: 40,
-                                  color: Pallete.primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -253,32 +249,30 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                             padding: const EdgeInsets.only(right: 8.0),
                             child: DropdownWithSearch(
                                 disabledDecoration: BoxDecoration(
-                                  color: Pallete.whiteColor,
+                                  color: Theme.of(context).colorScheme.surface,
                                   border: Border.all(
-                                      color: Pallete.inactiveColor, width: 2),
+                                      color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 itemStyle: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold),
-                                dropdownHeadingStyle: const TextStyle(
-                                    color: Pallete.primaryColor,
+                                dropdownHeadingStyle: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Pallete.primaryColor, width: 2),
+                                      color: Theme.of(context).colorScheme.primary, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                unselectedItemStyle: const TextStyle(
-                                  color: Pallete.greyColor,
+                                unselectedItemStyle: TextStyle(
+                                  color: Theme.of(context).colorScheme.outline,
                                   fontSize: 16,
                                 ),
                                 selectedItemStyle: const TextStyle(
                                   color: Colors.black,
-                                  //:
-                                  //Pallete.greyColor,
                                   fontSize: 16,
                                 ),
                                 title: selectedGender,
@@ -316,7 +310,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                           },
                           child: ProjectTextfield(
                             enabled: false,
-                            borderColor: Pallete.primaryColor,
+                            borderColor: Theme.of(context).colorScheme.primary,
                             text: "Date of Birth",
                             controller: ageController,
                             keyboardType:
@@ -328,32 +322,30 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                   ),
                   const SizedBox(height: 20),
                   CSCPicker(
-                    unselectedItemStyle: const TextStyle(
-                      color: Pallete.greyColor,
+                    unselectedItemStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
                       fontSize: 16,
                     ),
                     selectedItemStyle: const TextStyle(
                       color: Colors.black,
-                      //:
-                      //Pallete.greyColor,
                       fontSize: 16,
                     ),
                     disabledDropdownDecoration: BoxDecoration(
-                      color: Pallete.whiteColor,
+                      color: Theme.of(context).colorScheme.surface,
                       border:
-                          Border.all(color: Pallete.inactiveColor, width: 2),
+                          Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     dropdownItemStyle: const TextStyle(
                         color: Colors.black,
                         fontSize: 17,
                         fontWeight: FontWeight.bold),
-                    dropdownHeadingStyle: const TextStyle(
-                        color: Pallete.primaryColor,
+                    dropdownHeadingStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 22,
                         fontWeight: FontWeight.bold),
                     dropdownDecoration: BoxDecoration(
-                      border: Border.all(color: Pallete.primaryColor, width: 2),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     onCityChanged: (val) {
@@ -403,18 +395,18 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                   ),
                   IntlPhoneField(
                     controller: phoneController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Phone Number',
-                      hintStyle: TextStyle(color: Colors.grey),
+                      hintStyle: const TextStyle(color: Colors.grey),
                       enabledBorder: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Pallete.primaryColor, width: 2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                            BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                       border: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Pallete.primaryColor, width: 2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                            BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                     initialCountryCode: 'IN',
@@ -435,32 +427,30 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                   ),
                   DropdownWithSearch(
                       disabledDecoration: BoxDecoration(
-                        color: Pallete.whiteColor,
+                        color: Theme.of(context).colorScheme.surface,
                         border:
-                            Border.all(color: Pallete.inactiveColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       itemStyle: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
                           fontWeight: FontWeight.bold),
-                      dropdownHeadingStyle: const TextStyle(
-                          color: Pallete.primaryColor,
+                      dropdownHeadingStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
                       decoration: BoxDecoration(
                         border:
-                            Border.all(color: Pallete.primaryColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      unselectedItemStyle: const TextStyle(
-                        color: Pallete.greyColor,
+                      unselectedItemStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
                         fontSize: 16,
                       ),
                       selectedItemStyle: const TextStyle(
                         color: Colors.black,
-                        //:
-                        //Pallete.greyColor,
                         fontSize: 16,
                       ),
                       title: "Select Academic Board",
@@ -483,23 +473,23 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                       spacing: 10,
                       children: selectedAcademicBoard.map((e) {
                         return Chip(
-                          side: const BorderSide(
-                              color: Pallete.primaryColor, width: 2),
-                          color: WidgetStatePropertyAll(Pallete.primaryColor),
+                          side: BorderSide(
+                              color: Theme.of(context).colorScheme.primary, width: 2),
+                          color: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
                           onDeleted: () {
                             setState(() {
                               selectedAcademicBoard.remove(e);
                             });
                           },
                           deleteIcon: Icon(Icons.close),
-                          deleteIconColor: Pallete.backgroundColor,
+                          deleteIconColor: Theme.of(context).colorScheme.surface,
                           padding: const EdgeInsets.all(5),
                           label: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
                               e,
-                              style: const TextStyle(
-                                  color: Pallete.backgroundColor,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.surface,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -512,32 +502,30 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                   ),
                   DropdownWithSearch(
                       disabledDecoration: BoxDecoration(
-                        color: Pallete.whiteColor,
+                        color: Theme.of(context).colorScheme.surface,
                         border:
-                            Border.all(color: Pallete.inactiveColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       itemStyle: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
                           fontWeight: FontWeight.bold),
-                      dropdownHeadingStyle: const TextStyle(
-                          color: Pallete.primaryColor,
+                      dropdownHeadingStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
                       decoration: BoxDecoration(
                         border:
-                            Border.all(color: Pallete.primaryColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      unselectedItemStyle: const TextStyle(
-                        color: Pallete.greyColor,
+                      unselectedItemStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
                         fontSize: 16,
                       ),
                       selectedItemStyle: const TextStyle(
                         color: Colors.black,
-                        //:
-                        //Pallete.greyColor,
                         fontSize: 16,
                       ),
                       title: "Select Subjects",
@@ -560,23 +548,23 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                       spacing: 10,
                       children: selectedSubjects.map((e) {
                         return Chip(
-                          side: const BorderSide(
-                              color: Pallete.primaryColor, width: 2),
-                          color: WidgetStatePropertyAll(Pallete.primaryColor),
+                          side: BorderSide(
+                              color: Theme.of(context).colorScheme.primary, width: 2),
+                          color: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
                           onDeleted: () {
                             setState(() {
                               selectedSubjects.remove(e);
                             });
                           },
                           deleteIcon: Icon(Icons.close),
-                          deleteIconColor: Pallete.backgroundColor,
+                          deleteIconColor: Theme.of(context).colorScheme.surface,
                           padding: const EdgeInsets.all(5),
                           label: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
                               e,
-                              style: const TextStyle(
-                                  color: Pallete.backgroundColor,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.surface,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -597,12 +585,12 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                                 boxShadow: [
                                   BoxShadow(
                                     color:
-                                        Pallete.primaryColor.withOpacity(0.2),
+                                        Theme.of(context).colorScheme.primary.withOpacity(0.2),
                                     blurRadius: 10,
                                     spreadRadius: 2,
                                   )
                                 ],
-                                color: Pallete.primaryColor.withOpacity(0.1),
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               width: double.infinity,
@@ -630,7 +618,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                             ),
                           )
                         : DottedBorder(
-                            color: Pallete.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             strokeWidth: 1,
                             borderType: BorderType.RRect,
                             strokeCap: StrokeCap.round,
@@ -644,18 +632,18 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   if (resumeLoading)
-                                    const Center(child: Loader())
+                                    const Center(child: AppLoading())
                                   else
-                                    const Icon(
+                                    Icon(
                                       Icons.folder_open_rounded,
                                       size: 40,
-                                      color: Pallete.greyColor,
+                                      color: Theme.of(context).colorScheme.outline,
                                     ),
                                   const SizedBox(height: 10),
-                                  const Text(
+                                  Text(
                                     "Upload Your Resume",
                                     style: TextStyle(
-                                        color: Pallete.greyColor,
+                                        color: Theme.of(context).colorScheme.outline,
                                         fontSize: 15,
                                         fontWeight: FontWeight.w300),
                                   )
@@ -674,7 +662,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(state.message),
-                              backgroundColor: Pallete.primaryColor,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                             ),
                           );
                         }
@@ -689,7 +677,7 @@ class _TeacherProfileCompletionState extends State<TeacherProfileCompletion> {
                       },
                       builder: (context, state) {
                         if (state is ProfileLoading) {
-                          return Center(child: const Loader());
+                          return Center(child: const AppLoading());
                         }
                         return ProjectButton(
                           text: "Submit",

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:aparna_education/core/error/failure.dart';
 import 'package:aparna_education/core/success/success.dart';
 import 'package:aparna_education/core/usecase/usecase.dart';
-import 'package:aparna_education/features/profile/domain/entities/parent_entity.dart';
 import 'package:aparna_education/features/profile/domain/repositories/parent_repository.dart';
 import 'package:fpdart/fpdart.dart';
 

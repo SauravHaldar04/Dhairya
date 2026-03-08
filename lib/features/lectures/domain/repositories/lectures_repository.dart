@@ -3,6 +3,8 @@ import '../entities/lecture_request_entity.dart';
 import '../entities/lecture_entity.dart';
 import '../entities/teacher_availability_entity.dart';
 import '../entities/teacher_student_assignment_entity.dart';
+import '../entities/recurring_lecture_template_entity.dart';
+import '../entities/lecture_notification_entity.dart';
 import '../entities/time_slot_entity.dart';
 import '../../../../core/error/server_exception.dart';
 
@@ -125,6 +127,65 @@ abstract interface class LecturesRepository {
   
   /// Get lecture series (all lectures in a recurring series)
   Future<Either<ServerException, List<Lecture>>> getLectureSeries(String seriesId);
+  
+  // ============================================================
+  // RECURRING LECTURE TEMPLATES (Alarm-Clock Pattern)
+  // ============================================================
+  
+  /// Get recurring lecture templates
+  Future<Either<ServerException, List<RecurringLectureTemplate>>> getTemplates({
+    String? teacherUid,
+    String? studentUid,
+    bool? isActive,
+  });
+  
+  /// Update an existing recurring lecture template
+  Future<Either<ServerException, void>> updateTemplate({
+    required String templateId,
+    DateTime? startDate,
+    DateTime? endDate,
+    TimeSlot? scheduledTime,
+    List<String>? recurrenceDays,
+    bool? isActive,
+    bool? notificationEnabled,
+    int? notificationMinutesBefore,
+    String? notes,
+    String? meetingLink,
+  });
+  
+  /// Delete (soft delete) a recurring lecture template
+  Future<Either<ServerException, void>> deleteTemplate(String templateId);
+  
+  /// Materialize a virtual lecture instance (convert to real DB row)
+  /// Used when modifying a specific instance from a recurring template
+  Future<Either<ServerException, String>> materializeLecture({
+    required String virtualLectureId,
+    required String templateId,
+    required DateTime scheduledDate,
+    required TimeSlot scheduledTime,
+    String? reason,
+  });
+  
+  // ============================================================
+  // LECTURE NOTIFICATIONS
+  // ============================================================
+  
+  /// Schedule a notification for a lecture
+  Future<Either<ServerException, String>> scheduleNotification({
+    String? lectureId,
+    String? templateId,
+    required DateTime scheduledFor,
+    required String notificationType,
+  });
+  
+  /// Get scheduled notifications
+  Future<Either<ServerException, List<LectureNotification>>> getNotifications({
+    String? lectureId,
+    String? templateId,
+    bool? isSent,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
   
   // ============================================================
   // TEACHER AVAILABILITY

@@ -80,13 +80,25 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
       final parsedType = getEnumFromString(userData['user_type']);
       print('🔍 DEBUG loginWithEmailAndPassword: parsed userType = $parsedType');
       
+      // Check if Supabase auth user has confirmed email
+      final authEmailVerified = response.user!.emailConfirmedAt != null;
+      final dbEmailVerified = userData['email_verified'] as bool? ?? false;
+      
+      // Sync: If Supabase says verified but DB says not, update DB
+      if (authEmailVerified && !dbEmailVerified) {
+        await supabaseClient.from('users').update({
+          'email_verified': true,
+        }).eq('uid', response.user!.id);
+        print('✅ Synced email_verified status in database');
+      }
+      
       return UserModel(
         uid: response.user!.id,
         email: userData['email'],
         firstName: userData['first_name'],
         middleName: userData['middle_name'],
         lastName: userData['last_name'],
-        emailVerified: userData['email_verified'],
+        emailVerified: authEmailVerified, // Use Supabase auth as source of truth
         userType: parsedType,
       );
     } on AuthException catch (e) {
@@ -224,13 +236,23 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
         );
       } else {
         // Return existing user
+        // For Google sign-in, ensure email_verified is true
+        final emailVerified = existing['email_verified'] as bool? ?? true;
+        
+        // Update database if not already verified (Google accounts are always verified)
+        if (!emailVerified) {
+          await supabaseClient.from('users').update({
+            'email_verified': true,
+          }).eq('uid', user.id);
+        }
+        
         return UserModel(
           uid: user.id,
           email: existing['email'],
           firstName: existing['first_name'],
           middleName: existing['middle_name'],
           lastName: existing['last_name'],
-          emailVerified: existing['email_verified'],
+          emailVerified: true, // Google accounts are always verified
           userType: getEnumFromString(existing['user_type']),
         );
       }
@@ -252,13 +274,25 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
     final parsedType = getEnumFromString(userData['user_type']);
     print('🔍 DEBUG getCurrentUser: parsed userType = $parsedType');
     
+    // Check Supabase auth verification status (source of truth)
+    final authEmailVerified = user.emailConfirmedAt != null;
+    final dbEmailVerified = userData['email_verified'] as bool? ?? false;
+    
+    // Sync: If Supabase says verified but DB says not, update DB
+    if (authEmailVerified && !dbEmailVerified) {
+      await supabaseClient.from('users').update({
+        'email_verified': true,
+      }).eq('uid', user.id);
+      print('✅ Synced email_verified status in database (getCurrentUser)');
+    }
+    
     return UserModel(
       uid: user.id,
       email: userData['email'],
       firstName: userData['first_name'],
       middleName: userData['middle_name'],
       lastName: userData['last_name'],
-      emailVerified: userData['email_verified'],
+      emailVerified: authEmailVerified, // Use Supabase auth as source of truth
       userType: parsedType,
     );
   }

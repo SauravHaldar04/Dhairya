@@ -198,6 +198,102 @@ class GetLectureSeriesEvent extends LecturesEvent {
 }
 
 // ============================================================
+// RECURRING LECTURE TEMPLATE EVENTS (Alarm-Clock Pattern)
+// ============================================================
+class GetTemplatesEvent extends LecturesEvent {
+  final String? teacherUid;
+  final String? studentUid;
+  final bool? isActive;
+
+  GetTemplatesEvent({
+    this.teacherUid,
+    this.studentUid,
+    this.isActive,
+  });
+}
+
+class UpdateTemplateEvent extends LecturesEvent {
+  final String templateId;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final TimeSlot? scheduledTime;
+  final List<String>? recurrenceDays;
+  final bool? isActive;
+  final bool? notificationEnabled;
+  final int? notificationMinutesBefore;
+  final String? notes;
+  final String? meetingLink;
+
+  UpdateTemplateEvent({
+    required this.templateId,
+    this.startDate,
+    this.endDate,
+    this.scheduledTime,
+    this.recurrenceDays,
+    this.isActive,
+    this.notificationEnabled,
+    this.notificationMinutesBefore,
+    this.notes,
+    this.meetingLink,
+  });
+}
+
+class DeleteTemplateEvent extends LecturesEvent {
+  final String templateId;
+
+  DeleteTemplateEvent(this.templateId);
+}
+
+class MaterializeLectureEvent extends LecturesEvent {
+  final String virtualLectureId;
+  final String templateId;
+  final DateTime scheduledDate;
+  final TimeSlot scheduledTime;
+  final String? reason;
+
+  MaterializeLectureEvent({
+    required this.virtualLectureId,
+    required this.templateId,
+    required this.scheduledDate,
+    required this.scheduledTime,
+    this.reason,
+  });
+}
+
+// ============================================================
+// LECTURE NOTIFICATION EVENTS
+// ============================================================
+class ScheduleLectureNotificationEvent extends LecturesEvent {
+  final String? lectureId;
+  final String? templateId;
+  final DateTime scheduledFor;
+  final String notificationType;
+
+  ScheduleLectureNotificationEvent({
+    this.lectureId,
+    this.templateId,
+    required this.scheduledFor,
+    required this.notificationType,
+  });
+}
+
+class GetLectureNotificationsEvent extends LecturesEvent {
+  final String? lectureId;
+  final String? templateId;
+  final bool? isSent;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+
+  GetLectureNotificationsEvent({
+    this.lectureId,
+    this.templateId,
+    this.isSent,
+    this.fromDate,
+    this.toDate,
+  });
+}
+
+// ============================================================
 // TEACHER AVAILABILITY EVENTS
 // ============================================================
 class GetTeacherAvailabilityEvent extends LecturesEvent {

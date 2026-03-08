@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:aparna_education/features/auth/presentation/pages/landing_page.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
 import 'package:aparna_education/features/profile/presentation/pages/edit_teacher_profile_page.dart';
@@ -71,8 +72,8 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Pallete.primaryColor,
-                  Pallete.primaryColor.withOpacity(0.8),
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withOpacity(0.8),
                 ],
               ),
             ),
@@ -83,7 +84,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                 child: FadeInSlide(
                   child: Column(
                     children: [
-                      // Edit Button Row
+                      // Action Buttons Row
                       if (teacher != null)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -113,6 +114,51 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                       context.read<ProfileBloc>().add(GetCurrentUser());
                                     }
                                   },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ScaleInAnimation(
+                              delay: const Duration(milliseconds: 100),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: PopupMenuButton<String>(
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                    color: Colors.white,
+                                  ),
+                                  onSelected: (value) async {
+                                    if (value == 'logout') {
+                                      _showLogoutDialog();
+                                    } else if (value == 'refresh') {
+                                      context.read<ProfileBloc>().add(GetCurrentUser());
+                                    }
+                                  },
+                                  itemBuilder: (context) => [
+                                    const PopupMenuItem(
+                                      value: 'refresh',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.refresh, size: 20),
+                                          SizedBox(width: 12),
+                                          Text('Refresh'),
+                                        ],
+                                      ),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'logout',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.logout, color: Colors.red, size: 20),
+                                          SizedBox(width: 12),
+                                          Text('Logout', style: TextStyle(color: Colors.red)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -166,7 +212,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                               child: IconButton(
                                 icon: Icon(
                                   Icons.camera_alt,
-                                  color: Pallete.primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                   size: 20,
                                 ),
                                 onPressed: () {},
@@ -506,5 +552,103 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
       default:
         return 'Verification Pending';
     }
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return ScaleInAnimation(
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.logout_rounded,
+                    color: Colors.red,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Confirm Logout',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            content: const Text(
+              'Are you sure you want to logout?',
+              style: TextStyle(fontSize: 16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              BlocConsumer<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthLoggedOut) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const LandingPage(),
+                      ),
+                      (route) => false,
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is AuthLoading) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  }
+                  
+                  return ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(AuthLogout());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    ),
+                    child: const Text(
+                      'Logout',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

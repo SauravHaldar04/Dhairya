@@ -1,6 +1,5 @@
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/domain/entities/teacher_student_assignment_entity.dart';
 import 'package:aparna_education/features/lectures/domain/entities/time_slot_entity.dart';
@@ -166,7 +165,7 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
           }
         },
         builder: (context, state) {
-          if (state is LecturesLoading) return const CustomLoader();
+          if (state is LecturesLoading) return AppLoading.centered();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -278,7 +277,7 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
                 SwitchListTile(
                   title: const Text('Recurring Lecture'),
                   value: _isRecurring,
-                  activeColor: Pallete.primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (value) => setState(() => _isRecurring = value),
                 ),
                 if (_isRecurring) ...[
@@ -302,8 +301,8 @@ class _TeacherCreateLecturePageState extends State<TeacherCreateLecturePage> {
                             }
                           });
                         },
-                        selectedColor: Pallete.primaryColor.withOpacity(0.3),
-                        checkmarkColor: Pallete.primaryColor,
+                        selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                        checkmarkColor: Theme.of(context).colorScheme.primary,
                       );
                     }).toList(),
                   ),

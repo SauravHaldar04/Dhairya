@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:address_form/address_form.dart';
 import 'package:aparna_education/core/entities/user_entity.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/core/utils/format_date.dart';
 import 'package:aparna_education/core/utils/pickimage.dart';
 import 'package:aparna_education/core/widgets/csc_picker.dart';
@@ -10,7 +10,6 @@ import 'package:aparna_education/core/widgets/dropdownwithsearch.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/core/widgets/project_textfield.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -122,12 +121,12 @@ class _LanguageLearnerProfileCompletionState
                 children: [
                   const SizedBox(height: 20),
                   Center(
-                    child: const Text("Complete your profile",
+                    child: Text("Complete your profile",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: Pallete.primaryColor)),
+                            color: Theme.of(context).colorScheme.primary)),
                   ),
                   const SizedBox(height: 20),
                   image != null
@@ -151,10 +150,6 @@ class _LanguageLearnerProfileCompletionState
                             Container(
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                // border: Border.all(
-                                //   color: Pallete.primaryColor,
-                                //   width: 3.5,
-                                // ),
                               ),
                               height: MediaQuery.of(context).size.height * 0.3,
                               width: MediaQuery.of(context).size.width,
@@ -169,10 +164,10 @@ class _LanguageLearnerProfileCompletionState
                               bottom: MediaQuery.of(context).size.height * 0.01,
                               child: IconButton(
                                 onPressed: selectImage,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.add_a_photo,
                                   size: 40,
-                                  color: Pallete.primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -201,32 +196,30 @@ class _LanguageLearnerProfileCompletionState
                             padding: const EdgeInsets.only(right: 8.0),
                             child: DropdownWithSearch(
                                 disabledDecoration: BoxDecoration(
-                                  color: Pallete.whiteColor,
+                                  color: Theme.of(context).colorScheme.surface,
                                   border: Border.all(
-                                      color: Pallete.inactiveColor, width: 2),
+                                      color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 itemStyle: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold),
-                                dropdownHeadingStyle: const TextStyle(
-                                    color: Pallete.primaryColor,
+                                dropdownHeadingStyle: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Pallete.primaryColor, width: 2),
+                                      color: Theme.of(context).colorScheme.primary, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                unselectedItemStyle: const TextStyle(
-                                  color: Pallete.greyColor,
+                                unselectedItemStyle: TextStyle(
+                                  color: Theme.of(context).colorScheme.outline,
                                   fontSize: 16,
                                 ),
                                 selectedItemStyle: const TextStyle(
                                   color: Colors.black,
-                                  //:
-                                  //Pallete.greyColor,
                                   fontSize: 16,
                                 ),
                                 title: selectedGender,
@@ -264,7 +257,7 @@ class _LanguageLearnerProfileCompletionState
                           },
                           child: ProjectTextfield(
                             enabled: false,
-                            borderColor: Pallete.primaryColor,
+                            borderColor: Theme.of(context).colorScheme.primary,
                             text: "Date of Birth",
                             controller: ageController,
                             keyboardType:
@@ -276,32 +269,30 @@ class _LanguageLearnerProfileCompletionState
                   ),
                   const SizedBox(height: 20),
                   CSCPicker(
-                    unselectedItemStyle: const TextStyle(
-                      color: Pallete.greyColor,
+                    unselectedItemStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
                       fontSize: 16,
                     ),
                     selectedItemStyle: const TextStyle(
                       color: Colors.black,
-                      //:
-                      //Pallete.greyColor,
                       fontSize: 16,
                     ),
                     disabledDropdownDecoration: BoxDecoration(
-                      color: Pallete.whiteColor,
+                      color: Theme.of(context).colorScheme.surface,
                       border:
-                          Border.all(color: Pallete.inactiveColor, width: 2),
+                          Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     dropdownItemStyle: const TextStyle(
                         color: Colors.black,
                         fontSize: 17,
                         fontWeight: FontWeight.bold),
-                    dropdownHeadingStyle: const TextStyle(
-                        color: Pallete.primaryColor,
+                    dropdownHeadingStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 22,
                         fontWeight: FontWeight.bold),
                     dropdownDecoration: BoxDecoration(
-                      border: Border.all(color: Pallete.primaryColor, width: 2),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     onCityChanged: (val) {
@@ -351,18 +342,18 @@ class _LanguageLearnerProfileCompletionState
                   ),
                   IntlPhoneField(
                     controller: phoneController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Phone Number',
-                      hintStyle: TextStyle(color: Colors.grey),
+                      hintStyle: const TextStyle(color: Colors.grey),
                       enabledBorder: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Pallete.primaryColor, width: 2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                            BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                       border: OutlineInputBorder(
                         borderSide:
-                            BorderSide(color: Pallete.primaryColor, width: 2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                            BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                     initialCountryCode: 'IN',
@@ -380,32 +371,30 @@ class _LanguageLearnerProfileCompletionState
                   ),
                   DropdownWithSearch(
                       disabledDecoration: BoxDecoration(
-                        color: Pallete.whiteColor,
+                        color: Theme.of(context).colorScheme.surface,
                         border:
-                            Border.all(color: Pallete.inactiveColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       itemStyle: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
                           fontWeight: FontWeight.bold),
-                      dropdownHeadingStyle: const TextStyle(
-                          color: Pallete.primaryColor,
+                      dropdownHeadingStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
                       decoration: BoxDecoration(
                         border:
-                            Border.all(color: Pallete.primaryColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      unselectedItemStyle: const TextStyle(
-                        color: Pallete.greyColor,
+                      unselectedItemStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
                         fontSize: 16,
                       ),
                       selectedItemStyle: const TextStyle(
                         color: Colors.black,
-                        //:
-                        //Pallete.greyColor,
                         fontSize: 16,
                       ),
                       title: "Select Lanuages to learn",
@@ -428,23 +417,23 @@ class _LanguageLearnerProfileCompletionState
                       spacing: 10,
                       children: selectedLanguagesToLearn.map((e) {
                         return Chip(
-                          side: const BorderSide(
-                              color: Pallete.primaryColor, width: 2),
-                          color: WidgetStatePropertyAll(Pallete.primaryColor),
+                          side: BorderSide(
+                              color: Theme.of(context).colorScheme.primary, width: 2),
+                          color: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
                           onDeleted: () {
                             setState(() {
                               selectedLanguagesToLearn.remove(e);
                             });
                           },
                           deleteIcon: Icon(Icons.close),
-                          deleteIconColor: Pallete.backgroundColor,
+                          deleteIconColor: Theme.of(context).colorScheme.surface,
                           padding: const EdgeInsets.all(5),
                           label: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
                               e,
-                              style: const TextStyle(
-                                  color: Pallete.backgroundColor,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.surface,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -457,32 +446,30 @@ class _LanguageLearnerProfileCompletionState
                   ),
                   DropdownWithSearch(
                       disabledDecoration: BoxDecoration(
-                        color: Pallete.whiteColor,
+                        color: Theme.of(context).colorScheme.surface,
                         border:
-                            Border.all(color: Pallete.inactiveColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       itemStyle: const TextStyle(
                           color: Colors.black,
                           fontSize: 17,
                           fontWeight: FontWeight.bold),
-                      dropdownHeadingStyle: const TextStyle(
-                          color: Pallete.primaryColor,
+                      dropdownHeadingStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
                       decoration: BoxDecoration(
                         border:
-                            Border.all(color: Pallete.primaryColor, width: 2),
+                            Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      unselectedItemStyle: const TextStyle(
-                        color: Pallete.greyColor,
+                      unselectedItemStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
                         fontSize: 16,
                       ),
                       selectedItemStyle: const TextStyle(
                         color: Colors.black,
-                        //:
-                        //Pallete.greyColor,
                         fontSize: 16,
                       ),
                       title: "Select Lanuages Already Known",
@@ -505,23 +492,23 @@ class _LanguageLearnerProfileCompletionState
                       spacing: 10,
                       children: selectedLanguagesKnown.map((e) {
                         return Chip(
-                          side: const BorderSide(
-                              color: Pallete.primaryColor, width: 2),
-                          color: WidgetStatePropertyAll(Pallete.primaryColor),
+                          side: BorderSide(
+                              color: Theme.of(context).colorScheme.primary, width: 2),
+                          color: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
                           onDeleted: () {
                             setState(() {
                               selectedLanguagesKnown.remove(e);
                             });
                           },
                           deleteIcon: Icon(Icons.close),
-                          deleteIconColor: Pallete.backgroundColor,
+                          deleteIconColor: Theme.of(context).colorScheme.surface,
                           padding: const EdgeInsets.all(5),
                           label: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
                               e,
-                              style: const TextStyle(
-                                  color: Pallete.backgroundColor,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.surface,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -574,7 +561,7 @@ class _LanguageLearnerProfileCompletionState
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Please fill in all fields.'),
-                              backgroundColor: Pallete.primaryColor,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                             ),
                           );
                         }

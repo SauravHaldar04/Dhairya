@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:aparna_education/features/profile/domain/entities/student_entity.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 
 class EditStudentProfilePage extends StatefulWidget {
   final Student student;
@@ -220,21 +220,21 @@ class _EditStudentProfilePageState extends State<EditStudentProfilePage> {
                       children: [
                         CircleAvatar(
                           radius: 60,
-                          backgroundColor: Pallete.primaryColor.withOpacity(0.1),
+                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                           backgroundImage: _selectedImage != null
                               ? FileImage(_selectedImage!)
                               : (widget.student.profilePic != null
                                   ? NetworkImage(widget.student.profilePic!)
                                   : null) as ImageProvider?,
                           child: _selectedImage == null && widget.student.profilePic == null
-                              ? const Icon(Icons.person, size: 60, color: Pallete.primaryColor)
+                              ? Icon(Icons.person, size: 60, color: Theme.of(context).colorScheme.primary)
                               : null,
                         ),
                         Positioned(
                           bottom: 0,
                           right: 0,
                           child: CircleAvatar(
-                            backgroundColor: Pallete.primaryColor,
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             radius: 18,
                             child: IconButton(
                               icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
@@ -252,7 +252,7 @@ class _EditStudentProfilePageState extends State<EditStudentProfilePage> {
                     'Personal Information',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Pallete.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                   const SizedBox(height: 16),
@@ -304,7 +304,7 @@ class _EditStudentProfilePageState extends State<EditStudentProfilePage> {
                     'Academic Information',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Pallete.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                   const SizedBox(height: 16),
@@ -344,7 +344,7 @@ class _EditStudentProfilePageState extends State<EditStudentProfilePage> {
                               children: _selectedSubjects
                                   .map((subject) => Chip(
                                         label: Text(subject, style: const TextStyle(fontSize: 12)),
-                                        backgroundColor: Pallete.primaryColor.withOpacity(0.1),
+                                        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                                       ))
                                   .toList(),
                             ),
@@ -410,7 +410,7 @@ class _EditStudentProfilePageState extends State<EditStudentProfilePage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _updateProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.primaryColor,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

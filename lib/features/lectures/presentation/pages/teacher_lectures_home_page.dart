@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/core/widgets/custom_loader.dart';
-import 'package:aparna_education/core/widgets/animations.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
+import 'package:aparna_education/core/widgets/app_empty_state.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/assignment_card.dart';
 import 'package:aparna_education/features/lectures/presentation/widgets/lecture_card.dart';
@@ -47,65 +47,36 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: Pallete.backgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
           _loadData();
         },
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              expandedHeight: 120,
-              floating: false,
-              pinned: true,
-              backgroundColor: Pallete.primaryColor,
-              flexibleSpace: FlexibleSpaceBar(
-                title: const Text(
-                  'My Lectures',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                background: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Pallete.primaryColor,
-                        Pallete.primaryColor.withOpacity(0.8),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            SliverAppBar.large(
+              title: const Text('My Lectures'),
             ),
 
             // Quick Actions
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Quick Actions',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                    Text('Quick Actions', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
                           child: _ActionCard(
-                            icon: Icons.schedule,
+                            icon: PhosphorIcons.clock(),
                             label: 'Availability',
-                            color: Pallete.primaryColor,
+                            color: cs.primary,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -121,9 +92,9 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _ActionCard(
-                            icon: Icons.add_circle_outline,
+                            icon: PhosphorIcons.plusCircle(),
                             label: 'Create Lecture',
-                            color: Pallete.secondaryColor,
+                            color: cs.secondary,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -144,9 +115,9 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
                       children: [
                         Expanded(
                           child: _ActionCard(
-                            icon: Icons.list_alt,
+                            icon: PhosphorIcons.listBullets(),
                             label: 'All Lectures',
-                            color: Colors.orange,
+                            color: cs.tertiary,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -163,9 +134,9 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _ActionCard(
-                            icon: Icons.people_outline,
+                            icon: PhosphorIcons.users(),
                             label: 'Students',
-                            color: Colors.green,
+                            color: cs.primary,
                             onTap: () {
                               _showAssignmentsDialog();
                             },
@@ -181,18 +152,11 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
             // Upcoming Lectures Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Upcoming Lectures',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
+                    Text('Upcoming Lectures', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -215,10 +179,10 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
             BlocBuilder<LecturesBloc, LecturesState>(
               builder: (context, state) {
                 if (state is LecturesLoading) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: Center(child: CustomLoader()),
+                      padding: const EdgeInsets.all(40),
+                      child: AppLoading.centered(),
                     ),
                   );
                 }
@@ -226,70 +190,38 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
                 if (state is UpcomingLecturesLoaded) {
                   if (state.lectures.isEmpty) {
                     return SliverToBoxAdapter(
-                      child: FadeInSlide(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(40),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.event_busy,
-                                  size: 64,
-                                  color: Colors.grey.shade400,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No Upcoming Lectures',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Create your first lecture to get started',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: AppEmptyState(
+                          icon: PhosphorIcons.calendarX(),
+                          title: 'No Upcoming Lectures',
+                          subtitle: 'Create your first lecture to get started',
                         ),
                       ),
                     );
                   }
 
                   return SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final lecture = state.lectures[index];
-                          return FadeInSlide(
-                            duration:
-                                Duration(milliseconds: 300 + (index * 100)),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: LectureCard(
-                                lecture: lecture,
-                                onTap: () {},
-                                onReschedule: () {
-                                  _showRescheduleDialog(lecture.id);
-                                },
-                                onCancel: () {
-                                  _showCancelDialog(lecture.id);
-                                },
-                              ),
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: LectureCard(
+                              lecture: lecture,
+                              onTap: () {},
+                              onReschedule: () {
+                                _showRescheduleDialog(lecture.id);
+                              },
+                              onCancel: () {
+                                _showCancelDialog(lecture.id);
+                              },
                             ),
                           );
                         },
-                        childCount: state.lectures.length > 3
-                            ? 3
-                            : state.lectures.length,
+                        childCount: state.lectures.length > 3 ? 3 : state.lectures.length,
                       ),
                     ),
                   );
@@ -307,6 +239,9 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
   }
 
   void _showAssignmentsDialog() {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -314,94 +249,77 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
               GetTeacherAssignmentsEvent(teacherUid: widget.teacherUid),
             );
 
-        return ScaleInAnimation(
-          child: Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 500),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Pallete.primaryColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.people, color: Colors.white),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'My Students',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(dialogContext),
-                          icon: const Icon(Icons.close, color: Colors.white),
-                        ),
-                      ],
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 500),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
                     ),
                   ),
-                  Expanded(
-                    child: BlocBuilder<LecturesBloc, LecturesState>(
-                      builder: (context, state) {
-                        if (state is LecturesLoading) {
-                          return const Center(child: CustomLoader());
-                        }
+                  child: Row(
+                    children: [
+                      Icon(PhosphorIcons.users(), color: cs.onPrimaryContainer),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'My Students',
+                          style: tt.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: cs.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        icon: Icon(PhosphorIcons.x(), color: cs.onPrimaryContainer),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: BlocBuilder<LecturesBloc, LecturesState>(
+                    builder: (context, state) {
+                      if (state is LecturesLoading) {
+                        return AppLoading.centered();
+                      }
 
-                        if (state is TeacherAssignmentsLoaded) {
-                          if (state.assignments.isEmpty) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.people_outline,
-                                      size: 64,
-                                      color: Colors.grey.shade400),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No Students Assigned',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: state.assignments.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: AssignmentCard(
-                                  assignment: state.assignments[index],
-                                  isTeacherView: true,
-                                ),
-                              );
-                            },
+                      if (state is TeacherAssignmentsLoaded) {
+                        if (state.assignments.isEmpty) {
+                          return AppEmptyState(
+                            icon: PhosphorIcons.users(),
+                            title: 'No Students Assigned',
+                            subtitle: 'Students will appear here once assigned',
                           );
                         }
 
-                        return const SizedBox();
-                      },
-                    ),
+                        return ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: state.assignments.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: AssignmentCard(
+                                assignment: state.assignments[index],
+                                isTeacherView: true,
+                              ),
+                            );
+                          },
+                        );
+                      }
+
+                      return const SizedBox();
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -416,61 +334,58 @@ class _TeacherLecturesHomePageState extends State<TeacherLecturesHomePage> {
   }
 
   void _showCancelDialog(String lectureId) {
+    final cs = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (dialogContext) {
         final reasonController = TextEditingController();
-        return ScaleInAnimation(
-          child: AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
-            title: const Text('Cancel Lecture'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                    'Are you sure you want to cancel this lecture?'),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: reasonController,
-                  decoration: const InputDecoration(
-                    labelText: 'Reason (optional)',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
+        return AlertDialog(
+          icon: Icon(PhosphorIcons.warning(), color: cs.error),
+          title: const Text('Cancel Lecture'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Are you sure you want to cancel this lecture?'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: reasonController,
+                decoration: const InputDecoration(
+                  labelText: 'Reason (optional)',
+                  border: OutlineInputBorder(),
                 ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('No'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  context.read<LecturesBloc>().add(
-                        CancelLectureEvent(
-                          lectureId: lectureId,
-                          reason: reasonController.text.isEmpty
-                              ? null
-                              : reasonController.text,
-                        ),
-                      );
-                  Navigator.pop(dialogContext);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Lecture cancelled successfully'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                  _loadData();
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red),
-                child: const Text('Yes, Cancel'),
+                maxLines: 3,
               ),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('No'),
+            ),
+            FilledButton(
+              onPressed: () {
+                context.read<LecturesBloc>().add(
+                      CancelLectureEvent(
+                        lectureId: lectureId,
+                        reason: reasonController.text.isEmpty
+                            ? null
+                            : reasonController.text,
+                      ),
+                    );
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Lecture cancelled')),
+                );
+                _loadData();
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: cs.error,
+                foregroundColor: cs.onError,
+              ),
+              child: const Text('Yes, Cancel'),
+            ),
+          ],
         );
       },
     );
@@ -492,40 +407,31 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FadeInSlide(
-      child: Card(
-        elevation: 2,
-        shadowColor: Colors.black12,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: color, size: 32),
+    final tt = Theme.of(context).textTheme;
+
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: tt.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
         ),
       ),

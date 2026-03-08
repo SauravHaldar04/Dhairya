@@ -3,6 +3,12 @@ import 'package:aparna_education/core/network/check_internet_connection.dart';
 import 'package:aparna_education/features/lectures/data/datasources/lectures_remote_datasource.dart';
 import 'package:aparna_education/features/lectures/data/repositories/lectures_repository_impl.dart';
 import 'package:aparna_education/features/lectures/domain/repositories/lectures_repository.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/get_templates.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/update_template.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/delete_template.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/materialize_lecture.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/schedule_lecture_notification.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/get_lecture_notifications.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/auth/data/repositories/auth_repository_impl.dart';
@@ -275,8 +281,35 @@ void _initLectures() {
          serviceLocator(),
       ),
     )
+    // Use Cases - Template Management
+    ..registerFactory(
+      () => GetTemplates(serviceLocator()),
+    )
+    ..registerFactory(
+      () => UpdateTemplate(serviceLocator()),
+    )
+    ..registerFactory(
+      () => DeleteTemplate(serviceLocator()),
+    )
+    ..registerFactory(
+      () => MaterializeLecture(serviceLocator()),
+    )
+    // Use Cases - Notifications
+    ..registerFactory(
+      () => ScheduleLectureNotification(serviceLocator()),
+    )
+    ..registerFactory(
+      () => GetLectureNotifications(serviceLocator()),
+    )
+    // BLoC
     ..registerLazySingleton(
       () => LecturesBloc(
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
         serviceLocator(),
       ),
     );

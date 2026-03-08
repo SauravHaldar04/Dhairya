@@ -1,5 +1,5 @@
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/edit_parent_profile_page.dart';
 import 'package:aparna_education/core/utils/format_date.dart';
@@ -60,7 +60,7 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
         builder: (context, state) {
           if (state is ProfileLoading) {
             return Center(
-              child: CircularProgressIndicator(color: Pallete.primaryColor),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             );
           }
 
@@ -114,8 +114,8 @@ class _ModernParentProfilePageState extends State<ModernParentProfilePage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Pallete.primaryColor,
-                        Pallete.primaryColor.withOpacity(0.8),
+                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).colorScheme.primary.withOpacity(0.8),
                       ],
                     ),
                   ),

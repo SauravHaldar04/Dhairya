@@ -1,4 +1,3 @@
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
 class ProjectDropdown extends StatefulWidget {
@@ -21,7 +20,7 @@ class _ProjectDropdownState extends State<ProjectDropdown> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Pallete.primaryColor, width: 2),
+        border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
         borderRadius: BorderRadius.circular(10),
       ),
       child: DropdownButton(

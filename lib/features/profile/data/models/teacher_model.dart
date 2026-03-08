@@ -106,7 +106,7 @@ class TeacherModel extends Teacher {
       verificationDate: verificationDate ?? this.verificationDate,
       verifiedBy: verifiedBy ?? this.verifiedBy,
       rejectionReason: rejectionReason ?? this.rejectionReason,
-      usertype: usertype?? Usertype.teacher,
+      usertype: this.usertype,
     );
   }
 

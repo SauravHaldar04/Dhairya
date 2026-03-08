@@ -1,12 +1,12 @@
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/core/widgets/project_button.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/domain/entities/lecture_entity.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TeacherLectureDetailsPage extends StatefulWidget {
@@ -44,7 +44,7 @@ class _TeacherLectureDetailsPageState extends State<TeacherLectureDetailsPage> {
           }
         },
         builder: (context, state) {
-          if (state is LecturesLoading) return const CustomLoader();
+          if (state is LecturesLoading) return AppLoading.centered();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -75,7 +75,7 @@ class _TeacherLectureDetailsPageState extends State<TeacherLectureDetailsPage> {
                 // Date & Time
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, color: Pallete.primaryColor, size: 20),
+                    Icon(PhosphorIconsRegular.calendarBlank, color: Theme.of(context).colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Text(DateFormat('EEEE, MMMM d, y').format(widget.lecture.scheduledDate), style: const TextStyle(fontSize: 16)),
                   ],
@@ -83,7 +83,7 @@ class _TeacherLectureDetailsPageState extends State<TeacherLectureDetailsPage> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.access_time, color: Pallete.primaryColor, size: 20),
+                    Icon(PhosphorIconsRegular.clock, color: Theme.of(context).colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Text('${widget.lecture.scheduledTime.startTime} - ${widget.lecture.scheduledTime.endTime}', style: const TextStyle(fontSize: 16)),
                   ],
@@ -97,8 +97,8 @@ class _TeacherLectureDetailsPageState extends State<TeacherLectureDetailsPage> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
-                    backgroundColor: Pallete.primaryColor.withOpacity(0.1),
-                    child: Icon(Icons.person, color: Pallete.primaryColor),
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(PhosphorIconsRegular.user, color: Theme.of(context).colorScheme.onPrimaryContainer),
                   ),
                   title: const Text('Student ID'),
                   subtitle: Text(widget.lecture.studentUid.substring(0, 12) + '...'),
@@ -108,13 +108,13 @@ class _TeacherLectureDetailsPageState extends State<TeacherLectureDetailsPage> {
                 if (widget.lecture.meetingLink != null) ...[
                   const SizedBox(height: 16),
                   Card(
-                    color: Pallete.primaryColor.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     child: ListTile(
-                      leading: Icon(Icons.video_call, color: Pallete.primaryColor),
+                      leading: Icon(PhosphorIconsRegular.videoCamera, color: Theme.of(context).colorScheme.onPrimaryContainer),
                       title: const Text('Meeting Link'),
                       subtitle: Text(widget.lecture.meetingLink!, maxLines: 1, overflow: TextOverflow.ellipsis),
                       trailing: IconButton(
-                        icon: Icon(Icons.open_in_new, color: Pallete.primaryColor),
+                        icon: Icon(PhosphorIconsRegular.arrowSquareOut, color: Theme.of(context).colorScheme.primary),
                         onPressed: () async {
                           final uri = Uri.parse(widget.lecture.meetingLink!);
                           if (await canLaunchUrl(uri)) {

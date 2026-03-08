@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/entities/lecture_entity.dart';
-import '../../../../core/theme/app_pallete.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class RecurringLectureGroupCard extends StatelessWidget {
   final List<Lecture> lectures;
@@ -19,37 +20,36 @@ class RecurringLectureGroupCard extends StatelessWidget {
     this.showActions = true,
   }) : super(key: key);
 
-  Color _getStatusColor() {
-    final firstLecture = lectures.first;
-    switch (firstLecture.status) {
+  Color _statusColor(ColorScheme cs) {
+    final s = lectures.first.status;
+    switch (s) {
       case 'scheduled':
       case 'rescheduled':
-        return Pallete.primaryColor;
+        return cs.primary;
       case 'completed':
-        return Colors.green;
+        return AppColors.success;
       case 'cancelled':
-        return Colors.red;
+        return AppColors.error;
       case 'in_progress':
-        return Colors.orange;
+        return AppColors.warning;
       default:
-        return Colors.grey;
+        return cs.outline;
     }
   }
 
-  IconData _getStatusIcon() {
-    final firstLecture = lectures.first;
-    switch (firstLecture.status) {
+  IconData _statusIcon() {
+    switch (lectures.first.status) {
       case 'scheduled':
       case 'rescheduled':
-        return Icons.schedule;
+        return PhosphorIcons.clock();
       case 'completed':
-        return Icons.check_circle;
+        return PhosphorIcons.checkCircle();
       case 'cancelled':
-        return Icons.cancel;
+        return PhosphorIcons.xCircle();
       case 'in_progress':
-        return Icons.play_circle;
+        return PhosphorIcons.playCircle();
       default:
-        return Icons.info;
+        return PhosphorIcons.info();
     }
   }
 
@@ -66,76 +66,50 @@ class RecurringLectureGroupCard extends StatelessWidget {
     }
   }
 
-  String _getRecurrenceDaysDisplay() {
-    final firstLecture = lectures.first;
-    if (firstLecture.recurrenceDays == null || firstLecture.recurrenceDays!.isEmpty) {
-      return 'Daily';
-    }
-
-    final days = firstLecture.recurrenceDays!.map((day) {
-      return day.substring(0, 3).toUpperCase();
-    }).join('-');
-    
-    return days;
+  String _recurrenceDaysLabel() {
+    final days = lectures.first.recurrenceDays;
+    if (days == null || days.isEmpty) return 'Daily';
+    return days.map((d) => d.substring(0, 3).toUpperCase()).join(' · ');
   }
 
-  String _getDateRange() {
+  String _dateRangeLabel() {
     if (lectures.isEmpty) return '';
-    
-    final sortedLectures = List<Lecture>.from(lectures)
+    final sorted = List<Lecture>.from(lectures)
       ..sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
-    
-    final firstDate = sortedLectures.first.scheduledDate;
-    final lastDate = sortedLectures.last.scheduledDate;
-    
-    if (firstDate.year == lastDate.year && 
-        firstDate.month == lastDate.month && 
-        firstDate.day == lastDate.day) {
-      return DateFormat('dd MMM yyyy').format(firstDate);
-    }
-    
-    return '${DateFormat('dd MMM').format(firstDate)} - ${DateFormat('dd MMM yyyy').format(lastDate)}';
+    final first = sorted.first.scheduledDate;
+    final last = sorted.last.scheduledDate;
+    if (first == last) return DateFormat('dd MMM yyyy').format(first);
+    return '${DateFormat('dd MMM').format(first)} – ${DateFormat('dd MMM yyyy').format(last)}';
   }
 
   @override
   Widget build(BuildContext context) {
     if (lectures.isEmpty) return const SizedBox.shrink();
-    
-    final firstLecture = lectures.first;
-    final statusColor = _getStatusColor();
+
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final first = lectures.first;
+    final sColor = _statusColor(cs);
 
     return Card(
-      elevation: 2,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: statusColor.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
+              // ── Header ──
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: sColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(
-                      Icons.book_outlined,
-                      color: statusColor,
-                      size: 24,
-                    ),
+                    child: Icon(PhosphorIcons.bookOpen(), color: sColor, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -143,31 +117,23 @@ class RecurringLectureGroupCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          firstLecture.subject,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                          first.subject,
+                          style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Row(
                           children: [
-                            Icon(
-                              _getStatusIcon(),
-                              size: 16,
-                              color: statusColor,
-                            ),
+                            Icon(_statusIcon(), size: 14, color: sColor),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                firstLecture.status.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 12,
+                                first.status.replaceAll('_', ' ').toUpperCase(),
+                                style: tt.labelSmall?.copyWith(
+                                  color: sColor,
                                   fontWeight: FontWeight.w600,
-                                  color: statusColor,
+                                  letterSpacing: 0.5,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -177,27 +143,23 @@ class RecurringLectureGroupCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // Days badge
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Pallete.secondaryColor.withOpacity(0.1),
+                      color: cs.secondaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.repeat,
-                          size: 14,
-                          color: Pallete.secondaryColor,
-                        ),
+                        Icon(PhosphorIcons.arrowsClockwise(), size: 14, color: cs.onSecondaryContainer),
                         const SizedBox(width: 4),
                         Text(
-                          _getRecurrenceDaysDisplay(),
-                          style: TextStyle(
-                            fontSize: 11,
+                          _recurrenceDaysLabel(),
+                          style: tt.labelSmall?.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: Pallete.secondaryColor,
+                            color: cs.onSecondaryContainer,
                           ),
                         ),
                       ],
@@ -206,61 +168,48 @@ class RecurringLectureGroupCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              
-              // Count badge
+
+              // ── Count pill ──
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Pallete.primaryColor.withOpacity(0.1),
+                  color: cs.primaryContainer.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.event_repeat,
-                      size: 16,
-                      color: Pallete.primaryColor,
-                    ),
+                    Icon(PhosphorIcons.calendarCheck(), size: 16, color: cs.primary),
                     const SizedBox(width: 6),
                     Text(
                       '${lectures.length} ${lectures.length == 1 ? 'lecture' : 'lectures'}',
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: tt.labelMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Pallete.primaryColor,
+                        color: cs.primary,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 12),
-              
-              // Date Range and Time
+
+              // ── Date range + time ──
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(12),
+                  color: cs.surfaceContainerHighest.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.calendar_today_rounded,
-                          size: 18,
-                          color: Pallete.primaryColor,
-                        ),
+                        Icon(PhosphorIcons.calendarBlank(), size: 16, color: cs.primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _getDateRange(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
+                            _dateRangeLabel(),
+                            style: tt.labelMedium?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -268,20 +217,12 @@ class RecurringLectureGroupCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(
-                          Icons.access_time_rounded,
-                          size: 18,
-                          color: Pallete.primaryColor,
-                        ),
+                        Icon(PhosphorIcons.clock(), size: 16, color: cs.primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '${_formatTime(firstLecture.scheduledTime.startTime)} - ${_formatTime(firstLecture.scheduledTime.endTime)}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
+                            '${_formatTime(first.scheduledTime.startTime)} – ${_formatTime(first.scheduledTime.endTime)}',
+                            style: tt.labelMedium?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -290,24 +231,17 @@ class RecurringLectureGroupCard extends StatelessWidget {
                 ),
               ),
 
-              // Student name (if available)
-              if (firstLecture.studentFirstName != null) ...[
-                const SizedBox(height: 12),
+              // ── Student name ──
+              if (first.studentFirstName != null) ...[
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    Icon(
-                      Icons.person_outline,
-                      size: 18,
-                      color: Colors.grey.shade600,
-                    ),
+                    Icon(PhosphorIcons.user(), size: 16, color: cs.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '${firstLecture.studentFirstName} ${firstLecture.studentMiddleName ?? ''} ${firstLecture.studentLastName ?? ''}'.trim(),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
-                        ),
+                        '${first.studentFirstName} ${first.studentMiddleName ?? ''} ${first.studentLastName ?? ''}'.trim(),
+                        style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -315,31 +249,24 @@ class RecurringLectureGroupCard extends StatelessWidget {
                 ),
               ],
 
-              // Meeting Link
-              if (firstLecture.meetingLink != null && firstLecture.meetingLink!.isNotEmpty) ...[
-                const SizedBox(height: 12),
+              // ── Meeting link ──
+              if (first.meetingLink != null && first.meetingLink!.isNotEmpty) ...[
+                const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.info.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.info.withOpacity(0.2)),
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.videocam_outlined,
-                        size: 16,
-                        color: Colors.blue.shade700,
-                      ),
+                      Icon(PhosphorIcons.videoCamera(), size: 16, color: AppColors.info),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Online Lectures',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade900,
-                          ),
+                          style: tt.bodySmall?.copyWith(color: cs.onSurface),
                         ),
                       ),
                     ],
@@ -347,31 +274,24 @@ class RecurringLectureGroupCard extends StatelessWidget {
                 ),
               ],
 
-              // Notes
-              if (firstLecture.notes != null && firstLecture.notes!.isNotEmpty) ...[
-                const SizedBox(height: 12),
+              // ── Notes ──
+              if (first.notes != null && first.notes!.isNotEmpty) ...[
+                const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
+                    color: cs.surfaceContainerHighest.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.note_outlined,
-                        size: 16,
-                        color: Colors.grey.shade600,
-                      ),
+                      Icon(PhosphorIcons.notepad(), size: 16, color: cs.onSurfaceVariant),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          firstLecture.notes!,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
+                          first.notes!,
+                          style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -381,49 +301,30 @@ class RecurringLectureGroupCard extends StatelessWidget {
                 ),
               ],
 
-              // Action Buttons
-              if (showActions && 
-                  (firstLecture.status == 'scheduled' || firstLecture.status == 'rescheduled')) ...[
-                const SizedBox(height: 16),
+              // ── Actions ──
+              if (showActions &&
+                  (first.status == 'scheduled' || first.status == 'rescheduled')) ...[
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     if (onReschedule != null)
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: onReschedule,
-                          icon: const Icon(Icons.schedule, size: 16),
-                          label: const Text(
-                            'Reschedule',
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Pallete.primaryColor,
-                            side: BorderSide(color: Pallete.primaryColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                          ),
+                          icon: Icon(PhosphorIcons.clockClockwise(), size: 16),
+                          label: const Text('Reschedule'),
                         ),
                       ),
-                    if (onReschedule != null && onCancel != null)
-                      const SizedBox(width: 12),
+                    if (onReschedule != null && onCancel != null) const SizedBox(width: 10),
                     if (onCancel != null)
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: onCancel,
-                          icon: const Icon(Icons.cancel_outlined, size: 16),
-                          label: const Text(
-                            'Cancel',
-                            style: TextStyle(fontSize: 13),
-                          ),
+                          icon: Icon(PhosphorIcons.x(), size: 16),
+                          label: const Text('Cancel'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            foregroundColor: cs.error,
+                            side: BorderSide(color: cs.error),
                           ),
                         ),
                       ),

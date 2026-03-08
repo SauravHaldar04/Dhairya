@@ -5,6 +5,8 @@ import '../../domain/entities/lecture_request_entity.dart';
 import '../../domain/entities/lecture_entity.dart';
 import '../../domain/entities/teacher_availability_entity.dart';
 import '../../domain/entities/teacher_student_assignment_entity.dart';
+import '../../domain/entities/recurring_lecture_template_entity.dart';
+import '../../domain/entities/lecture_notification_entity.dart';
 import '../../domain/entities/time_slot_entity.dart';
 import '../../domain/repositories/lectures_repository.dart';
 import '../datasources/lectures_remote_datasource.dart';
@@ -258,6 +260,118 @@ class LecturesRepositoryImpl implements LecturesRepository {
           subjectsOffered: subjectsOffered,
         ));
   }
+
+  // ============================================================
+  // RECURRING LECTURE TEMPLATES
+  // ============================================================
+
+  @override
+  Future<Either<ServerException, List<RecurringLectureTemplate>>> getTemplates({
+    String? teacherUid,
+    String? studentUid,
+    bool? isActive,
+  }) async {
+    return _handleRequest(() async {
+      final models = await remoteDataSource.getTemplates(
+        teacherUid: teacherUid,
+        studentUid: studentUid,
+        isActive: isActive,
+      );
+      return models.map((model) => model.toEntity()).toList();
+    });
+  }
+
+  @override
+  Future<Either<ServerException, void>> updateTemplate({
+    required String templateId,
+    DateTime? startDate,
+    DateTime? endDate,
+    TimeSlot? scheduledTime,
+    List<String>? recurrenceDays,
+    bool? isActive,
+    bool? notificationEnabled,
+    int? notificationMinutesBefore,
+    String? notes,
+    String? meetingLink,
+  }) async {
+    return _handleRequest(() => remoteDataSource.updateTemplate(
+          templateId: templateId,
+          startDate: startDate,
+          endDate: endDate,
+          scheduledTime: scheduledTime,
+          recurrenceDays: recurrenceDays,
+          isActive: isActive,
+          notificationEnabled: notificationEnabled,
+          notificationMinutesBefore: notificationMinutesBefore,
+          notes: notes,
+          meetingLink: meetingLink,
+        ));
+  }
+
+  @override
+  Future<Either<ServerException, void>> deleteTemplate(String templateId) async {
+    return _handleRequest(() => remoteDataSource.deleteTemplate(templateId));
+  }
+
+  @override
+  Future<Either<ServerException, String>> materializeLecture({
+    required String virtualLectureId,
+    required String templateId,
+    required DateTime scheduledDate,
+    required TimeSlot scheduledTime,
+    String? reason,
+  }) async {
+    return _handleRequest(() => remoteDataSource.materializeLecture(
+          virtualLectureId: virtualLectureId,
+          templateId: templateId,
+          scheduledDate: scheduledDate,
+          scheduledTime: scheduledTime,
+          reason: reason,
+        ));
+  }
+
+  // ============================================================
+  // LECTURE NOTIFICATIONS
+  // ============================================================
+
+  @override
+  Future<Either<ServerException, String>> scheduleNotification({
+    String? lectureId,
+    String? templateId,
+    required DateTime scheduledFor,
+    required String notificationType,
+  }) async {
+    return _handleRequest(() => remoteDataSource.scheduleNotification(
+          lectureId: lectureId,
+          templateId: templateId,
+          scheduledFor: scheduledFor,
+          notificationType: notificationType,
+        ));
+  }
+
+  @override
+  Future<Either<ServerException, List<LectureNotification>>> getNotifications({
+    String? lectureId,
+    String? templateId,
+    bool? isSent,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    return _handleRequest(() async {
+      final models = await remoteDataSource.getNotifications(
+        lectureId: lectureId,
+        templateId: templateId,
+        isSent: isSent,
+        fromDate: fromDate,
+        toDate: toDate,
+      );
+      return models.map((model) => model.toEntity()).toList();
+    });
+  }
+
+  // ============================================================
+  // HELPER
+  // ============================================================
 
   Future<Either<ServerException, T>> _handleRequest<T>(
     Future<T> Function() fn,

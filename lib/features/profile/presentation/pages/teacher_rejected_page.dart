@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/core/widgets/animations.dart';
 import 'package:aparna_education/features/profile/domain/entities/teacher_entity.dart';
 import 'package:aparna_education/features/profile/presentation/pages/edit_teacher_profile_page.dart';
@@ -195,7 +195,7 @@ class TeacherRejectedPage extends StatelessWidget {
                             icon: const Icon(Icons.edit),
                             label: const Text('Update Profile & Reapply'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Pallete.primaryColor,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
@@ -217,7 +217,7 @@ class TeacherRejectedPage extends StatelessWidget {
                           icon: const Icon(Icons.help_outline),
                           label: const Text('Contact Support'),
                           style: TextButton.styleFrom(
-                            foregroundColor: Pallete.primaryColor,
+                            foregroundColor: Theme.of(context).colorScheme.primary,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 12,

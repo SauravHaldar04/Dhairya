@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 
 class TeacherStudentsPage extends StatefulWidget {
   const TeacherStudentsPage({super.key});
@@ -43,7 +43,7 @@ class _TeacherStudentsPageState extends State<TeacherStudentsPage> {
                       child: FloatingActionButton.small(
                         heroTag: "add_student",
                         onPressed: () {},
-                        backgroundColor: Pallete.primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         child: const Icon(Icons.add, color: Colors.white),
                       ),
                     ),
@@ -92,12 +92,12 @@ class _TeacherStudentsPageState extends State<TeacherStudentsPage> {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Pallete.primaryColor.withOpacity(0.1),
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
                                 Icons.group_add,
-                                color: Pallete.primaryColor,
+                                color: Theme.of(context).colorScheme.primary,
                                 size: 24,
                               ),
                             ),

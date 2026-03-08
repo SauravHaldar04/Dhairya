@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/core/widgets/project_button.dart';
 import 'package:aparna_education/core/utils/snackbar.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
@@ -62,16 +62,13 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: Pallete.primaryColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Request Lecture',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: const Text('Request Lecture'),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
       body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, state) {
@@ -96,15 +93,16 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Student',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: cs.onSurface),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
+                    color: cs.surface,
+                    border: Border.all(color: cs.outline.withOpacity(0.3)),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButtonHideUnderline(
@@ -158,7 +156,7 @@ class _ParentRequestLecturePageState extends State<ParentRequestLecturePage> {
                           }
                         });
                       },
-                      selectedColor: Pallete.primaryColor.withOpacity(0.3),
+                      selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                     );
                   }).toList(),
                 ),

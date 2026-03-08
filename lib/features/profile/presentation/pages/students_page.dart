@@ -1,5 +1,5 @@
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
+
 import 'package:aparna_education/features/home/presentation/widgets/student_card.dart';
 import 'package:aparna_education/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:aparna_education/features/profile/presentation/pages/add_student_page.dart';
@@ -83,7 +83,7 @@ class _StudentsPageState extends State<StudentsPage> {
                       child: FloatingActionButton.small(
                         heroTag: "add_student_header",
                         onPressed: _navigateToAddStudent,
-                        backgroundColor: Pallete.primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         child: const Icon(Icons.add, color: Colors.white),
                       ),
                     ),
@@ -146,7 +146,7 @@ class _StudentsPageState extends State<StudentsPage> {
                               child: Column(
                                 children: [
                                   CircularProgressIndicator(
-                                    color: Pallete.primaryColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                                   const SizedBox(height: 16),
                                   const Text(
@@ -184,8 +184,8 @@ class _StudentsPageState extends State<StudentsPage> {
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          Pallete.primaryColor,
-                                          Pallete.primaryColor.withOpacity(0.8),
+                                          Theme.of(context).colorScheme.primary,
+                                          Theme.of(context).colorScheme.primary.withOpacity(0.8),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.circular(20),
@@ -269,8 +269,8 @@ class _StudentsPageState extends State<StudentsPage> {
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               colors: [
-                                                Pallete.primaryColor,
-                                                Pallete.primaryColor.withOpacity(0.8),
+                                                Theme.of(context).colorScheme.primary,
+                                                Theme.of(context).colorScheme.primary.withOpacity(0.8),
                                               ],
                                             ),
                                             borderRadius: BorderRadius.circular(15),
@@ -343,7 +343,7 @@ class _StudentsPageState extends State<StudentsPage> {
       floatingActionButton: ScaleInAnimation(
         child: FloatingActionButton.extended(
           onPressed: _navigateToAddStudent,
-          backgroundColor: Pallete.primaryColor,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Colors.white,
           icon: const Icon(Icons.add),
           label: const Text(

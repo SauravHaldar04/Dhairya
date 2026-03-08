@@ -46,6 +46,23 @@ app.*.map.json
 /ios/Runner/GoogleService-Info.plist
 /lib/core/secrets
 
+# Environment variables - NEVER COMMIT
+*.env
+*.env.local
+.env
+.env.local
+supabase/.env
+supabase/.env.local
+supabase/functions/.env
+supabase/functions/.env.local
+supabase/node_modules
+supabase/supabase/.temp
+# Firebase credentials - NEVER COMMIT
+**/serviceAccountKey.json
+**/service-account.json
+**/*-firebase-*.json
+**/credentials.json
+
 # Private documentation (sensitive implementation details)
 docs/private/
 ADMIN_PORTAL_SETUP.md

@@ -36,7 +36,7 @@ class StudentModel extends Student {
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    final map = {
       'parent_uid': parent, // Match database schema
       'standard': standard,
       'subjects': subjects,
@@ -49,8 +49,14 @@ class StudentModel extends Student {
       'middle_name': middleName, // Match database schema
       'last_name': lastName, // Match database schema
       'email_verified': emailVerified, // Match database schema
-      'profile_pic': profilePic, // Match database schema
     };
+    
+    // Only include profile_pic if it's not null
+    if (profilePic != null) {
+      map['profile_pic'] = profilePic??'';
+    }
+    
+    return map;
   }
 
   String toJson() => json.encode(toMap());

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
 
 class CustomLoader extends StatefulWidget {
   final double size;
@@ -79,9 +78,9 @@ class _CustomLoaderState extends State<CustomLoader>
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    widget.color ?? Pallete.primaryColor,
-                    widget.color?.withOpacity(0.3) ?? Pallete.primaryColor.withOpacity(0.3),
-                    widget.color ?? Pallete.primaryColor,
+                    widget.color ?? Theme.of(context).colorScheme.primary,
+                    widget.color?.withOpacity(0.3) ?? Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    widget.color ?? Theme.of(context).colorScheme.primary,
                   ],
                   stops: const [0.0, 0.5, 1.0],
                 ),
@@ -99,7 +98,7 @@ class _CustomLoaderState extends State<CustomLoader>
                       height: widget.size * 0.3,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: widget.color ?? Pallete.primaryColor,
+                        color: widget.color ?? Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -156,7 +155,7 @@ class LoadingOverlay extends StatelessWidget {
                       Text(
                         message!,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Pallete.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,

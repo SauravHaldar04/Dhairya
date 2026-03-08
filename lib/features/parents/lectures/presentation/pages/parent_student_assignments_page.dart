@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:aparna_education/core/theme/app_pallete.dart';
-import 'package:aparna_education/core/widgets/custom_loader.dart';
+import 'package:aparna_education/core/widgets/app_loading.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -34,27 +33,23 @@ class _ParentStudentAssignmentsPageState extends State<ParentStudentAssignmentsP
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Pallete.primaryColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Student Assignments',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: const Text('Student Assignments'),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.grey.shade50,
+            color: cs.surfaceContainerHighest.withOpacity(0.3),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey.shade300),
+                color: cs.surface,
+                border: Border.all(color: cs.outline.withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonHideUnderline(
@@ -77,7 +72,7 @@ class _ParentStudentAssignmentsPageState extends State<ParentStudentAssignmentsP
             child: BlocBuilder<LecturesBloc, LecturesState>(
               builder: (context, state) {
                 if (state is LecturesLoading) {
-                  return const Center(child: CustomLoader());
+                  return const Center(child: AppLoading());
                 }
 
                 if (state is StudentAssignmentsLoaded) {
@@ -93,6 +88,7 @@ class _ParentStudentAssignmentsPageState extends State<ParentStudentAssignmentsP
                       itemBuilder: (context, index) {
                         final assignment = state.assignments[index];
                         return Card(
+                          elevation: 2,
                           margin: const EdgeInsets.only(bottom: 12),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
@@ -102,8 +98,8 @@ class _ParentStudentAssignmentsPageState extends State<ParentStudentAssignmentsP
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: Pallete.primaryColor.withOpacity(0.1),
-                                      child: Icon(Icons.person, color: Pallete.primaryColor),
+                                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                      child: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(

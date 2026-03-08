@@ -3,16 +3,38 @@ import '../../domain/entities/lecture_request_entity.dart';
 import '../../domain/entities/lecture_entity.dart';
 import '../../domain/entities/teacher_availability_entity.dart';
 import '../../domain/entities/teacher_student_assignment_entity.dart';
+import '../../domain/entities/recurring_lecture_template_entity.dart';
+import '../../domain/entities/lecture_notification_entity.dart';
 import '../../domain/entities/time_slot_entity.dart';
 import '../../domain/repositories/lectures_repository.dart';
+import '../../domain/usecases/get_templates.dart';
+import '../../domain/usecases/update_template.dart';
+import '../../domain/usecases/delete_template.dart';
+import '../../domain/usecases/materialize_lecture.dart';
+import '../../domain/usecases/schedule_lecture_notification.dart';
+import '../../domain/usecases/get_lecture_notifications.dart';
 
 part 'lectures_event.dart';
 part 'lectures_state.dart';
 
 class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
   final LecturesRepository _repository;
+  final GetTemplates _getTemplates;
+  final UpdateTemplate _updateTemplate;
+  final DeleteTemplate _deleteTemplate;
+  final MaterializeLecture _materializeLecture;
+  final ScheduleLectureNotification _scheduleNotification;
+  final GetLectureNotifications _getNotifications;
 
-  LecturesBloc(this._repository) : super(LecturesInitial()) {
+  LecturesBloc(
+    this._repository,
+    this._getTemplates,
+    this._updateTemplate,
+    this._deleteTemplate,
+    this._materializeLecture,
+    this._scheduleNotification,
+    this._getNotifications,
+  ) : super(LecturesInitial()) {
     // Lecture Requests
     on<GetLectureRequestsEvent>(_onGetLectureRequests);
     on<CreateLectureRequestEvent>(_onCreateLectureRequest);
@@ -32,6 +54,16 @@ class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
     on<MarkAttendanceEvent>(_onMarkAttendance);
     on<GetUpcomingLecturesEvent>(_onGetUpcomingLectures);
     on<GetLectureSeriesEvent>(_onGetLectureSeries);
+
+    // Recurring Lecture Templates (Alarm-Clock Pattern)
+    on<GetTemplatesEvent>(_onGetTemplates);
+    on<UpdateTemplateEvent>(_onUpdateTemplate);
+    on<DeleteTemplateEvent>(_onDeleteTemplate);
+    on<MaterializeLectureEvent>(_onMaterializeLecture);
+
+    // Lecture Notifications
+    on<ScheduleLectureNotificationEvent>(_onScheduleNotification);
+    on<GetLectureNotificationsEvent>(_onGetNotifications);
 
     // Teacher Availability
     on<GetTeacherAvailabilityEvent>(_onGetTeacherAvailability);
@@ -293,6 +325,120 @@ class LecturesBloc extends Bloc<LecturesEvent, LecturesState> {
     result.fold(
       (error) => emit(LecturesError(error.message)),
       (lectures) => emit(LectureSeriesLoaded(lectures)),
+    );
+  }
+
+  // ============================================================
+  // RECURRING LECTURE TEMPLATE HANDLERS (Alarm-Clock Pattern)
+  // ============================================================
+
+  Future<void> _onGetTemplates(
+    GetTemplatesEvent event,
+    Emitter<LecturesState> emit,
+  ) async {
+    emit(LecturesLoading());
+    final result = await _getTemplates(GetTemplatesParams(
+      teacherUid: event.teacherUid,
+      studentUid: event.studentUid,
+      isActive: event.isActive,
+    ));
+    result.fold(
+      (failure) => emit(LecturesError(failure.message)),
+      (templates) => emit(TemplatesLoaded(templates)),
+    );
+  }
+
+  Future<void> _onUpdateTemplate(
+    UpdateTemplateEvent event,
+    Emitter<LecturesState> emit,
+  ) async {
+    emit(LecturesLoading());
+    final result = await _updateTemplate(UpdateTemplateParams(
+      templateId: event.templateId,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      scheduledTime: event.scheduledTime,
+      recurrenceDays: event.recurrenceDays,
+      isActive: event.isActive,
+      notificationEnabled: event.notificationEnabled,
+      notificationMinutesBefore: event.notificationMinutesBefore,
+      notes: event.notes,
+      meetingLink: event.meetingLink,
+    ));
+    result.fold(
+      (failure) => emit(LecturesError(failure.message)),
+      (_) => emit(TemplateUpdated()),
+    );
+  }
+
+  Future<void> _onDeleteTemplate(
+    DeleteTemplateEvent event,
+    Emitter<LecturesState> emit,
+  ) async {
+    emit(LecturesLoading());
+    final result = await _deleteTemplate(DeleteTemplateParams(
+      templateId: event.templateId,
+    ));
+    result.fold(
+      (failure) => emit(LecturesError(failure.message)),
+      (_) => emit(TemplateDeleted()),
+    );
+  }
+
+  Future<void> _onMaterializeLecture(
+    MaterializeLectureEvent event,
+    Emitter<LecturesState> emit,
+  ) async {
+    emit(LecturesLoading());
+    final result = await _materializeLecture(MaterializeLectureParams(
+      virtualLectureId: event.virtualLectureId,
+      templateId: event.templateId,
+      scheduledDate: event.scheduledDate,
+      scheduledTime: event.scheduledTime,
+      reason: event.reason,
+    ));
+    result.fold(
+      (failure) => emit(LecturesError(failure.message)),
+      (lectureId) => emit(LectureMaterialized(lectureId)),
+    );
+  }
+
+  // ============================================================
+  // LECTURE NOTIFICATION HANDLERS
+  // ============================================================
+
+  Future<void> _onScheduleNotification(
+    ScheduleLectureNotificationEvent event,
+    Emitter<LecturesState> emit,
+  ) async {
+    emit(LecturesLoading());
+    final result = await _scheduleNotification(ScheduleLectureNotificationParams(
+      lectureId: event.lectureId,
+      templateId: event.templateId,
+      scheduledFor: event.scheduledFor,
+      notificationType: event.notificationType,
+    ));
+    result.fold(
+      (failure) => emit(LecturesError(failure.message)),
+      (notificationId) => emit(NotificationScheduled(notificationId)),
+    );
+  }
+
+  Future<void> _onGetNotifications(
+    GetLectureNotificationsEvent event,
+    Emitter<LecturesState> emit,
+  ) async {
+    emit(LecturesLoading());
+    final result = await _getNotifications(GetLectureNotificationsParams(
+      lectureId: event.lectureId,
+      templateId: event.templateId,
+      isSent: event.isSent,
+      fromDate: event.fromDate,
+      toDate: event.toDate,
+    ));
+    result.fold(
+      (failure) => emit(LecturesError(failure.message)),
+      (notifications) => emit(NotificationsLoaded(notifications)),
     );
   }
 

@@ -1,4 +1,3 @@
-import 'package:aparna_education/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
 class ProjectButton extends StatelessWidget {
@@ -27,11 +26,12 @@ class ProjectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final Color effectiveButtonColor = buttonColor ?? 
-        (isInverted ? Pallete.whiteColor : Pallete.primaryColor);
+        (isInverted ? cs.surface : cs.primary);
     
     final Color effectiveTextColor = textColor ??
-        (isInverted ? Pallete.primaryColor : Pallete.whiteColor);
+        (isInverted ? cs.primary : cs.onPrimary);
     
     final double effectiveBorderRadius = borderRadius ?? 10;
     final double effectiveFontSize = fontSize ?? 20;
@@ -42,7 +42,7 @@ class ProjectButton extends StatelessWidget {
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
           color: effectiveButtonColor,
-          border: Border.all(color: Pallete.primaryColor, width: 3),
+          border: Border.all(color: cs.primary, width: 3),
           borderRadius: BorderRadius.circular(effectiveBorderRadius)),
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
