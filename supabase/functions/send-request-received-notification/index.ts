@@ -1,161 +1,83 @@
 /// <reference path="../global.d.ts" />
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { initializeApp, cert, getApps } from "https://esm.sh/firebase-admin@12.0.0/app"
-import { getMessaging } from "https://esm.sh/firebase-admin@12.0.0/messaging"
+import { handleCors, jsonResponse, pushToUser } from '../_shared/fcm.ts'
 
-// Firebase Admin SDK initialization
-const firebaseConfig = {
-  projectId: Deno.env.get('FIREBASE_PROJECT_ID'),
-  clientEmail: Deno.env.get('FIREBASE_CLIENT_EMAIL'),
-  privateKey: Deno.env.get('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
-}
-
-if (getApps().length === 0) {
-  initializeApp({
-    credential: cert(firebaseConfig as any),
-  })
-}
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseUrl        = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 interface RequestReceivedNotification {
-  requestId: string
+  requestId:   string
   adminUserId: string
 }
 
 serve(async (req: Request) => {
+  const corsRes = handleCors(req)
+  if (corsRes) return corsRes
+
   try {
-    const { requestId, adminUserId }: RequestReceivedNotification = await req.json()
+    const bodyText = await req.text()
+    if (!bodyText || bodyText.trim() === '') {
+      return jsonResponse({ error: 'Request body is empty' }, 400)
+    }
+
+    let requestId: string, adminUserId: string
+    try {
+      const parsed = JSON.parse(bodyText) as RequestReceivedNotification
+      requestId   = parsed.requestId
+      adminUserId = parsed.adminUserId
+    } catch {
+      return jsonResponse({ error: 'Invalid JSON in request body' }, 400)
+    }
 
     if (!requestId || !adminUserId) {
-      return new Response(
-        JSON.stringify({ error: 'requestId and adminUserId are required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return jsonResponse({ error: 'requestId and adminUserId are required' }, 400)
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Fetch lecture request details
     const { data: lectureRequest, error: requestError } = await supabase
       .from('lecture_requests')
       .select(`
-        id,
-        subject,
-        student:students(id, full_name, grade),
-        parent:parents(id, full_name)
+        id, subjects,
+        parents!lecture_requests_parent_uid_fkey(first_name, last_name),
+        students!lecture_requests_student_id_fkey(first_name, last_name)
       `)
       .eq('id', requestId)
       .single()
 
     if (requestError || !lectureRequest) {
-      return new Response(
-        JSON.stringify({ error: 'Lecture request not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      )
+      return jsonResponse({ error: 'Lecture request not found' }, 404)
     }
 
-    // Fetch admin's FCM tokens
-    const { data: tokens, error: tokensError } = await supabase
-      .from('user_fcm_tokens')
-      .select('token')
-      .eq('user_id', adminUserId)
-      .eq('is_active', true)
+    const parentName  = `${lectureRequest.parents?.first_name ?? ''} ${lectureRequest.parents?.last_name ?? ''}`.trim()
+    const studentName = `${lectureRequest.students?.first_name ?? ''} ${lectureRequest.students?.last_name ?? ''}`.trim()
+    const subjects    = Array.isArray(lectureRequest.subjects)
+      ? lectureRequest.subjects.join(', ')
+      : lectureRequest.subjects ?? 'a subject'
 
-    if (tokensError || !tokens || tokens.length === 0) {
-      console.log(`No active FCM tokens found for admin ${adminUserId}`)
-      return new Response(
-        JSON.stringify({ success: false, error: 'No active FCM tokens' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Store in-app notification
-    const { data: inAppNotif, error: notifError } = await supabase
-      .from('in_app_notifications')
+    await supabase
+      .from('user_notifications')
       .insert({
-        user_id: adminUserId,
-        type: 'LECTURE_REQUEST_RECEIVED',
-        title: 'New Lecture Request',
-        body: `${lectureRequest.parent?.full_name} requested a ${lectureRequest.subject} lecture for ${lectureRequest.student?.full_name}`,
-        related_id: requestId,
-        is_read: false,
-        created_at: new Date().toISOString(),
+        user_id:                    adminUserId,
+        notification_type:          'LECTURE_REQUEST_RECEIVED',
+        title:                      'New Lecture Request',
+        message:                    `${parentName} requested ${subjects} for ${studentName}`,
+        related_lecture_request_id: requestId,
+        is_read:                    false,
       })
-      .select('id')
-      .single()
 
-    if (notifError) {
-      console.error('Error storing in-app notification:', notifError)
-    }
-
-    // Send push notifications
-    const messaging = getMessaging()
-    const results = []
-
-    for (const tokenRecord of tokens) {
-      try {
-        const message = {
-          token: tokenRecord.token,
-          notification: {
-            title: 'New Lecture Request',
-            body: `${lectureRequest.parent?.full_name} requested a ${lectureRequest.subject} lecture`,
-          },
-          data: {
-            requestId: requestId,
-            notificationType: 'LECTURE_REQUEST_RECEIVED',
-            inAppNotificationId: inAppNotif?.id || '',
-          },
-          android: {
-            priority: 'high' as const,
-            notification: {
-              sound: 'default',
-              clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-            },
-          },
-          apns: {
-            payload: {
-              aps: {
-                sound: 'default',
-                badge: 1,
-              },
-            },
-          },
-        }
-
-        const response = await messaging.send(message)
-        results.push({ token: tokenRecord.token, success: true, messageId: response })
-      } catch (error: any) {
-        console.error(`Failed to send to token:`, error)
-        results.push({ token: tokenRecord.token, success: false, error: error.message })
-
-        // Mark invalid tokens as inactive
-        if (error.code === 'messaging/invalid-registration-token' || 
-            error.code === 'messaging/registration-token-not-registered') {
-          await supabase
-            .from('user_fcm_tokens')
-            .update({ is_active: false })
-            .eq('token', tokenRecord.token)
-        }
-      }
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        sentCount: results.filter(r => r.success).length,
-        totalTokens: tokens.length,
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    const { pushed, total } = await pushToUser(
+      supabase, adminUserId,
+      'New Lecture Request',
+      `${parentName} requested ${subjects} for ${studentName}`,
+      { requestId, notificationType: 'LECTURE_REQUEST_RECEIVED' },
     )
+
+    return jsonResponse({ success: true, pushed, total })
 
   } catch (error: any) {
     console.error('Error in send-request-received-notification:', error)
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
+    return jsonResponse({ error: error.message }, 500)
   }
 })

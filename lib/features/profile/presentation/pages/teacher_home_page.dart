@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:aparna_education/core/widgets/animations.dart';
-
-
+import 'package:aparna_education/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/presentation/pages/teacher_interest_list_page.dart';
 class TeacherHomePage extends StatefulWidget {
-  const TeacherHomePage({super.key});
+  final String teacherUid;
+  const TeacherHomePage({super.key, required this.teacherUid});
 
   @override
   State<TeacherHomePage> createState() => _TeacherHomePageState();
@@ -36,7 +37,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                 ),
               ],
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -56,6 +57,19 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                           color: Colors.white,
                         ),
                       ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.notifications_active_rounded, color: Colors.white),
+                      onPressed: () {
+                        // Import navigation later
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => 
+                              NotificationsPage(userId: widget.teacherUid),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -158,6 +172,24 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             subtitle: 'Design new homework or projects',
             color: Colors.green,
           ),
+          
+          const SizedBox(height: 12),
+          
+          _buildActionCard(
+            icon: Icons.assignment_ind_rounded,
+            title: 'Teaching Opportunities',
+            subtitle: 'View and accept new student requests',
+            color: Colors.deepPurple,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => 
+                    TeacherInterestListPage(teacherUid: widget.teacherUid),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -211,9 +243,10 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     required String title,
     required String subtitle,
     required Color color,
+    VoidCallback? onTap,
   }) {
     return AnimatedCard(
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: Row(
         children: [
           Container(

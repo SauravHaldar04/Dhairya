@@ -26,7 +26,7 @@ class _TeacherLayoutPageState extends State<TeacherLayoutPage>
 
   // Teacher dashboard sections with teacherUid
   List<Widget> _getPages(String teacherUid) => [
-    const TeacherHomePage(),
+    TeacherHomePage(teacherUid: teacherUid),
     const TeacherStudentsPage(), 
     TeacherLecturesHomePage(teacherUid: teacherUid),
     const TeacherReportsPage(),

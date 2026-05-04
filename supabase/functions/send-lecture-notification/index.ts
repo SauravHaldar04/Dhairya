@@ -1,25 +1,9 @@
 /// <reference path="../global.d.ts" />
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { initializeApp, cert, getApps } from "https://esm.sh/firebase-admin@12.0.0/app"
-import { getMessaging } from "https://esm.sh/firebase-admin@12.0.0/messaging"
+import { handleCors, jsonResponse, getAccessToken, sendFcmMessage } from '../_shared/fcm.ts'
 
-// Firebase Admin SDK initialization
-// Store your Firebase service account JSON in Supabase secrets
-const firebaseConfig = {
-  projectId: Deno.env.get('FIREBASE_PROJECT_ID'),
-  clientEmail: Deno.env.get('FIREBASE_CLIENT_EMAIL'),
-  privateKey: Deno.env.get('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
-}
-
-// Initialize Firebase Admin (only once)
-if (getApps().length === 0) {
-  initializeApp({
-    credential: cert(firebaseConfig as any),
-  })
-}
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseUrl        = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 interface NotificationRequest {
@@ -33,18 +17,28 @@ interface NotificationRequest {
 }
 
 serve(async (req: Request) => {
-  try {
-    // Parse request
-    const { notificationId, userId, lectureId, templateId, title, body, data }: NotificationRequest = await req.json()
+  const corsRes = handleCors(req)
+  if (corsRes) return corsRes
 
-    if (!notificationId) {
-      return new Response(
-        JSON.stringify({ error: 'notificationId is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+  try {
+    const bodyText = await req.text()
+    if (!bodyText || bodyText.trim() === '') {
+      return jsonResponse({ error: 'Request body is empty' }, 400)
     }
 
-    // Create Supabase client
+    let parsed: NotificationRequest
+    try {
+      parsed = JSON.parse(bodyText) as NotificationRequest
+    } catch {
+      return jsonResponse({ error: 'Invalid JSON in request body' }, 400)
+    }
+
+    const { notificationId, userId, lectureId, templateId, title, body, data } = parsed
+
+    if (!notificationId) {
+      return jsonResponse({ error: 'notificationId is required' }, 400)
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Determine userId from lectureId or templateId if not provided
@@ -66,23 +60,19 @@ serve(async (req: Request) => {
     }
 
     if (!targetUserId) {
-      return new Response(
-        JSON.stringify({ error: 'Could not determine userId' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return jsonResponse({ error: 'Could not determine userId' }, 400)
     }
 
     // Fetch user's FCM tokens
     const { data: tokens, error: tokensError } = await supabase
       .from('user_fcm_tokens')
-      .select('token')
+      .select('fcm_token')
       .eq('user_id', targetUserId)
       .eq('is_active', true)
 
     if (tokensError || !tokens || tokens.length === 0) {
       console.log(`No active FCM tokens found for user ${targetUserId}`)
       
-      // Update notification as failed
       await supabase
         .from('lecture_notifications')
         .update({
@@ -92,94 +82,61 @@ serve(async (req: Request) => {
         })
         .eq('id', notificationId)
 
-      return new Response(
-        JSON.stringify({ success: false, error: 'No active FCM tokens' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      )
+      return jsonResponse({ success: false, error: 'No active FCM tokens' })
     }
 
-    // Send notification to all user's devices
-    const messaging = getMessaging()
+    const accessToken = await getAccessToken()
     const results = []
 
-    for (const tokenRecord of tokens) {
+    for (const row of tokens) {
       try {
-        const message = {
-          token: tokenRecord.token,
-          notification: {
-            title: title,
-            body: body,
-          },
-          data: {
+        await sendFcmMessage(
+          accessToken,
+          row.fcm_token,
+          title,
+          body,
+          {
             notificationId: notificationId,
             lectureId: lectureId || '',
             templateId: templateId || '',
             ...data,
           },
-          android: {
-            priority: 'high' as const,
-            notification: {
-              sound: 'default',
-              clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-            },
-          },
-          apns: {
-            payload: {
-              aps: {
-                sound: 'default',
-                badge: 1,
-              },
-            },
-          },
-        }
-
-        const response = await messaging.send(message)
-        results.push({ token: tokenRecord.token, success: true, messageId: response })
-      } catch (error: any) {
-        console.error(`Failed to send to token ${tokenRecord.token}:`, error)
-        results.push({ token: tokenRecord.token, success: false, error: error.message })
+        )
+        results.push({ token: row.fcm_token, success: true })
+      } catch (err: any) {
+        console.error(`Failed to send to token ${row.fcm_token}:`, err.message)
+        results.push({ token: row.fcm_token, success: false, error: err.message })
         
-        // If token is invalid, mark it as inactive
-        if (error.code === 'messaging/invalid-registration-token' || 
-            error.code === 'messaging/registration-token-not-registered') {
+        if (err.message?.includes('INVALID_ARGUMENT') || err.message?.includes('UNREGISTERED')) {
           await supabase
             .from('user_fcm_tokens')
             .update({ is_active: false })
-            .eq('token', tokenRecord.token)
+            .eq('fcm_token', row.fcm_token)
         }
       }
     }
 
-    // Update notification record
     const successfulSends = results.filter(r => r.success)
-    const fcmMessageId = successfulSends[0]?.messageId || null
 
     await supabase
       .from('lecture_notifications')
       .update({
         is_sent: successfulSends.length > 0,
         sent_at: successfulSends.length > 0 ? new Date().toISOString() : null,
-        fcm_message_id: fcmMessageId,
         error_message: successfulSends.length === 0 ? 'All sends failed' : null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', notificationId)
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        sentCount: successfulSends.length,
-        totalTokens: tokens.length,
-        results: results,
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    )
+    return jsonResponse({
+      success: true,
+      sentCount: successfulSends.length,
+      totalTokens: tokens.length,
+      results: results,
+    })
 
   } catch (error: any) {
     console.error('Error in send-lecture-notification:', error)
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
+    return jsonResponse({ error: error.message }, 500)
   }
 })

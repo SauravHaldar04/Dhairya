@@ -1,5 +1,6 @@
 import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/network/check_internet_connection.dart';
+import 'package:aparna_education/core/services/fcm_service.dart';
 import 'package:aparna_education/features/lectures/data/datasources/lectures_remote_datasource.dart';
 import 'package:aparna_education/features/lectures/data/repositories/lectures_repository_impl.dart';
 import 'package:aparna_education/features/lectures/domain/repositories/lectures_repository.dart';
@@ -10,6 +11,20 @@ import 'package:aparna_education/features/lectures/domain/usecases/materialize_l
 import 'package:aparna_education/features/lectures/domain/usecases/schedule_lecture_notification.dart';
 import 'package:aparna_education/features/lectures/domain/usecases/get_lecture_notifications.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
+import 'package:aparna_education/features/notifications/data/datasources/notification_local_data_source.dart';
+import 'package:aparna_education/features/notifications/data/datasources/notification_remote_data_source.dart';
+import 'package:aparna_education/features/notifications/data/repositories/notification_repository_impl.dart';
+import 'package:aparna_education/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:aparna_education/features/notifications/domain/usecases/get_cached_notifications.dart';
+import 'package:aparna_education/features/notifications/domain/usecases/get_notifications.dart';
+import 'package:aparna_education/features/notifications/domain/usecases/mark_notification_read.dart';
+import 'package:aparna_education/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/data/datasources/teacher_interest_remote_datasource.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/data/repositories/teacher_interest_repository_impl.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/domain/repositories/teacher_interest_repository.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/domain/usecases/get_pending_interests.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/domain/usecases/update_interest_status.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/presentation/bloc/teacher_interest_bloc.dart';
 import 'package:aparna_education/features/auth/data/datasources/auth_remote_datasources.dart';
 import 'package:aparna_education/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:aparna_education/features/auth/domain/repository/auth_repository.dart';
@@ -51,9 +66,17 @@ import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
+  // Initialize local cache storage
+  try {
+    await Hive.initFlutter();
+  } catch (e) {
+    print('❌ Failed to initialize local cache: $e');
+  }
+
   // Initialize Supabase
   await Supabase.initialize(
     url: Secrets.supabaseUrl,
@@ -63,12 +86,17 @@ Future<void> initDependencies() async {
   _initAuth();
   _initProfile();
   _initLectures();
+  _initNotifications();
+  _initTeacherInterest();
 
   final SupabaseClient supabaseClient = Supabase.instance.client;
   final Logger logger = Logger();
   
   serviceLocator.registerSingleton<SupabaseClient>(supabaseClient);
   serviceLocator.registerSingleton<Logger>(logger);
+  serviceLocator.registerLazySingleton<FCMService>(
+    () => FCMService(serviceLocator<SupabaseClient>()),
+  );
   serviceLocator.registerFactory(() => InternetConnection());
   serviceLocator.registerFactory<CheckInternetConnection>(
       () => CheckInternetConnectionImpl(
@@ -151,6 +179,7 @@ void _initAuth() {
          // getFirebaseAuth: serviceLocator(),
           isUserEmailVerified: serviceLocator(),
       logoutUser: serviceLocator(),
+      fcmService: serviceLocator(),
         ));
 }
 
@@ -264,6 +293,78 @@ void _initProfile() {
         addTeacher: serviceLocator(),
         getCurrentUser: serviceLocator(),
         addLanguageLearner: serviceLocator(),
+      ),
+    );
+}
+
+void _initNotifications() {
+  serviceLocator
+    ..registerFactory<NotificationLocalDataSource>(
+      () => NotificationLocalDataSourceImpl(),
+    )
+    ..registerFactory<NotificationRemoteDataSource>(
+      () => NotificationRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory<NotificationRepository>(
+      () => NotificationRepositoryImpl(
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => GetCachedNotifications(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => GetNotifications(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => MarkNotificationRead(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => NotificationsBloc(
+        getCachedNotifications: serviceLocator(),
+        getNotifications: serviceLocator(),
+        markNotificationRead: serviceLocator(),
+      ),
+    );
+}
+
+void _initTeacherInterest() {
+  serviceLocator
+    ..registerFactory<TeacherInterestRemoteDataSource>(
+      () => TeacherInterestRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory<TeacherInterestRepository>(
+      () => TeacherInterestRepositoryImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => GetPendingInterests(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => UpdateInterestStatus(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => TeacherInterestBloc(
+        getPendingInterests: serviceLocator(),
+        updateInterestStatus: serviceLocator(),
       ),
     );
 }

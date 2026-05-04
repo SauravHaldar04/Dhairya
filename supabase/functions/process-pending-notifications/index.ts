@@ -1,153 +1,123 @@
 /// <reference path="../global.d.ts" />
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { pushToUser } from '../_shared/fcm.ts'
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseUrl        = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 serve(async (req: Request) => {
   try {
-    console.log('Processing pending notifications...')
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
-    const now = new Date().toISOString()
+    const now      = new Date().toISOString()
 
-    // Fetch pending notifications that should be sent now
-    const { data: pendingNotifications, error: fetchError } = await supabase
+    // Fetch unsent notifications whose scheduled time has passed
+    const { data: pending, error: fetchError } = await supabase
       .from('lecture_notifications')
-      .select(`
-        id,
-        lecture_id,
-        template_id,
-        notification_type,
-        scheduled_for
-      `)
+      .select('id, lecture_id, template_id, notification_type, scheduled_for')
       .eq('is_sent', false)
       .lte('scheduled_for', now)
       .order('scheduled_for', { ascending: true })
-      .limit(50) // Process max 50 per run to avoid timeout
+      .limit(50)
 
-    if (fetchError) {
-      throw new Error(`Failed to fetch notifications: ${fetchError.message}`)
-    }
-
-    if (!pendingNotifications || pendingNotifications.length === 0) {
-      console.log('No pending notifications to process')
+    if (fetchError) throw new Error(`Failed to fetch notifications: ${fetchError.message}`)
+    if (!pending || pending.length === 0) {
       return new Response(
         JSON.stringify({ success: true, processed: 0 }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
       )
     }
 
-    console.log(`Found ${pendingNotifications.length} pending notifications`)
+    console.log(`Processing ${pending.length} pending notifications`)
 
-    // Process each notification
     const results = []
-    for (const notification of pendingNotifications) {
+    for (const notif of pending) {
       try {
-        // Fetch lecture/template details for notification content
-        let title = 'Lecture Reminder'
-        let body = 'Your lecture is starting soon'
-        let lectureData: any = null
+        let title    = 'Lecture Reminder'
+        let body     = 'Your lecture is starting soon'
+        let userId: string | null = null
 
-        if (notification.lecture_id) {
+        if (notif.lecture_id) {
           const { data: lecture } = await supabase
             .from('lectures')
-            .select('subject, scheduled_date, scheduled_time, student_id')
-            .eq('id', notification.lecture_id)
+            .select('subject, scheduled_time, student_id')
+            .eq('id', notif.lecture_id)
             .single()
-          
-          lectureData = lecture
+
           if (lecture) {
-            const timeStr = lecture.scheduled_time?.start || ''
+            userId = lecture.student_id
+            const time = lecture.scheduled_time ?? ''
             title = `${lecture.subject} Lecture`
-            body = `Your ${lecture.subject} lecture starts at ${timeStr}`
+            body  = `Your ${lecture.subject} lecture starts at ${time}`
           }
-        } else if (notification.template_id) {
+        } else if (notif.template_id) {
           const { data: template } = await supabase
             .from('recurring_lecture_templates')
             .select('subject, scheduled_time, student_id')
-            .eq('id', notification.template_id)
+            .eq('id', notif.template_id)
             .single()
-          
-          lectureData = template
+
           if (template) {
-            const timeStr = template.scheduled_time?.start || ''
+            userId = template.student_id
+            const time = template.scheduled_time?.start ?? template.scheduled_time ?? ''
             title = `${template.subject} Lecture`
-            body = `Your ${template.subject} lecture starts at ${timeStr}`
+            body  = `Your ${template.subject} lecture starts at ${time}`
           }
         }
 
-        // Call send-lecture-notification function
-        const sendResponse = await fetch(
-          `${supabaseUrl}/functions/v1/send-lecture-notification`,
+        if (!userId) {
+          console.warn(`Could not resolve userId for notification ${notif.id}`)
+          results.push({ id: notif.id, success: false, error: 'No userId resolved' })
+          continue
+        }
+
+        const { pushed } = await pushToUser(
+          supabase,
+          userId,
+          title,
+          body,
           {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseServiceKey}`,
-            },
-            body: JSON.stringify({
-              notificationId: notification.id,
-              userId: lectureData?.student_id,
-              lectureId: notification.lecture_id,
-              templateId: notification.template_id,
-              title: title,
-              body: body,
-              data: {
-                type: notification.notification_type,
-                scheduledFor: notification.scheduled_for,
-              },
-            }),
-          }
+            notificationId: notif.id,
+            lectureId:      notif.lecture_id  ?? '',
+            templateId:     notif.template_id ?? '',
+            type:           notif.notification_type,
+            scheduledFor:   notif.scheduled_for,
+          },
         )
 
-        const sendResult = await sendResponse.json()
-        results.push({
-          notificationId: notification.id,
-          success: sendResult.success,
-          error: sendResult.error,
-        })
-
-        console.log(`Processed notification ${notification.id}: ${sendResult.success ? 'success' : 'failed'}`)
-      } catch (error: any) {
-        console.error(`Error processing notification ${notification.id}:`, error)
-        results.push({
-          notificationId: notification.id,
-          success: false,
-          error: error.message,
-        })
-
-        // Mark notification as failed
+        // Mark as sent
         await supabase
           .from('lecture_notifications')
           .update({
-            error_message: error.message,
+            is_sent:    pushed > 0,
+            sent_at:    pushed > 0 ? new Date().toISOString() : null,
+            error_message: pushed === 0 ? 'No active tokens' : null,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', notification.id)
+          .eq('id', notif.id)
+
+        results.push({ id: notif.id, success: pushed > 0 })
+      } catch (err: any) {
+        console.error(`Error processing notification ${notif.id}:`, err)
+        await supabase
+          .from('lecture_notifications')
+          .update({ error_message: err.message, updated_at: new Date().toISOString() })
+          .eq('id', notif.id)
+        results.push({ id: notif.id, success: false, error: err.message })
       }
     }
 
     const successCount = results.filter(r => r.success).length
-    console.log(`Processed ${results.length} notifications, ${successCount} successful`)
-
     return new Response(
-      JSON.stringify({
-        success: true,
-        processed: results.length,
-        successful: successCount,
-        failed: results.length - successCount,
-        details: results,
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: true, processed: results.length, successful: successCount, failed: results.length - successCount }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
     )
 
   } catch (error: any) {
     console.error('Error in process-pending-notifications:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
     )
   }
 })

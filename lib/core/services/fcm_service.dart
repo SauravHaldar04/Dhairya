@@ -1,6 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:aparna_education/core/router/app_router.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/presentation/pages/teacher_interest_list_page.dart' as aparna_education_interest_page;
 
 /// Service to manage Firebase Cloud Messaging tokens and notifications
 /// Handles token registration, refresh, and notification reception
@@ -65,7 +68,7 @@ class FCMService {
           .from('user_fcm_tokens')
           .select('id')
           .eq('user_id', userId)
-          .eq('token', token)
+          .eq('fcm_token', token)
           .maybeSingle();
 
       if (existingToken != null) {
@@ -77,7 +80,7 @@ class FCMService {
               'updated_at': DateTime.now().toIso8601String(),
             })
             .eq('user_id', userId)
-            .eq('token', token);
+            .eq('fcm_token', token);
         
         debugPrint('FCM: Updated existing token');
       } else {
@@ -86,8 +89,8 @@ class FCMService {
             .from('user_fcm_tokens')
             .insert({
               'user_id': userId,
-              'token': token,
-              'device_type': _getDeviceType(),
+              'fcm_token': token,
+              'platform': _getPlatform(),
               'is_active': true,
             });
         
@@ -112,7 +115,7 @@ class FCMService {
               'updated_at': DateTime.now().toIso8601String(),
             })
             .eq('user_id', userId)
-            .eq('token', token);
+            .eq('fcm_token', token);
         
         debugPrint('FCM: Token deactivated');
       }
@@ -165,16 +168,56 @@ class FCMService {
 
   /// Handle notification tap (navigate to relevant screen)
   void _handleNotificationTap(RemoteMessage message) {
-    // TODO: Navigate to lecture details screen based on data
-    // This will be implemented in UI layer with navigation
+    debugPrint('Notification tapped data: \${message.data}');
+    final notificationType = message.data['notificationType'];
+
+    // Delay slightly to ensure UI is ready if app was terminated
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final navigatorState = navigatorKey.currentState;
+      if (navigatorState == null) return;
+
+      if (notificationType == 'TEACHER_INTEREST_REQUEST') {
+        final requestId = message.data['requestId'];
+        if (requestId != null) {
+          // Navigate to Teacher Interest list (as we only have current user's UID in auth, we can just push)
+          final currentUser = _supabaseClient.auth.currentUser;
+          if (currentUser != null) {
+            navigatorState.push(MaterialPageRoute(
+               builder: (_) => aparna_education_interest_page.TeacherInterestListPage(teacherUid: currentUser.id)
+            ));
+          }
+        }
+      } else if (notificationType == 'TEACHER_ASSIGNED') {
+        // ...
+      }
+    });
+
     final lectureId = message.data['lectureId'];
     final templateId = message.data['templateId'];
     
+    // Existing logic for lectureId / templateId can go here.
     debugPrint('Notification tapped - lectureId: $lectureId, templateId: $templateId');
   }
 
   /// Get device type for logging
   String _getDeviceType() {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'android';
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return 'ios';
+    } else if (defaultTargetPlatform == TargetPlatform.windows) {
+      return 'windows';
+    } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+      return 'macos';
+    } else if (defaultTargetPlatform == TargetPlatform.linux) {
+      return 'linux';
+    } else {
+      return 'web';
+    }
+  }
+
+  /// Get platform for database
+  String _getPlatform() {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return 'android';
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {

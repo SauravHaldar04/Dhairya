@@ -23,20 +23,22 @@ class LectureOccurrenceCalculator {
 
     // Generate occurrences until we have enough or reach end date
     while (occurrences.length < count) {
-      if (template.shouldOccurOn(currentDate)) {
-        // Check if we've passed the end date
-        if (template.endDate != null && currentDate.isAfter(template.endDate!)) {
-          break;
-        }
+      // Check if we've passed the end date (must be OUTSIDE shouldOccurOn
+      // since shouldOccurOn also returns false past endDate, making the
+      // break inside it unreachable — causing an infinite loop)
+      if (template.endDate != null && currentDate.isAfter(template.endDate!)) {
+        break;
+      }
 
+      if (template.shouldOccurOn(currentDate)) {
         occurrences.add(_createVirtualLecture(template, currentDate));
       }
 
       // Move to next day
       currentDate = currentDate.add(const Duration(days: 1));
 
-      // Safety check to prevent infinite loops
-      if (occurrences.isEmpty && currentDate.difference(start).inDays > 365) {
+      // Safety check to prevent infinite loops (365-day horizon)
+      if (currentDate.difference(start).inDays > 365) {
         break;
       }
     }

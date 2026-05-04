@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "https://esm.sh/firebase-admin@12.0.0/app": "https://esm.sh/v135/firebase-admin@12.0.0/es2022/firebase-admin.mjs",
+    "https://esm.sh/firebase-admin@12.0.0/messaging": "https://esm.sh/v135/firebase-admin@12.0.0/es2022/firebase-admin.mjs"
+  }
+}

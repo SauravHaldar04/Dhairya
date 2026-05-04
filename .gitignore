@@ -70,3 +70,5 @@ ADMIN_PORTAL_SETUP.md
 # Supabase secrets
 /lib/core/config/secrets.dart
 secrets.dart
+
+/lib/firebase_options.dart

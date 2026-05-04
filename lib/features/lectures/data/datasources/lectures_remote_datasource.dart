@@ -322,17 +322,7 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
       // STEP 1: Fetch materialized lectures (actual rows in DB)
       var lectureQuery = supabaseClient
           .from('lectures')
-          .select('''
-            *,
-            students!lectures_student_id_fkey(
-              student_id,
-              first_name,
-              middle_name,
-              last_name,
-              subjects,
-              standard
-            )
-          ''');
+          .select();
       
       if (teacherUid != null) {
         lectureQuery = lectureQuery.eq('teacher_uid', teacherUid);
@@ -351,9 +341,39 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
       }
       
       final lectureResponse = await lectureQuery.order('scheduled_date', ascending: true);
-      final materializedLectures = (lectureResponse as List)
-          .map((item) => LectureModel.fromMap(item))
+      final lectureRows = (lectureResponse as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
           .toList();
+
+      final studentIds = lectureRows
+          .map((row) => row['student_id'])
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      final Map<String, Map<String, dynamic>> studentsById = {};
+      if (studentIds.isNotEmpty) {
+        final studentsResponse = await supabaseClient
+            .from('students')
+            .select('student_id, first_name, middle_name, last_name, subjects, standard')
+            .inFilter('student_id', studentIds);
+
+        for (final item in (studentsResponse as List)) {
+          final student = Map<String, dynamic>.from(item as Map);
+          final studentId = student['student_id'] as String?;
+          if (studentId != null) {
+            studentsById[studentId] = student;
+          }
+        }
+      }
+
+      final materializedLectures = lectureRows.map((row) {
+        final studentId = row['student_id'] as String?;
+        if (studentId != null && studentsById.containsKey(studentId)) {
+          row['students'] = studentsById[studentId];
+        }
+        return LectureModel.fromMap(row);
+      }).toList();
       
       // STEP 2: Fetch active templates
       var templateQuery = supabaseClient
@@ -482,7 +502,6 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
         'scheduled_date': scheduledDate.toIso8601String().split('T')[0],
         'scheduled_time': timeSlotMap,
         'is_recurring': false,
-        'recurrence_pattern': 'one-time',
         'status': 'scheduled',
         if (notes != null && notes.isNotEmpty) 'notes': notes,
         if (meetingLink != null && meetingLink.isNotEmpty) 'meeting_link': meetingLink,

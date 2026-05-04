@@ -12,6 +12,7 @@ import 'package:aparna_education/features/auth/domain/usecases/user_login.dart';
 import 'package:aparna_education/features/auth/domain/usecases/user_signup.dart';
 import 'package:aparna_education/features/auth/domain/usecases/verify_user_email.dart';
 import 'package:aparna_education/features/auth/domain/usecases/logout_user.dart';
+import 'package:aparna_education/core/services/fcm_service.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
@@ -32,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Logger _logger;
   final UpdateEmailVerification _updateEmailVerification;
   final LogoutUser _logoutUser;
+  final FCMService _fcmService;
 
   Timer? _emailVerificationTimer;
 
@@ -45,9 +47,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required CurrentUser currentUser,
     required VerifyUserEmail verifyUserEmail,
     required LogoutUser logoutUser,
+    required FCMService fcmService,
     //required GetFirebaseAuth getFirebaseAuth,
     required Logger logger,
   }) : _updateEmailVerification = updateEmailVerification,
+       _fcmService = fcmService,
        _userSignup = userSignup,
        _isUserEmailVerified = isUserEmailVerified,
        _userLogin = userLogin,
@@ -87,13 +91,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
         firstName: event.firstName,
         lastName: event.lastName));
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         _logger.e('AuthSignUp failed: ${failure.message}');
         emit(AuthFailure(failure.message));
       },
-      (user) {
+      (user) async {
         _logger.i('AuthSignUp succeeded for user: ${user.email}');
+        // Register FCM token after successful signup
+        await _fcmService.initialize();
         emit(AuthSuccess(user));
       },
     );
@@ -107,13 +113,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       email: event.email,
       password: event.password,
     ));
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         _logger.e('AuthLogIn failed: ${failure.message}');
         emit(AuthFailure(failure.message));
       },
-      (user) {
+      (user) async {
         _logger.i('AuthLogIn succeeded for user: ${user.email}');
+        // Register FCM token after successful login
+        await _fcmService.initialize();
         emit(AuthSuccess(user));
       },
     );
@@ -124,13 +132,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     _logger.i('Handling AuthGoogleSignIn event');
     final result = await _googleSignIn(NoParams());
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         _logger.e('Google Sign-In failed: ${failure.message}');
         emit(AuthFailure(failure.message));
       },
-      (user) {
+      (user) async {
         _logger.i('Google Sign-In successful for user: ${user.email}');
+        // Register FCM token after successful Google sign-in
+        await _fcmService.initialize();
         emit(AuthSuccess(user));
       },
     );
@@ -142,14 +152,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     _logger.i('Handling AuthIsUserLoggedIn event');
     final result = await _currentUser(NoParams());
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         _logger.e('AuthIsUserLoggedIn failed: ${failure.message}');
         emit(AuthFailure(failure.message));
       },
-      (user) {
+      (user) async {
         _logger.i('User is logged in: ${user.email} ${user.emailVerified}');
         print('User is logged in: ${user.email} ${user.emailVerified}');
+        // Register FCM token for already logged-in user
+        await _fcmService.initialize();
         emit(AuthUserLoggedIn(user));
         // if (user.emailVerified) {
         //   emit(AuthEmailVerified());
@@ -278,7 +290,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onLogout(AuthLogout event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-  await _logoutUser(NoParams());
+      // Deactivate FCM token before logout
+      await _fcmService.deactivateToken();
+      await _logoutUser(NoParams());
       emit(AuthLoggedOut());
     } catch (e) {
       emit(AuthFailure(e.toString()));
