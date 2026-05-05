@@ -63,6 +63,9 @@ supabase/supabase/.temp
 **/*-firebase-*.json
 **/credentials.json
 
+# FlutterFire generated config (keep local, do not commit)
+**/firebase_options.dart
+
 # Private documentation (sensitive implementation details)
 docs/private/
 ADMIN_PORTAL_SETUP.md
@@ -71,4 +74,4 @@ ADMIN_PORTAL_SETUP.md
 /lib/core/config/secrets.dart
 secrets.dart
 
-/lib/firebase_options.dart
+/supabase
