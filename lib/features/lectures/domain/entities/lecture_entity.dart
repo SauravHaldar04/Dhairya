@@ -33,6 +33,8 @@ class Lecture {
   // Additional
   final String? notes;
   final String? meetingLink;
+  final String? jitsiRoomName; // Jitsi room identifier
+  final String? jitsiMeetingUrl; // Full Jitsi meeting URL
   final bool attendanceMarked;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -64,6 +66,8 @@ class Lecture {
     this.rescheduledReason,
     this.notes,
     this.meetingLink,
+    this.jitsiRoomName,
+    this.jitsiMeetingUrl,
     this.attendanceMarked = false,
     required this.createdAt,
     required this.updatedAt,
@@ -101,6 +105,8 @@ class Lecture {
     String? rescheduledReason,
     String? notes,
     String? meetingLink,
+    String? jitsiRoomName,
+    String? jitsiMeetingUrl,
     bool? attendanceMarked,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -126,6 +132,8 @@ class Lecture {
       rescheduledReason: rescheduledReason ?? this.rescheduledReason,
       notes: notes ?? this.notes,
       meetingLink: meetingLink ?? this.meetingLink,
+      jitsiRoomName: jitsiRoomName ?? this.jitsiRoomName,
+      jitsiMeetingUrl: jitsiMeetingUrl ?? this.jitsiMeetingUrl,
       attendanceMarked: attendanceMarked ?? this.attendanceMarked,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

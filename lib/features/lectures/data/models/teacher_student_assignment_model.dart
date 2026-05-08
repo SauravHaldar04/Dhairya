@@ -19,6 +19,7 @@ class TeacherStudentAssignmentModel extends TeacherStudentAssignment {
     super.studentLastName,
     super.studentStandard,
     super.studentBoard,
+    super.studentProfilePic,
   });
 
   factory TeacherStudentAssignmentModel.fromMap(Map<String, dynamic> map) {
@@ -43,6 +44,7 @@ class TeacherStudentAssignmentModel extends TeacherStudentAssignment {
       studentLastName: studentData?['last_name'] as String?,
       studentStandard: studentData?['standard'] as String?,
       studentBoard: studentData?['board'] as String?,
+      studentProfilePic: studentData?['profile_pic'] as String?,
     );
   }
 
@@ -77,6 +79,7 @@ class TeacherStudentAssignmentModel extends TeacherStudentAssignment {
       notes: entity.notes,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      studentProfilePic: entity.studentProfilePic,
     );
   }
 

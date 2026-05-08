@@ -203,4 +203,23 @@ abstract interface class LecturesRepository {
     required List<TimeSlot> timeSlots,
     required List<String> subjectsOffered,
   });
+
+  // ============================================================
+  // JITSI MEETING ATTENDANCE
+  // ============================================================
+
+  /// Log attendance event (join/leave) for a lecture meeting
+  Future<Either<ServerException, void>> logAttendanceEvent({
+    required String lectureId,
+    required String participantId,
+    required String participantName,
+    required String eventType,
+    String? deviceInfo,
+    String? ipAddress,
+  });
+
+  /// Get attendance summary for a lecture
+  Future<Either<ServerException, Map<String, dynamic>>> getAttendanceSummary(
+    String lectureId,
+  );
 }

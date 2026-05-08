@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/error/server_exception.dart';
+import '../../../../core/utils/jitsi_meeting_utils.dart';
 import '../models/lecture_request_model.dart';
 import '../models/lecture_model.dart';
 import '../models/teacher_availability_model.dart';
@@ -494,6 +495,20 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
       final timeSlotMap = scheduledTime.toMap();
       print('TimeSlot map: $timeSlotMap');
       
+      // Generate Jitsi meeting room name and URL
+      // For one-time lectures, we generate a new room per lecture
+      final jitsiRoomName = JitsiMeetingUtils.generateRoomName(
+        '${assignmentId}_onetime'
+      );
+      final jitsiMeetingUrl = JitsiMeetingUtils.generateMeetingUrl(
+        roomName: jitsiRoomName,
+        displayName: 'Lecture',
+        // Additional parameters will be added by the joining user
+      );
+      
+      print('Generated Jitsi room: $jitsiRoomName');
+      print('Generated meeting URL: $jitsiMeetingUrl');
+      
       final data = {
         'assignment_id': assignmentId,
         'teacher_uid': teacherUid,
@@ -503,6 +518,8 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
         'scheduled_time': timeSlotMap,
         'is_recurring': false,
         'status': 'scheduled',
+        'jitsi_room_name': jitsiRoomName,
+        'jitsi_meeting_url': jitsiMeetingUrl,
         if (notes != null && notes.isNotEmpty) 'notes': notes,
         if (meetingLink != null && meetingLink.isNotEmpty) 'meeting_link': meetingLink,
         'attendance_marked': false,
@@ -558,6 +575,18 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
       print('Creating recurring lecture template from $startDate to $endDate, pattern: $recurrencePattern, days: $recurrenceDays');
       final seriesId = '${teacherUid}_${DateTime.now().millisecondsSinceEpoch}';
       
+      // Generate Jitsi meeting room for the entire series
+      // This ensures all instances of a recurring lecture use the same meeting room
+      final jitsiRoomName = JitsiMeetingUtils.generateRoomName(seriesId);
+      final jitsiMeetingUrl = JitsiMeetingUtils.generateMeetingUrl(
+        roomName: jitsiRoomName,
+        displayName: subject,
+        // Additional parameters will be added by the joining user
+      );
+      
+      print('Generated Jitsi room for series: $jitsiRoomName');
+      print('Generated meeting URL: $jitsiMeetingUrl');
+      
       // Create ONE template row
       final templateData = {
         'assignment_id': assignmentId,
@@ -571,6 +600,8 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
         'scheduled_time': timeSlot.toMap(),
         'is_active': true,
         'series_id': seriesId,
+        'jitsi_room_name': jitsiRoomName,
+        'jitsi_meeting_url': jitsiMeetingUrl,
         if (notes != null && notes.isNotEmpty) 'notes': notes,
         if (meetingLink != null && meetingLink.isNotEmpty) 'meeting_link': meetingLink,
       };
@@ -649,7 +680,7 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
       
       print('Creating ${datesToCreate.length} new instances');
       
-      // Create lecture instances
+      // Create lecture instances - inherit Jitsi room from template
       final lecturesData = datesToCreate.map((date) => {
         'assignment_id': template.assignmentId,
         'teacher_uid': template.teacherUid,
@@ -664,6 +695,8 @@ class LecturesRemoteDataSourceImpl implements LecturesRemoteDataSource {
         'recurrence_days': template.recurrenceDays,
         'recurrence_end_date': template.endDate?.toIso8601String().split('T')[0],
         'status': 'scheduled',
+        'jitsi_room_name': template.jitsiRoomName,
+        'jitsi_meeting_url': template.jitsiMeetingUrl,
         if (template.notes != null && template.notes!.isNotEmpty) 'notes': template.notes,
         if (template.meetingLink != null && template.meetingLink!.isNotEmpty) 'meeting_link': template.meetingLink,
         'attendance_marked': false,

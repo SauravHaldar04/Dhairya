@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:aparna_education/core/widgets/animations.dart';
-import 'package:aparna_education/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:aparna_education/features/teachers/teacher_interest/presentation/pages/teacher_interest_list_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart' hide NotificationsLoaded;
+import 'package:aparna_education/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:aparna_education/features/notifications/presentation/bloc/notifications_state.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/presentation/bloc/teacher_interest_bloc.dart';
+import 'package:aparna_education/features/teachers/teacher_interest/presentation/bloc/teacher_interest_state.dart';
+
 class TeacherHomePage extends StatefulWidget {
   final String teacherUid;
   const TeacherHomePage({super.key, required this.teacherUid});
@@ -13,8 +19,11 @@ class TeacherHomePage extends StatefulWidget {
 class _TeacherHomePageState extends State<TeacherHomePage> {
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 100), // Added bottom padding for navbar
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       child: StaggeredAnimation(
         children: [
           // Welcome Header
@@ -44,41 +53,26 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                   children: [
                     Icon(
                       Icons.waving_hand_rounded,
-                      color: Colors.white,
+                      color: cs.onPrimary,
                       size: 28,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Welcome back, Teacher!',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                        style: tt.headlineSmall?.copyWith(
+                          color: cs.onPrimary,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.notifications_active_rounded, color: Colors.white),
-                      onPressed: () {
-                        // Import navigation later
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => 
-                              NotificationsPage(userId: widget.teacherUid),
-                          ),
-                        );
-                      },
-                    ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Ready to inspire and educate today?',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
+                  style: tt.bodyMedium?.copyWith(
+                    color: cs.onPrimary.withOpacity(0.85),
                   ),
                 ),
               ],
@@ -87,63 +81,99 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
           
           const SizedBox(height: 24),
           
-          // Quick Stats Row
+          // Stats
           Row(
             children: [
               Expanded(
+                child: BlocBuilder<NotificationsBloc, NotificationsState>(
+                  builder: (context, state) {
+                    final unread = state is NotificationsLoaded
+                        ? state.notifications.where((n) => !n.isRead).length
+                        : 0;
+                    return _buildStatCard(
+                      icon: Icons.notifications_rounded,
+                      title: 'Unread',
+                      value: unread.toString(),
+                      color: cs.primary,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: BlocBuilder<TeacherInterestBloc, TeacherInterestState>(
+                  builder: (context, state) {
+                    final pending = state is TeacherInterestLoaded
+                        ? state.interests.length
+                        : 0;
+                    return _buildStatCard(
+                      icon: Icons.assignment_ind_rounded,
+                      title: 'Opportunities',
+                      value: pending.toString(),
+                      color: cs.secondary,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Row(
+            children: [
+              Expanded(
+                child: BlocBuilder<LecturesBloc, LecturesState>(
+                  builder: (context, state) {
+                    final count = state is UpcomingLecturesLoaded
+                        ? state.lectures.length
+                        : null;
+                    return _buildStatCard(
+                      icon: Icons.event_rounded,
+                      title: 'Upcoming (7d)',
+                      value: count?.toString() ?? '—',
+                      color: cs.tertiary,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+
+          // Students count (full width)
+          BlocBuilder<LecturesBloc, LecturesState>(
+            builder: (context, state) {
+              int studentsCount = 0;
+              if (state is TeacherAssignmentsLoaded) {
+                final ids = state.assignments
+                  .where((a) => a.teacherUid == widget.teacherUid)
+                  .map((a) => a.studentUid)
+                  .toSet();
+                studentsCount = ids.length;
+              }
+              return Expanded(
+                //padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
                 child: _buildStatCard(
                   icon: Icons.school_rounded,
                   title: 'Students',
-                  value: '0',
-                  color: Colors.blue,
+                  value: studentsCount > 0 ? studentsCount.toString() : '—',
+                  color: cs.primary,
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.class_rounded,
-                  title: 'Classes',
-                  value: '0',
-                  color: Colors.green,
-                ),
-              ),
+              );
+            },
+          ),
             ],
           ),
+          
+          
+
+          const SizedBox(height: 16),
           
           const SizedBox(height: 16),
           
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.assignment_rounded,
-                  title: 'Assignments',
-                  value: '0',
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.event_rounded,
-                  title: 'Lectures',
-                  value: '0',
-                  color: Colors.purple,
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          
           // Quick Actions
-          const Text(
+          Text(
             'Quick Actions',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+            style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           
           const SizedBox(height: 16),
@@ -152,7 +182,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             icon: Icons.group_add_rounded,
             title: 'Add Students',
             subtitle: 'Enroll new students to your classes',
-            color: Theme.of(context).colorScheme.primary,
+            color: cs.primary,
           ),
           
           const SizedBox(height: 12),
@@ -161,7 +191,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             icon: Icons.video_call_rounded,
             title: 'Start Lecture',
             subtitle: 'Begin a live session with your students',
-            color: Theme.of(context).colorScheme.secondary,
+            color: cs.secondary,
           ),
           
           const SizedBox(height: 12),
@@ -170,7 +200,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             icon: Icons.assignment_rounded,
             title: 'Create Assignment',
             subtitle: 'Design new homework or projects',
-            color: Colors.green,
+            color: cs.tertiary,
           ),
           
           const SizedBox(height: 12),
@@ -179,7 +209,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             icon: Icons.assignment_ind_rounded,
             title: 'Teaching Opportunities',
             subtitle: 'View and accept new student requests',
-            color: Colors.deepPurple,
+            color: cs.secondary,
             onTap: () {
               Navigator.push(
                 context,
@@ -201,6 +231,9 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     required String value,
     required Color color,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return AnimatedCard(
       child: Column(
         children: [
@@ -219,19 +252,12 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -245,6 +271,9 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     required Color color,
     VoidCallback? onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return AnimatedCard(
       onTap: onTap ?? () {},
       child: Row(
@@ -268,19 +297,12 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
             ),
@@ -288,7 +310,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
           Icon(
             Icons.arrow_forward_ios_rounded,
             size: 16,
-            color: Colors.grey.shade400,
+            color: cs.onSurfaceVariant.withOpacity(0.7),
           ),
         ],
       ),

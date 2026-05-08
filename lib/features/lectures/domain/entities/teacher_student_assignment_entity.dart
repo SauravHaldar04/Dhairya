@@ -18,6 +18,7 @@ class TeacherStudentAssignment {
   final String? studentLastName;
   final String? studentStandard;
   final String? studentBoard;
+  final String? studentProfilePic;
 
   const TeacherStudentAssignment({
     required this.id,
@@ -37,6 +38,7 @@ class TeacherStudentAssignment {
     this.studentLastName,
     this.studentStandard,
     this.studentBoard,
+    this.studentProfilePic,
   });
   
   String get studentFullName {
@@ -59,6 +61,7 @@ class TeacherStudentAssignment {
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? studentProfilePic,
   }) {
     return TeacherStudentAssignment(
       id: id ?? this.id,
@@ -73,6 +76,7 @@ class TeacherStudentAssignment {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      studentProfilePic: studentProfilePic ?? this.studentProfilePic,
     );
   }
 }

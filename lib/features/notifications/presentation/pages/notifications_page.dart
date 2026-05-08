@@ -47,17 +47,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return InkWell(
       onTap: () => _onNotificationTap(notification),
       child: Container(
-        color: isUnread ? Theme.of(context).colorScheme.primary.withOpacity(0.05) : Colors.transparent,
+        color: isUnread ? Theme.of(context).colorScheme.primary.withOpacity(0.06) : Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: isUnread ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
+              backgroundColor: isUnread ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceVariant,
               radius: 20,
               child: Icon(
                 Icons.notifications,
-                color: isUnread ? Colors.white : Colors.grey.shade700,
+                color: isUnread ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
             ),
@@ -70,7 +70,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     notification.title,
                     style: TextStyle(
                       fontWeight: isUnread ? FontWeight.bold : FontWeight.w600,
-                      color: isUnread ? Colors.black87 : Colors.grey.shade800,
+                      color: isUnread ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                     ),
                   ),
@@ -78,7 +78,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Text(
                     notification.message,
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -86,7 +86,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   Text(
                     _formatTimeAgo(notification.createdAt),
                     style: TextStyle(
-                      color: Colors.grey.shade500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),

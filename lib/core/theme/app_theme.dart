@@ -138,6 +138,49 @@ class AppTheme {
         ),
       ),
 
+      // ── Navigation Rail (M3) ───────────────────────────────────
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        selectedIconTheme: IconThemeData(color: colorScheme.primary),
+        unselectedIconTheme: IconThemeData(
+          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+        ),
+        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelTextStyle: textTheme.labelMedium?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+        ),
+        indicatorColor: colorScheme.primary.withOpacity(0.12),
+      ),
+
+      // ── Navigation Drawer (M3) ─────────────────────────────────
+      navigationDrawerTheme: NavigationDrawerThemeData(
+        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: colorScheme.primary.withOpacity(0.12),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return textTheme.labelLarge?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            );
+          }
+          return textTheme.labelLarge?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return IconThemeData(color: colorScheme.primary);
+          }
+          return IconThemeData(color: colorScheme.onSurfaceVariant);
+        }),
+      ),
+
       // ── Cards ──────────────────────────────────────────────────
       cardTheme: CardThemeData(
         elevation: isDark ? elevationSm : elevationMd,

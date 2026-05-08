@@ -18,6 +18,10 @@ class RecurringLectureTemplate {
   final String? notes;
   final String? meetingLink;
   
+  // Jitsi Meeting Configuration (same for all instances in series)
+  final String? jitsiRoomName;
+  final String? jitsiMeetingUrl;
+  
   // Notification settings
   final bool notificationEnabled;
   final int notificationMinutesBefore; // e.g., 10 for 10 minutes before
@@ -43,6 +47,8 @@ class RecurringLectureTemplate {
     required this.scheduledTime,
     this.notes,
     this.meetingLink,
+    this.jitsiRoomName,
+    this.jitsiMeetingUrl,
     this.notificationEnabled = true,
     this.notificationMinutesBefore = 10,
     this.isActive = true,
@@ -87,6 +93,8 @@ class RecurringLectureTemplate {
     TimeSlot? scheduledTime,
     String? notes,
     String? meetingLink,
+    String? jitsiRoomName,
+    String? jitsiMeetingUrl,
     bool? notificationEnabled,
     int? notificationMinutesBefore,
     bool? isActive,
@@ -107,6 +115,8 @@ class RecurringLectureTemplate {
       scheduledTime: scheduledTime ?? this.scheduledTime,
       notes: notes ?? this.notes,
       meetingLink: meetingLink ?? this.meetingLink,
+      jitsiRoomName: jitsiRoomName ?? this.jitsiRoomName,
+      jitsiMeetingUrl: jitsiMeetingUrl ?? this.jitsiMeetingUrl,
       notificationEnabled: notificationEnabled ?? this.notificationEnabled,
       notificationMinutesBefore: notificationMinutesBefore ?? this.notificationMinutesBefore,
       isActive: isActive ?? this.isActive,

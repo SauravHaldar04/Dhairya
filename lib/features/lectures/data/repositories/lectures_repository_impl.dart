@@ -10,13 +10,16 @@ import '../../domain/entities/lecture_notification_entity.dart';
 import '../../domain/entities/time_slot_entity.dart';
 import '../../domain/repositories/lectures_repository.dart';
 import '../datasources/lectures_remote_datasource.dart';
+import '../datasources/lecture_attendance_data_source.dart';
 
 class LecturesRepositoryImpl implements LecturesRepository {
   final LecturesRemoteDataSource remoteDataSource;
+  final LectureAttendanceDataSource attendanceDataSource;
   final CheckInternetConnection checkInternetConnection;
 
   const LecturesRepositoryImpl(
     this.remoteDataSource,
+    this.attendanceDataSource,
     this.checkInternetConnection,
   );
 
@@ -367,6 +370,38 @@ class LecturesRepositoryImpl implements LecturesRepository {
       );
       return models.map((model) => model.toEntity()).toList();
     });
+  }
+
+  // ============================================================
+  // JITSI MEETING ATTENDANCE
+  // ============================================================
+
+  @override
+  Future<Either<ServerException, void>> logAttendanceEvent({
+    required String lectureId,
+    required String participantId,
+    required String participantName,
+    required String eventType,
+    String? deviceInfo,
+    String? ipAddress,
+  }) async {
+    return _handleRequest(() => attendanceDataSource.logAttendanceEvent(
+          lectureId: lectureId,
+          participantId: participantId,
+          participantName: participantName,
+          eventType: eventType,
+          deviceInfo: deviceInfo,
+          ipAddress: ipAddress,
+        ));
+  }
+
+  @override
+  Future<Either<ServerException, Map<String, dynamic>>> getAttendanceSummary(
+    String lectureId,
+  ) async {
+    return _handleRequest(
+      () => attendanceDataSource.getAttendanceSummary(lectureId),
+    );
   }
 
   // ============================================================

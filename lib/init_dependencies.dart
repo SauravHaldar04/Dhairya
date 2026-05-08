@@ -2,6 +2,7 @@ import 'package:aparna_education/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:aparna_education/core/network/check_internet_connection.dart';
 import 'package:aparna_education/core/services/fcm_service.dart';
 import 'package:aparna_education/features/lectures/data/datasources/lectures_remote_datasource.dart';
+import 'package:aparna_education/features/lectures/data/datasources/lecture_attendance_data_source.dart';
 import 'package:aparna_education/features/lectures/data/repositories/lectures_repository_impl.dart';
 import 'package:aparna_education/features/lectures/domain/repositories/lectures_repository.dart';
 import 'package:aparna_education/features/lectures/domain/usecases/get_templates.dart';
@@ -10,6 +11,7 @@ import 'package:aparna_education/features/lectures/domain/usecases/delete_templa
 import 'package:aparna_education/features/lectures/domain/usecases/materialize_lecture.dart';
 import 'package:aparna_education/features/lectures/domain/usecases/schedule_lecture_notification.dart';
 import 'package:aparna_education/features/lectures/domain/usecases/get_lecture_notifications.dart';
+import 'package:aparna_education/features/lectures/domain/usecases/attendance_usecases.dart';
 import 'package:aparna_education/features/lectures/presentation/bloc/lectures_bloc.dart';
 import 'package:aparna_education/features/notifications/data/datasources/notification_local_data_source.dart';
 import 'package:aparna_education/features/notifications/data/datasources/notification_remote_data_source.dart';
@@ -376,10 +378,16 @@ void _initLectures() {
         serviceLocator<SupabaseClient>(),
       ),
     )
+    ..registerFactory<LectureAttendanceDataSource>(
+      () => LectureAttendanceDataSourceImpl(
+        serviceLocator<SupabaseClient>(),
+      ),
+    )
     ..registerFactory<LecturesRepository>(
       () => LecturesRepositoryImpl(
-         serviceLocator(),
-         serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
+        serviceLocator(),
       ),
     )
     // Use Cases - Template Management
@@ -401,6 +409,13 @@ void _initLectures() {
     )
     ..registerFactory(
       () => GetLectureNotifications(serviceLocator()),
+    )
+    // Use Cases - Attendance
+    ..registerFactory(
+      () => LogAttendanceEventUsecase(serviceLocator()),
+    )
+    ..registerFactory(
+      () => GetAttendanceSummaryUsecase(serviceLocator()),
     )
     // BLoC
     ..registerLazySingleton(

@@ -86,111 +86,114 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                     children: [
                       // Action Buttons Row
                       if (teacher != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ScaleInAnimation(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.edit_rounded,
-                                    color: Colors.white,
+                        Builder(builder: (context) {
+                          final cs = Theme.of(context).colorScheme;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ScaleInAnimation(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: cs.onPrimary.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  onPressed: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EditTeacherProfilePage(
-                                          teacher: teacher,
+                                  child: IconButton(
+                                    icon: Icon(
+                                      Icons.edit_rounded,
+                                      color: cs.onPrimary,
+                                    ),
+                                    onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditTeacherProfilePage(
+                                            teacher: teacher,
+                                          ),
+                                        ),
+                                      );
+                                      if (result == true) {
+                                        // Refresh profile data after edit
+                                        context.read<ProfileBloc>().add(GetCurrentUser());
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ScaleInAnimation(
+                                delay: const Duration(milliseconds: 100),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: cs.onPrimary.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: PopupMenuButton<String>(
+                                    icon: Icon(
+                                      Icons.more_vert,
+                                      color: cs.onPrimary,
+                                    ),
+                                    onSelected: (value) async {
+                                      if (value == 'logout') {
+                                        _showLogoutDialog();
+                                      } else if (value == 'refresh') {
+                                        context.read<ProfileBloc>().add(GetCurrentUser());
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem(
+                                        value: 'refresh',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.refresh, size: 20, color: cs.onSurface),
+                                            const SizedBox(width: 12),
+                                            Text('Refresh', style: TextStyle(color: cs.onSurface)),
+                                          ],
                                         ),
                                       ),
-                                    );
-                                    if (result == true) {
-                                      // Refresh profile data after edit
-                                      context.read<ProfileBloc>().add(GetCurrentUser());
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            ScaleInAnimation(
-                              delay: const Duration(milliseconds: 100),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: PopupMenuButton<String>(
-                                  icon: const Icon(
-                                    Icons.more_vert,
-                                    color: Colors.white,
+                                      PopupMenuItem(
+                                        value: 'logout',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.logout, color: cs.error, size: 20),
+                                            const SizedBox(width: 12),
+                                            Text('Logout', style: TextStyle(color: cs.error)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  onSelected: (value) async {
-                                    if (value == 'logout') {
-                                      _showLogoutDialog();
-                                    } else if (value == 'refresh') {
-                                      context.read<ProfileBloc>().add(GetCurrentUser());
-                                    }
-                                  },
-                                  itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                      value: 'refresh',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.refresh, size: 20),
-                                          SizedBox(width: 12),
-                                          Text('Refresh'),
-                                        ],
-                                      ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: 'logout',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.logout, color: Colors.red, size: 20),
-                                          SizedBox(width: 12),
-                                          Text('Logout', style: TextStyle(color: Colors.red)),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          );
+                        }),
                       const SizedBox(height: 16),
                       Stack(
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 4),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Theme.of(context).colorScheme.onPrimary, width: 4),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
                             child: teacher?.profilePic != null && teacher!.profilePic.isNotEmpty
                                 ? CircleAvatar(
                                     radius: 50,
                                     backgroundImage: NetworkImage(teacher.profilePic),
                                   )
-                                : const CircleAvatar(
+                                : CircleAvatar(
                                     radius: 50,
-                                    backgroundColor: Colors.white,
+                                    backgroundColor: Theme.of(context).colorScheme.surface,
                                     child: Icon(
                                       Icons.person,
                                       size: 50,
-                                      color: Colors.grey,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                           ),
@@ -199,11 +202,11 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                             right: 0,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.surface,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -226,35 +229,25 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                         teacher != null
                             ? '${teacher.firstName} ${teacher.middleName} ${teacher.lastName}'
                             : 'Teacher Name',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         teacher?.email ?? 'teacher@example.com',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white70,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9)),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           teacher != null && teacher.subjects.isNotEmpty
                               ? '${teacher.subjects.join(", ")} Teacher'
                               : 'Teacher',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.w500),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -263,11 +256,11 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(teacher.verificationStatus).withOpacity(0.9),
+                            color: _getStatusColor(teacher.verificationStatus),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: _getStatusColor(teacher.verificationStatus).withOpacity(0.3),
+                                color: _getStatusColor(teacher.verificationStatus).withOpacity(0.18),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -278,17 +271,13 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                             children: [
                               Icon(
                                 _getStatusIcon(teacher.verificationStatus),
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 18,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 _getStatusText(teacher.verificationStatus),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                             ],
                           ),
@@ -360,24 +349,15 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.grey.shade50,
-                        Colors.grey.shade100,
-                      ],
-                    ),
+                    color: Theme.of(context).colorScheme.surfaceVariant,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Your Teaching Stats',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -428,51 +408,38 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
   }) {
     return AnimatedCard(
       onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+      child: Builder(builder: (context) {
+        final tt = Theme.of(context).textTheme;
+        final cs = Theme.of(context).colorScheme;
+        return Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 24,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.w600, color: cs.onSurface)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: 16,
-            color: Colors.grey.shade400,
-          ),
-        ],
-      ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: cs.onSurfaceVariant),
+          ],
+        );
+      }),
     );
   }
 
@@ -482,39 +449,26 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
     required String label,
     required Color color,
   }) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+    return Builder(builder: (context) {
+      final tt = Theme.of(context).textTheme;
+      final cs = Theme.of(context).colorScheme;
+      return Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 20,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
-        ),
-      ],
-    );
+          const SizedBox(height: 8),
+          Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface)),
+          const SizedBox(height: 2),
+          Text(label, style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+        ],
+      );
+    });
   }
 
   // Helper methods for verification status
